@@ -13,6 +13,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.contrib.auth.models import User
 
 
 PROTO_TYPE = (
@@ -111,6 +112,7 @@ class ADCM(models.Model):
 
 class Cluster(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)    
     name = models.CharField(max_length=80, unique=True)
     description = models.TextField(blank=True)
     config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)

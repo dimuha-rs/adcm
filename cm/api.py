@@ -40,13 +40,13 @@ def check_proto_type(proto, check_type):
         err('OBJ_TYPE_ERROR', msg.format(check_type, proto.type))
 
 
-def add_cluster(proto, name, desc=''):
+def add_cluster(proto, name, owner, desc=''):
     check_proto_type(proto, 'cluster')
     check_license(proto.bundle)
     spec, _, conf, attr = get_prototype_config(proto)
     with transaction.atomic():
         obj_conf = init_object_config(spec, conf, attr)
-        cluster = Cluster(prototype=proto, name=name, config=obj_conf, description=desc)
+        cluster = Cluster(prototype=proto, owner=owner, name=name, config=obj_conf, description=desc)
         cluster.save()
         process_file_type(cluster, spec, conf)
         cm.issue.save_issue(cluster)

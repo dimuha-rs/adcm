@@ -12,6 +12,7 @@
 
 from itertools import chain
 
+import rest_framework
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
@@ -66,6 +67,21 @@ class ClusterList(PageViewAdd):
     ordering_fields = ('name', 'state', 'prototype__display_name', 'prototype__version_order')
 
 
+class MyPerm(rest_framework.permissions.BasePermission):
+    """
+    Object-level permission to only allow owners of an object to edit it.
+    Assumes the model instance has an `owner` attribute.
+    """
+
+    def has_permission(self, request, view):
+        log.debug('QQ perm %s', request)
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        log.debug('QQ obj %s, user %s', obj, request.user)
+        return obj.owner == request.user
+
+
 class ClusterDetail(DetailViewDelete):
     """
     get:
@@ -77,6 +93,7 @@ class ClusterDetail(DetailViewDelete):
     lookup_field = 'id'
     lookup_url_kwarg = 'cluster_id'
     error_code = 'CLUSTER_NOT_FOUND'
+    permission_classes = (MyPerm,)
 
     def patch(self, request, *args, **kwargs):
         """

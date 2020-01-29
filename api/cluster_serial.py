@@ -61,10 +61,12 @@ class ClusterSerializer(serializers.Serializer):
         return cluster
 
     def create(self, validated_data):
+        owner = self.context['request'].user
         try:
             return cm.api.add_cluster(
                 validated_data.get('prototype_id'),
                 validated_data.get('name'),
+                owner,
                 validated_data.get('description', ''),
             )
         except Prototype.DoesNotExist:

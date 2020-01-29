@@ -139,7 +139,7 @@ class UserSerializer(serializers.Serializer):
             user = User.objects.create_user(
                 validated_data.get('username'),
                 password=validated_data.get('password'),
-                is_superuser=True
+                is_superuser=False
             )
             UserProfile.objects.create(login=validated_data.get('username'))
             return user
