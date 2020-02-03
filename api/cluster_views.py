@@ -67,19 +67,17 @@ class ClusterList(PageViewAdd):
     ordering_fields = ('name', 'state', 'prototype__display_name', 'prototype__version_order')
 
 
-class MyPerm(rest_framework.permissions.BasePermission):
-    """
-    Object-level permission to only allow owners of an object to edit it.
-    Assumes the model instance has an `owner` attribute.
-    """
-
+class AddServicePerm(rest_framework.permissions.BasePermission):
     def has_permission(self, request, view):
         log.debug('QQ perm %s', request)
         return True
 
     def has_object_permission(self, request, view, obj):
         log.debug('QQ obj %s, user %s', obj, request.user)
-        return obj.owner == request.user
+        # return obj.owner == request.user
+        if request.method == 'POST':
+            return request.user.has_perm('add_service', obj)
+        return True
 
 
 class ClusterDetail(DetailViewDelete):
@@ -93,7 +91,6 @@ class ClusterDetail(DetailViewDelete):
     lookup_field = 'id'
     lookup_url_kwarg = 'cluster_id'
     error_code = 'CLUSTER_NOT_FOUND'
-    permission_classes = (MyPerm,)
 
     def patch(self, request, *args, **kwargs):
         """
@@ -592,6 +589,7 @@ class ClusterServiceList(PageView):
     serializer_class = api.cluster_serial.ClusterServiceSerializer
     serializer_class_ui = api.cluster_serial.ClusterServiceUISerializer
     ordering_fields = ('state', 'prototype__display_name', 'prototype__version_order')
+    permission_classes = (AddServicePerm,)
 
     def get(self, request, cluster_id):   # pylint: disable=arguments-differ
         """
@@ -606,6 +604,7 @@ class ClusterServiceList(PageView):
         Add service to specified cluster
         """
         cluster = check_obj(Cluster, cluster_id, 'CLUSTER_NOT_FOUND')
+        self.check_object_permissions(request, cluster)
         serializer = self.serializer_class(data=request.data, context={
             'request': request, 'cluster': cluster,
         })

@@ -13,6 +13,7 @@
 import json
 
 from django.test import TestCase
+from django.contrib.auth.models import User
 
 import cm.api
 import cm.job
@@ -124,7 +125,12 @@ class SetUp():
 
     def cook_cluster(self, bundle, name):
         cp = Prototype.objects.get(type="cluster", bundle=bundle)
-        cluster = cm.api.add_cluster(cp, name)
+        try:
+            joe = User.objects.get(username='joe')
+        except User.DoesNotExist:
+            joe = User(username='joe')
+            joe.save()
+        cluster = cm.api.add_cluster(cp, name, joe)
         sp2 = Prototype.objects.get(type="service", name="hive", bundle=bundle)
         cm.api.add_service_to_cluster(cluster, sp2)
         sp1 = Prototype.objects.get(type="service", name="hadoop", bundle=bundle)

@@ -26,6 +26,7 @@ Including another URLconf
 """
 from django.urls import path
 from django.conf.urls import include
+from django.contrib import admin
 
 import api.urls
 import cm.views
@@ -37,6 +38,8 @@ urlpatterns = [
     path('cm/ws_test/<ws_type>/', cm.views.ws_test),
     path('cm/ws_test/<ws_type>/<dev>/', cm.views.ws_test),
     path('cm/error/<msg>/', cm.views.error),
+
+    path('admin/', admin.site.urls),
 
     path('social/complete/google-oauth2/', cm.views.complete),
     path('social/', include('social_django.urls', namespace='social')),

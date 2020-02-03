@@ -14,3 +14,22 @@ from __future__ import unicode_literals
 
 # from django.contrib import admin
 # Register your models here.
+
+from django.contrib import admin
+from guardian.admin import GuardedModelAdmin
+from cm.models import Cluster
+
+
+class ClusterAdmin(GuardedModelAdmin):
+    list_display = ['name', 'prototype', 'owner']
+    readonly_fields = ['name', 'prototype', 'description']
+    exclude = ['config', 'state', 'stack', 'issue']
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+admin.site.register(Cluster, ClusterAdmin)

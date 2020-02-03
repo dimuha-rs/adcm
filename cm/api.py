@@ -14,6 +14,7 @@ import json
 
 from django.db import IntegrityError, transaction
 from django.utils import timezone
+from guardian.shortcuts import assign_perm
 
 import cm.errors
 import cm.issue
@@ -46,8 +47,11 @@ def add_cluster(proto, name, owner, desc=''):
     spec, _, conf, attr = get_prototype_config(proto)
     with transaction.atomic():
         obj_conf = init_object_config(spec, conf, attr)
-        cluster = Cluster(prototype=proto, owner=owner, name=name, config=obj_conf, description=desc)
+        cluster = Cluster(
+            prototype=proto, owner=owner, name=name, config=obj_conf, description=desc
+        )
         cluster.save()
+        assign_perm('add_service', owner, cluster)
         process_file_type(cluster, spec, conf)
         cm.issue.save_issue(cluster)
     cm.status_api.post_event('create', 'cluster', cluster.id)

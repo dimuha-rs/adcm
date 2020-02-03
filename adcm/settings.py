@@ -78,6 +78,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'social_django',
     'django_extensions',
+    'guardian',
+    'django.contrib.admin',
 ]
 
 MIDDLEWARE = [
@@ -158,6 +160,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'social_core.backends.google.GoogleOAuth2',
+    'guardian.backends.ObjectPermissionBackend',
 )
 
 SOCIAL_AUTH_PIPELINE = (
@@ -197,6 +200,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'wwwroot/static/')
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static/'),
     # Put strings here, like "/home/html/static"
     # Don't forget to use absolute paths, not relative paths.
 )

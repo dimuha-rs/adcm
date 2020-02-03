@@ -34,6 +34,7 @@ LICENSE_STATE = (
 
 class Bundle(models.Model):
     name = models.CharField(max_length=160)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     version = models.CharField(max_length=80)
     version_order = models.PositiveIntegerField(default=0)
     edition = models.CharField(max_length=80, default='community')
@@ -112,13 +113,18 @@ class ADCM(models.Model):
 
 class Cluster(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)    
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=80, unique=True)
     description = models.TextField(blank=True)
     config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)
     state = models.CharField(max_length=64, default='created')
     stack = models.TextField(blank=True)   # JSON
     issue = models.TextField(blank=True)   # JSON
+
+    class Meta:
+        permissions = (
+            ('add_service', 'Add service to cluster'),
+        )
 
     def __str__(self):
         return self.name
@@ -127,6 +133,7 @@ class Cluster(models.Model):
 class HostProvider(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
     name = models.CharField(max_length=80, unique=True)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     description = models.TextField(blank=True)
     config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)
     state = models.CharField(max_length=64, default='created')
@@ -140,6 +147,7 @@ class HostProvider(models.Model):
 class Host(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
     fqdn = models.CharField(max_length=160)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     description = models.TextField(blank=True)
     provider = models.ForeignKey(HostProvider, on_delete=models.CASCADE, null=True, default=None)
     cluster = models.ForeignKey(Cluster, on_delete=models.SET_NULL, null=True, default=None)
@@ -154,6 +162,7 @@ class Host(models.Model):
 
 class ClusterObject(models.Model):
     cluster = models.ForeignKey(Cluster, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
     config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)
     state = models.CharField(max_length=64, default='created')

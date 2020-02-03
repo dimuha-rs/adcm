@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'api.apps.APIConfig',
     'corsheaders',
     'rest_framework.authtoken',
+    'guardian',
 ]
 
 MIDDLEWARE = [

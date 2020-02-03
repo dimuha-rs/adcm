@@ -6,6 +6,8 @@ django-cors-headers
 django-filter
 django-rest-swagger
 djangorestframework
+django-guardian
+django-tools
 social-auth-app-django
 git+git://github.com/arenadata/django-generate-secret-key.git
 jinja2
