@@ -22,7 +22,8 @@ import cm.config as config
 
 
 def get_body(job, name, type_log, format_log):
-    file_path = os.path.join(config.LOG_DIR, f'{job.id}-{name}-{type_log}.{format_log}')
+    file_path = os.path.join(config.LOG_DIR,
+                             f'{job.id}-{name}-{type_log}.{format_log}')
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             body = f.read()
@@ -37,18 +38,25 @@ def add_logs(apps, schema_editor):
 
     jobs = JobLog.objects.all()
     for job in jobs:
-        LogStorage.objects.create(
-            job=job, name='ansible', type='stdout', format='txt',
-            body=get_body(job, 'ansible', 'out', 'txt'))
-        LogStorage.objects.create(
-            job=job, name='ansible', type='stderr', format='txt',
-            body=get_body(job, 'ansible', 'err', 'txt'))
+        LogStorage.objects.create(job=job,
+                                  name='ansible',
+                                  type='stdout',
+                                  format='txt',
+                                  body=get_body(job, 'ansible', 'out', 'txt'))
+        LogStorage.objects.create(job=job,
+                                  name='ansible',
+                                  type='stderr',
+                                  format='txt',
+                                  body=get_body(job, 'ansible', 'err', 'txt'))
         try:
             log_files = job.log_files
             if 'check' in log_files:
-                LogStorage.objects.create(
-                    job=job, name='ansible', type='check', format='json',
-                    body=get_body(job, 'check', 'out', 'json'))
+                LogStorage.objects.create(job=job,
+                                          name='ansible',
+                                          type='check',
+                                          format='json',
+                                          body=get_body(
+                                              job, 'check', 'out', 'json'))
         except json.JSONDecodeError:
             pass
 
@@ -82,12 +90,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='LogStorage',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id',
+                 models.AutoField(auto_created=True,
+                                  primary_key=True,
+                                  serialize=False,
+                                  verbose_name='ID')),
                 ('name', models.TextField(default='')),
                 ('body', models.TextField(blank=True, null=True)),
-                ('type', models.CharField(choices=[('stdout', 'stdout'), ('stderr', 'stderr'), ('check', 'check'), ('custom', 'custom')], max_length=16)),
-                ('format', models.CharField(choices=[('txt', 'txt'), ('json', 'json')], max_length=16)),
-                ('job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='cm.JobLog')),
+                ('type',
+                 models.CharField(choices=[('stdout', 'stdout'),
+                                           ('stderr', 'stderr'),
+                                           ('check', 'check'),
+                                           ('custom', 'custom')],
+                                  max_length=16)),
+                ('format',
+                 models.CharField(choices=[('txt', 'txt'), ('json', 'json')],
+                                  max_length=16)),
+                ('job',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                   to='cm.JobLog')),
             ],
         ),
         migrations.RunPython(add_logs, remove_logs),

@@ -12,7 +12,7 @@
 
 from rest_framework import serializers
 
-from cm.logger import log   # pylint: disable=unused-import
+from cm.logger import log  # pylint: disable=unused-import
 import cm.config as config
 from cm.models import ClusterObject, Prototype, Bundle
 from api.serializers import hlink, UrlField
@@ -95,7 +95,7 @@ class PrototypeSerializer(serializers.Serializer):
 class PrototypeShort(serializers.ModelSerializer):
     class Meta:
         model = Prototype
-        fields = ('name',)
+        fields = ('name', )
 
 
 class ComponentSerializer(serializers.Serializer):

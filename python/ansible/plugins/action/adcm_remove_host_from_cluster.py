@@ -68,14 +68,14 @@ class ActionModule(ActionBase):
 
         context = get_context(task_vars)
         if 'cluster_id' not in context:
-            raise AnsibleError('You can remove host only in cluster or service context')
+            raise AnsibleError(
+                'You can remove host only in cluster or service context')
         cluster_id = context['cluster_id']
         fqdn = self._task.args.get('fqdn', None)
         host_id = self._task.args.get('host_id', None)
 
-        log.info(
-            'ansible module: cluster_id %s, fqdn %s, host_id: %s', cluster_id, fqdn, host_id
-        )
+        log.info('ansible module: cluster_id %s, fqdn %s, host_id: %s',
+                 cluster_id, fqdn, host_id)
         try:
             cm.api.remove_host_from_cluster_by_id(cluster_id, fqdn, host_id)
         except AdcmEx as e:

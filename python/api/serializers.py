@@ -28,10 +28,9 @@ import cm.status_api
 import cm.adcm_config
 from cm.api import safe_api
 from cm.errors import AdcmApiEx, AdcmEx
-from cm.models import (
-    Action, SubAction, Prototype, PrototypeConfig, JobLog, UserProfile, Upgrade, HostProvider,
-    ConfigLog, Role, Host, Cluster, ClusterObject
-)
+from cm.models import (Action, SubAction, Prototype, PrototypeConfig, JobLog,
+                       UserProfile, Upgrade, HostProvider, ConfigLog, Role,
+                       Host, Cluster, ClusterObject)
 
 
 def check_obj(model, req, error):
@@ -61,9 +60,8 @@ def filter_actions(obj, actions_set):
             elif obj.state in available:
                 filtered.append(act)
     for act in actions_set:
-        act.config = PrototypeConfig.objects.filter(
-            prototype=act.prototype, action=act
-        ).order_by('id')
+        act.config = PrototypeConfig.objects.filter(prototype=act.prototype,
+                                                    action=act).order_by('id')
     return filtered
 
 
@@ -77,14 +75,15 @@ def get_config_version(objconf, version):
     try:
         cl = ConfigLog.objects.get(obj_ref=objconf, id=ver)
     except ConfigLog.DoesNotExist:
-        raise AdcmApiEx('CONFIG_NOT_FOUND', "config version doesn't exist") from None
+        raise AdcmApiEx('CONFIG_NOT_FOUND',
+                        "config version doesn't exist") from None
     return cl
 
 
 def hlink(view, lookup, lookup_url):
-    return serializers.HyperlinkedIdentityField(
-        view_name=view, lookup_field=lookup, lookup_url_kwarg=lookup_url
-    )
+    return serializers.HyperlinkedIdentityField(view_name=view,
+                                                lookup_field=lookup,
+                                                lookup_url_kwarg=lookup_url)
 
 
 class JSONField(serializers.JSONField):
@@ -109,17 +108,18 @@ class UrlField(serializers.HyperlinkedIdentityField):
     def get_kwargs(self, obj):
         return {}
 
-    def get_url(self, obj, view_name, request, format):		# pylint: disable=redefined-builtin
+    def get_url(self, obj, view_name, request, format):  # pylint: disable=redefined-builtin
         kwargs = self.get_kwargs(obj)
-        return reverse(self.view_name, kwargs=kwargs, request=request, format=format)
+        return reverse(self.view_name,
+                       kwargs=kwargs,
+                       request=request,
+                       format=format)
 
 
 class AuthSerializer(rest_framework.authtoken.serializers.AuthTokenSerializer):
     def validate(self, attrs):
-        user = django.contrib.auth.authenticate(
-            username=attrs.get('username'),
-            password=attrs.get('password')
-        )
+        user = django.contrib.auth.authenticate(username=attrs.get('username'),
+                                                password=attrs.get('password'))
         if not user:
             raise AdcmApiEx('AUTH_ERROR', 'Wrong user or password')
         attrs['user'] = user
@@ -183,8 +183,7 @@ class UserSerializer(serializers.Serializer):
             user = User.objects.create_user(
                 validated_data.get('username'),
                 password=validated_data.get('password'),
-                is_superuser=validated_data.get('is_superuser', True)
-            )
+                is_superuser=validated_data.get('is_superuser', True))
             UserProfile.objects.create(login=validated_data.get('username'))
             return user
         except IntegrityError:
@@ -200,8 +199,9 @@ class UserDetailSerializer(UserSerializer):
 class AddUser2GroupSerializer(serializers.Serializer):
     name = serializers.CharField()
 
-    def update(self, user, validated_data):   # pylint: disable=arguments-differ
-        group = check_obj(Group, {'name': validated_data.get('name')}, 'GROUP_NOT_FOUND')
+    def update(self, user, validated_data):  # pylint: disable=arguments-differ
+        group = check_obj(Group, {'name': validated_data.get('name')},
+                          'GROUP_NOT_FOUND')
         group.user_set.add(user)
         return group
 
@@ -210,8 +210,9 @@ class AddUserRoleSerializer(serializers.Serializer):
     role_id = serializers.IntegerField()
     name = serializers.CharField(read_only=True)
 
-    def update(self, user, validated_data):   # pylint: disable=arguments-differ
-        role = check_obj(Role, {'id': validated_data.get('role_id')}, 'ROLE_NOT_FOUND')
+    def update(self, user, validated_data):  # pylint: disable=arguments-differ
+        role = check_obj(Role, {'id': validated_data.get('role_id')},
+                         'ROLE_NOT_FOUND')
         return safe_api(cm.api.add_user_role, (user, role))
 
 
@@ -219,8 +220,9 @@ class AddGroupRoleSerializer(serializers.Serializer):
     role_id = serializers.IntegerField()
     name = serializers.CharField(read_only=True)
 
-    def update(self, group, validated_data):   # pylint: disable=arguments-differ
-        role = check_obj(Role, {'id': validated_data.get('role_id')}, 'ROLE_NOT_FOUND')
+    def update(self, group, validated_data):  # pylint: disable=arguments-differ
+        role = check_obj(Role, {'id': validated_data.get('role_id')},
+                         'ROLE_NOT_FOUND')
         return safe_api(cm.api.add_group_role, (group, role))
 
 
@@ -229,7 +231,7 @@ class UserPasswdSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     @transaction.atomic
-    def update(self, user, validated_data):   # pylint: disable=arguments-differ
+    def update(self, user, validated_data):  # pylint: disable=arguments-differ
         user.set_password(validated_data.get('password'))
         user.save()
         token = Token.objects.get(user=user)
@@ -251,7 +253,8 @@ class ProfileDetailSerializer(serializers.Serializer):
 
     def validate_profile(self, raw):
         if isinstance(raw, str):
-            raise AdcmApiEx('JSON_ERROR', 'profile should not be just one string')
+            raise AdcmApiEx('JSON_ERROR',
+                            'profile should not be just one string')
         return raw
 
     def update(self, instance, validated_data):
@@ -268,7 +271,8 @@ class ProfileSerializer(ProfileDetailSerializer):
     url = hlink('profile-details', 'login', 'username')
 
     def create(self, validated_data):
-        check_obj(User, {'username': validated_data.get('login')}, 'USER_NOT_FOUND')
+        check_obj(User, {'username': validated_data.get('login')},
+                  'USER_NOT_FOUND')
         try:
             return UserProfile.objects.create(**validated_data)
         except IntegrityError:
@@ -308,18 +312,17 @@ class ProviderSerializer(serializers.Serializer):
     url = hlink('provider-details', 'id', 'provider_id')
 
     def validate_prototype_id(self, prototype_id):
-        proto = check_obj(
-            Prototype, {'id': prototype_id, 'type': 'provider'}, "PROTOTYPE_NOT_FOUND"
-        )
+        proto = check_obj(Prototype, {
+            'id': prototype_id,
+            'type': 'provider'
+        }, "PROTOTYPE_NOT_FOUND")
         return proto
 
     def create(self, validated_data):
         try:
             return cm.api.add_host_provider(
-                validated_data.get('prototype_id'),
-                validated_data.get('name'),
-                validated_data.get('description', '')
-            )
+                validated_data.get('prototype_id'), validated_data.get('name'),
+                validated_data.get('description', ''))
         except Prototype.DoesNotExist:
             raise AdcmApiEx('PROTOTYPE_NOT_FOUND') from None
         except IntegrityError:
@@ -364,7 +367,9 @@ class ProviderUISerializer(ProviderDetailSerializer):
         act_set = Action.objects.filter(prototype=obj.prototype)
         self.context['object'] = obj
         self.context['provider_id'] = obj.id
-        actions = ProviderActionShort(filter_actions(obj, act_set), many=True, context=self.context)
+        actions = ProviderActionShort(filter_actions(obj, act_set),
+                                      many=True,
+                                      context=self.context)
         return actions.data
 
     def get_prototype_version(self, obj):
@@ -391,9 +396,10 @@ class HostSerializer(serializers.Serializer):
         return cm.issue.get_issue(obj)
 
     def validate_prototype_id(self, prototype_id):
-        proto = check_obj(
-            Prototype, {'id': prototype_id, 'type': 'host'}, "PROTOTYPE_NOT_FOUND"
-        )
+        proto = check_obj(Prototype, {
+            'id': prototype_id,
+            'type': 'host'
+        }, "PROTOTYPE_NOT_FOUND")
         return proto
 
     def validate_provider_id(self, provider_id):
@@ -408,12 +414,10 @@ class HostSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         try:
-            return cm.api.add_host(
-                validated_data.get('prototype_id'),
-                validated_data.get('provider_id'),
-                validated_data.get('fqdn'),
-                validated_data.get('description', '')
-            )
+            return cm.api.add_host(validated_data.get('prototype_id'),
+                                   validated_data.get('provider_id'),
+                                   validated_data.get('fqdn'),
+                                   validated_data.get('description', ''))
         except Prototype.DoesNotExist:
             raise AdcmApiEx('PROTOTYPE_NOT_FOUND') from None
         except IntegrityError:
@@ -458,7 +462,9 @@ class HostUISerializer(HostDetailSerializer):
         act_set = Action.objects.filter(prototype=obj.prototype)
         self.context['object'] = obj
         self.context['host_id'] = obj.id
-        actions = HostActionShort(filter_actions(obj, act_set), many=True, context=self.context)
+        actions = HostActionShort(filter_actions(obj, act_set),
+                                  many=True,
+                                  context=self.context)
         return actions.data
 
     def get_cluster_name(self, obj):
@@ -501,16 +507,14 @@ class ProviderHostSerializer(serializers.Serializer):
     def create(self, validated_data):
         provider = validated_data.get('provider')
         try:
-            proto = Prototype.objects.get(bundle=provider.prototype.bundle, type='host')
+            proto = Prototype.objects.get(bundle=provider.prototype.bundle,
+                                          type='host')
         except Prototype.DoesNotExist:
             raise AdcmApiEx('PROTOTYPE_NOT_FOUND') from None
         try:
-            return cm.api.add_host(
-                proto,
-                self.context.get('provider'),
-                validated_data.get('fqdn'),
-                validated_data.get('description', '')
-            )
+            return cm.api.add_host(proto, self.context.get('provider'),
+                                   validated_data.get('fqdn'),
+                                   validated_data.get('description', ''))
         except IntegrityError:
             raise AdcmApiEx("HOST_CONFLICT", "duplicate host") from None
         except AdcmEx as e:
@@ -529,10 +533,10 @@ class ConfigSerializer(serializers.Serializer):
     ui_options = JSONField(required=False)
     required = serializers.BooleanField()
 
-    def get_default(self, obj):   # pylint: disable=arguments-differ
+    def get_default(self, obj):  # pylint: disable=arguments-differ
         return cm.adcm_config.get_default(obj)
 
-    def get_value(self, obj):     # pylint: disable=arguments-differ
+    def get_value(self, obj):  # pylint: disable=arguments-differ
         proto = self.context.get('prototype', None)
         return cm.adcm_config.get_default(obj, proto)
 
@@ -579,45 +583,60 @@ class ActionDetailSerializer(ActionSerializer):
     subs = serializers.SerializerMethodField()
 
     def get_config(self, obj):
-        aconf = PrototypeConfig.objects.filter(prototype=obj.prototype, action=obj).order_by('id')
+        aconf = PrototypeConfig.objects.filter(prototype=obj.prototype,
+                                               action=obj).order_by('id')
         context = self.context
         context['prototype'] = obj.prototype
-        conf = ConfigSerializerUI(aconf, many=True, context=context, read_only=True)
+        conf = ConfigSerializerUI(aconf,
+                                  many=True,
+                                  context=context,
+                                  read_only=True)
         _, _, _, attr = cm.adcm_config.get_prototype_config(obj.prototype, obj)
         return {'attr': attr, 'config': conf.data}
 
     def get_subs(self, obj):
         sub_actions = SubAction.objects.filter(action=obj).order_by('id')
-        subs = SubActionSerializer(sub_actions, many=True, context=self.context, read_only=True)
+        subs = SubActionSerializer(sub_actions,
+                                   many=True,
+                                   context=self.context,
+                                   read_only=True)
         return subs.data
 
 
 class ClusterServiceActionUrlField(UrlField):
-    def get_url(self, obj, view_name, request, format):		# pylint: disable=redefined-builtin
+    def get_url(self, obj, view_name, request, format):  # pylint: disable=redefined-builtin
         kwargs = {
             'cluster_id': self.context['cluster_id'],
             'service_id': self.context['service_id'],
             'action_id': obj.id,
         }
-        return reverse(self.view_name, kwargs=kwargs, request=request, format=format)
+        return reverse(self.view_name,
+                       kwargs=kwargs,
+                       request=request,
+                       format=format)
 
 
 class ClusterHostActionUrlField(UrlField):
-    def get_url(self, obj, view_name, request, format):		# pylint: disable=redefined-builtin
+    def get_url(self, obj, view_name, request, format):  # pylint: disable=redefined-builtin
         kwargs = {
             'cluster_id': self.context['cluster_id'],
             'host_id': self.context['host_id'],
             'action_id': obj.id,
         }
-        return reverse(self.view_name, kwargs=kwargs, request=request, format=format)
+        return reverse(self.view_name,
+                       kwargs=kwargs,
+                       request=request,
+                       format=format)
 
 
 class ClusterServiceActionList(ActionSerializer):
-    url = ClusterServiceActionUrlField(read_only=True, view_name='cluster-service-action-details')
+    url = ClusterServiceActionUrlField(
+        read_only=True, view_name='cluster-service-action-details')
 
 
 class ClusterServiceActionDetail(ActionDetailSerializer):
-    run = ClusterServiceActionUrlField(read_only=True, view_name='cluster-service-action-run')
+    run = ClusterServiceActionUrlField(read_only=True,
+                                       view_name='cluster-service-action-run')
 
 
 class ClusterActionUrlField(UrlField):
@@ -626,7 +645,8 @@ class ClusterActionUrlField(UrlField):
 
 
 class ClusterActionList(ActionSerializer):
-    url = ClusterActionUrlField(read_only=True, view_name='cluster-action-details')
+    url = ClusterActionUrlField(read_only=True,
+                                view_name='cluster-action-details')
 
 
 class ClusterActionDetail(ActionDetailSerializer):
@@ -635,15 +655,20 @@ class ClusterActionDetail(ActionDetailSerializer):
 
 class ProviderActionUrlField(UrlField):
     def get_kwargs(self, obj):
-        return {'provider_id': self.context['provider_id'], 'action_id': obj.id}
+        return {
+            'provider_id': self.context['provider_id'],
+            'action_id': obj.id
+        }
 
 
 class ProviderActionDetail(ActionDetailSerializer):
-    run = ProviderActionUrlField(read_only=True, view_name='provider-action-run')
+    run = ProviderActionUrlField(read_only=True,
+                                 view_name='provider-action-run')
 
 
 class ProviderActionList(ActionSerializer):
-    url = ProviderActionUrlField(read_only=True, view_name='provider-action-details')
+    url = ProviderActionUrlField(read_only=True,
+                                 view_name='provider-action-details')
 
 
 class ADCMActionUrlField(UrlField):
@@ -673,11 +698,13 @@ class HostActionList(ActionSerializer):
 
 
 class ClusterHostActionDetail(ActionDetailSerializer):
-    run = ClusterHostActionUrlField(read_only=True, view_name='cluster-host-action-run')
+    run = ClusterHostActionUrlField(read_only=True,
+                                    view_name='cluster-host-action-run')
 
 
 class ClusterHostActionList(ActionSerializer):
-    url = ClusterHostActionUrlField(read_only=True, view_name='cluster-host-action-details')
+    url = ClusterHostActionUrlField(read_only=True,
+                                    view_name='cluster-host-action-details')
 
 
 class ActionShort(serializers.Serializer):
@@ -692,12 +719,16 @@ class ActionShort(serializers.Serializer):
         context['prototype'] = obj.prototype
         _, _, _, attr = cm.adcm_config.get_prototype_config(obj.prototype, obj)
         cm.adcm_config.get_action_variant(context.get('object'), obj.config)
-        conf = ConfigSerializerUI(obj.config, many=True, context=context, read_only=True)
+        conf = ConfigSerializerUI(obj.config,
+                                  many=True,
+                                  context=context,
+                                  read_only=True)
         return {'attr': attr, 'config': conf.data}
 
 
 class ServiceActionShort(ActionShort):
-    run = ClusterServiceActionUrlField(read_only=True, view_name='cluster-service-action-run')
+    run = ClusterServiceActionUrlField(read_only=True,
+                                       view_name='cluster-service-action-run')
 
 
 class ClusterActionShort(ActionShort):
@@ -705,7 +736,8 @@ class ClusterActionShort(ActionShort):
 
 
 class ClusterHostActionShort(ActionShort):
-    run = ClusterHostActionUrlField(read_only=True, view_name='cluster-host-action-run')
+    run = ClusterHostActionUrlField(read_only=True,
+                                    view_name='cluster-host-action-run')
 
 
 class HostActionShort(ActionShort):
@@ -713,7 +745,8 @@ class HostActionShort(ActionShort):
 
 
 class ProviderActionShort(ActionShort):
-    run = ProviderActionUrlField(read_only=True, view_name='provider-action-run')
+    run = ProviderActionUrlField(read_only=True,
+                                 view_name='provider-action-run')
 
 
 class UpgradeSerializer(serializers.Serializer):
@@ -736,7 +769,10 @@ class UpgradeSerializer(serializers.Serializer):
 class UpgradeLinkSerializer(UpgradeSerializer):
     class MyUrlField(UrlField):
         def get_kwargs(self, obj):
-            return {'cluster_id': self.context['cluster_id'], 'upgrade_id': obj.id}
+            return {
+                'cluster_id': self.context['cluster_id'],
+                'upgrade_id': obj.id
+            }
 
     url = MyUrlField(read_only=True, view_name='cluster-upgrade-details')
     do = MyUrlField(read_only=True, view_name='do-cluster-upgrade')
@@ -745,7 +781,10 @@ class UpgradeLinkSerializer(UpgradeSerializer):
 class UpgradeProviderSerializer(UpgradeSerializer):
     class MyUrlField(UrlField):
         def get_kwargs(self, obj):
-            return {'provider_id': self.context['provider_id'], 'upgrade_id': obj.id}
+            return {
+                'provider_id': self.context['provider_id'],
+                'upgrade_id': obj.id
+            }
 
     url = MyUrlField(read_only=True, view_name='provider-upgrade-details')
     do = MyUrlField(read_only=True, view_name='do-provider-upgrade')
@@ -757,7 +796,8 @@ class DoUpgradeSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         try:
-            upgrade = check_obj(Upgrade, validated_data.get('upgrade_id'), 'UPGRADE_NOT_FOUND')
+            upgrade = check_obj(Upgrade, validated_data.get('upgrade_id'),
+                                'UPGRADE_NOT_FOUND')
             return cm.upgrade.do_upgrade(validated_data.get('obj'), upgrade)
         except AdcmEx as e:
             raise AdcmApiEx(e.code, e.msg, e.http_code) from e
@@ -851,8 +891,7 @@ class TaskSerializer(TaskListSerializer):
         read_only=True,
         view_name='action-details',
         lookup_field='action_id',
-        lookup_url_kwarg='action_id'
-    )
+        lookup_url_kwarg='action_id')
     action = serializers.SerializerMethodField()
     objects = serializers.SerializerMethodField()
     jobs = serializers.SerializerMethodField()
@@ -868,7 +907,9 @@ class TaskSerializer(TaskListSerializer):
         except Action.DoesNotExist:
             allow_to_terminate = False
         # pylint: disable=simplifiable-if-statement
-        if allow_to_terminate and obj.status in [config.Job.CREATED, config.Job.RUNNING]:
+        if allow_to_terminate and obj.status in [
+                config.Job.CREATED, config.Job.RUNNING
+        ]:
             # pylint: enable=simplifiable-if-statement
             return True
         else:
@@ -909,14 +950,12 @@ class TaskSerializer(TaskListSerializer):
 class TaskRunSerializer(TaskSerializer):
     def create(self, validated_data):
         try:
-            obj = cm.job.start_task(
-                validated_data.get('action_id'),
-                validated_data.get('selector'),
-                validated_data.get('config', None),
-                validated_data.get('attr', None),
-                validated_data.get('hc', None),
-                validated_data.get('hosts', None)
-            )
+            obj = cm.job.start_task(validated_data.get('action_id'),
+                                    validated_data.get('selector'),
+                                    validated_data.get('config', None),
+                                    validated_data.get('attr', None),
+                                    validated_data.get('hc', None),
+                                    validated_data.get('hosts', None))
             obj.jobs = JobLog.objects.filter(task_id=obj.id)
             return obj
         except AdcmEx as e:

@@ -108,25 +108,28 @@ from cm.logger import log
 
 class ActionModule(ActionBase):
     TRANSFERS_FILES = False
-    _VALID_ARGS = frozenset(('title', 'result', 'msg', 'fail_msg', 'success_msg',
-                             'group_title', 'group_success_msg', 'group_fail_msg'))
+    _VALID_ARGS = frozenset(
+        ('title', 'result', 'msg', 'fail_msg', 'success_msg', 'group_title',
+         'group_success_msg', 'group_fail_msg'))
 
     def run(self, tmp=None, task_vars=None):
         super().run(tmp, task_vars)
         job_id = None
-        if task_vars is not None and 'job' in task_vars or 'id' in task_vars['job']:
+        if task_vars is not None and 'job' in task_vars or 'id' in task_vars[
+                'job']:
             job_id = task_vars['job']['id']
 
         old_optional_condition = 'msg' in self._task.args
         new_optional_condition = 'fail_msg' in self._task.args and 'success_msg' in self._task.args
         optional_condition = old_optional_condition or new_optional_condition
-        required_condition = (
-            'title' in self._task.args and 'result' in self._task.args and optional_condition
-        )
+        required_condition = ('title' in self._task.args
+                              and 'result' in self._task.args
+                              and optional_condition)
 
         if not required_condition:
             return {
-                "failed": True,
+                "failed":
+                True,
                 "msg": ("title, result and msg, fail_msg or success"
                         "_msg are mandatory args of adcm_check")
             }

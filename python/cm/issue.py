@@ -12,7 +12,7 @@
 
 import json
 
-from cm.logger import log   # pylint: disable=unused-import
+from cm.logger import log  # pylint: disable=unused-import
 import cm.status_api
 from cm.errors import AdcmEx
 from cm.errors import raise_AdcmEx as err
@@ -34,7 +34,8 @@ def report_issue(obj):
     if issue_to_bool(issue):
         cm.status_api.post_event('clear_issue', obj.prototype.type, obj.id)
     else:
-        cm.status_api.post_event('raise_issue', obj.prototype.type, obj.id, 'issue', issue)
+        cm.status_api.post_event('raise_issue', obj.prototype.type, obj.id,
+                                 'issue', issue)
 
 
 def check_issue(obj):
@@ -66,7 +67,7 @@ def issue_to_bool(issue):
     return True
 
 
-def get_issue(obj):   # pylint: disable=too-many-branches
+def get_issue(obj):  # pylint: disable=too-many-branches
     issue = obj.issue
     if obj.prototype.type == 'cluster':
         issue['service'] = []
@@ -85,7 +86,8 @@ def get_issue(obj):   # pylint: disable=too-many-branches
                     host_iss['issue']['provider'] = provider_iss
                 issue['host'].append(host_iss)
             elif provider_iss:
-                issue['host'].append(cook_issue(host, 'fqdn', iss={'provider': [provider_iss]}))
+                issue['host'].append(
+                    cook_issue(host, 'fqdn', iss={'provider': [provider_iss]}))
         if not issue['host']:
             del issue['host']
 
@@ -146,14 +148,15 @@ def check_adcm_issue(obj):
     return {}
 
 
-def check_config(obj):   # pylint: disable=too-many-branches
+def check_config(obj):  # pylint: disable=too-many-branches
     spec, _, _, _ = get_prototype_config(obj.prototype)
     conf, attr = get_obj_config(obj)
-    for key in spec:   # pylint: disable=too-many-nested-blocks
+    for key in spec:  # pylint: disable=too-many-nested-blocks
         if 'required' in spec[key]:
             if spec[key]['required']:
                 if key in conf and conf[key] is None:
-                    log.debug('required config key %s of %s is missing', key, obj_ref(obj))
+                    log.debug('required config key %s of %s is missing', key,
+                              obj_ref(obj))
                     return False
         else:
             if key in attr:
@@ -162,7 +165,8 @@ def check_config(obj):   # pylint: disable=too-many-branches
             for subkey in spec[key]:
                 if spec[key][subkey]['required']:
                     if key not in conf:
-                        log.debug('required config group %s of %s is missing', key, obj_ref(obj))
+                        log.debug('required config group %s of %s is missing',
+                                  key, obj_ref(obj))
                         return False
                     if subkey in conf[key]:
                         if conf[key][subkey] is None:
@@ -178,11 +182,14 @@ def check_config(obj):   # pylint: disable=too-many-branches
 
 def check_required_services(cluster):
     bundle = cluster.prototype.bundle
-    for proto in Prototype.objects.filter(bundle=bundle, type='service', required=True):
+    for proto in Prototype.objects.filter(bundle=bundle,
+                                          type='service',
+                                          required=True):
         try:
             ClusterObject.objects.get(cluster=cluster, prototype=proto)
         except ClusterObject.DoesNotExist:
-            log.debug('required service %s of %s is missing', proto_ref(proto), obj_ref(cluster))
+            log.debug('required service %s of %s is missing', proto_ref(proto),
+                      obj_ref(cluster))
             return False
     return True
 
@@ -226,12 +233,14 @@ def check_hc(cluster):
                     continue
                 if len(const) == 2 and const[0] == 0 and const[1] == '+':
                     continue
-                log.debug('void host components for %s', proto_ref(co.prototype))
+                log.debug('void host components for %s',
+                          proto_ref(co.prototype))
                 return False
 
     for service in ClusterObject.objects.filter(cluster=cluster):
         try:
-            check_component_constraint(service, [i for i in shc_list if i[0] == service])
+            check_component_constraint(
+                service, [i for i in shc_list if i[0] == service])
         except AdcmEx:
             return False
     try:
@@ -244,7 +253,8 @@ def check_hc(cluster):
 def check_component_requires(shc_list):
     def check_component_req(service, component):
         for shc in shc_list:
-            if shc[0].prototype.name == service and shc[2].component.name == component:
+            if shc[0].prototype.name == service and shc[
+                    2].component.name == component:
                 return True
         return False
 
@@ -253,7 +263,8 @@ def check_component_requires(shc_list):
             if not check_component_req(r['service'], r['component']):
                 ref = f'component "{shc[2].component.name}" of service "{shc[0].prototype.name}"'
                 msg = 'no required component "{}" of service "{}" for {}'
-                err('COMPONENT_CONSTRAINT_ERROR', msg.format(r['component'], r['service'], ref))
+                err('COMPONENT_CONSTRAINT_ERROR',
+                    msg.format(r['component'], r['service'], ref))
 
 
 def get_obj_config(obj):

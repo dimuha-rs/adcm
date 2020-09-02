@@ -27,7 +27,6 @@ from os.path import dirname
 
 from django.core.management.utils import get_random_secret_key
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = dirname(dirname(dirname(os.path.abspath(__file__))))
 CONF_DIR = BASE_DIR + '/data/conf/'
@@ -47,19 +46,16 @@ else:
     # manage.py calls during image build
     SECRET_KEY = get_random_secret_key()
 
-
 if os.path.exists(CONFIG_FILE):
     with open(CONFIG_FILE) as f:
         ADCM_VERSION = json.load(f)['version']
 else:
     ADCM_VERSION = '2019.02.07.00'
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -125,9 +121,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 50,
+    'DEFAULT_SCHEMA_CLASS':
+    'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_PAGINATION_CLASS':
+    'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE':
+    50,
 }
 
 # Database
@@ -148,15 +147,20 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
+    {
+        'NAME':
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
     # {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
     # {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
+    {
+        'NAME':
+        'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 AUTHENTICATION_BACKENDS = (

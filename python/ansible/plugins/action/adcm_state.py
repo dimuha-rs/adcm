@@ -19,15 +19,9 @@ sys.path.append('/adcm/python')
 import adcm.init_django
 
 from cm.ansible_plugin import ContextActionModule
-from cm.api import (
-    set_cluster_state,
-    set_host_state,
-    set_service_state,
-    set_service_state_by_id,
-    set_provider_state
-)
+from cm.api import (set_cluster_state, set_host_state, set_service_state,
+                    set_service_state_by_id, set_provider_state)
 from cm.status_api import Event
-
 
 ANSIBLE_METADATA = {'metadata_version': '1.1', 'supported_by': 'Arenadata'}
 
@@ -89,31 +83,21 @@ class ActionModule(ContextActionModule):
     _MANDATORY_ARGS = ('type', 'state')
 
     def _do_cluster(self, task_vars, context):
-        res = self._wrap_call(
-            set_cluster_state,
-            context['cluster_id'],
-            self._task.args["state"]
-        )
+        res = self._wrap_call(set_cluster_state, context['cluster_id'],
+                              self._task.args["state"])
         res['state'] = self._task.args["state"]
         return res
 
     def _do_service_by_name(self, task_vars, context):
-        res = self._wrap_call(
-            set_service_state,
-            context['cluster_id'],
-            self._task.args["service_name"],
-            self._task.args["state"]
-        )
+        res = self._wrap_call(set_service_state, context['cluster_id'],
+                              self._task.args["service_name"],
+                              self._task.args["state"])
         res['state'] = self._task.args["state"]
         return res
 
     def _do_service(self, task_vars, context):
-        res = self._wrap_call(
-            set_service_state_by_id,
-            context['cluster_id'],
-            context['service_id'],
-            self._task.args["state"]
-        )
+        res = self._wrap_call(set_service_state_by_id, context['cluster_id'],
+                              context['service_id'], self._task.args["state"])
         res['state'] = self._task.args["state"]
         return res
 
@@ -137,12 +121,8 @@ class ActionModule(ContextActionModule):
 
     def _do_provider(self, task_vars, context):
         event = Event()
-        res = self._wrap_call(
-            set_provider_state,
-            context['provider_id'],
-            self._task.args["state"],
-            event
-        )
+        res = self._wrap_call(set_provider_state, context['provider_id'],
+                              self._task.args["state"], event)
         event.send_state()
         res['state'] = self._task.args["state"]
         return res

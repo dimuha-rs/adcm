@@ -16,7 +16,7 @@ import sys
 import json
 import subprocess
 
-import adcm.init_django		# pylint: disable=unused-import
+import adcm.init_django  # pylint: disable=unused-import
 
 from cm.logger import log
 import cm.config as config
@@ -60,7 +60,8 @@ def set_pythonpath(env, stack_dir):
 
 
 def set_ansible_config(env, job_id):
-    env['ANSIBLE_CONFIG'] = os.path.join(config.RUN_DIR, f'{job_id}/ansible.cfg')
+    env['ANSIBLE_CONFIG'] = os.path.join(config.RUN_DIR,
+                                         f'{job_id}/ansible.cfg')
     return env
 
 
@@ -78,10 +79,15 @@ def env_configuration(job_config):
 
 
 def post_log(job_id, log_type, log_name):
-    l1 = LogStorage.objects.filter(job__id=job_id, type=log_type, name=log_name).first()
+    l1 = LogStorage.objects.filter(job__id=job_id,
+                                   type=log_type,
+                                   name=log_name).first()
     if l1:
         cm.status_api.post_event('add_job_log', 'job', job_id, {
-            'id': l1.id, 'type': l1.type, 'name': l1.name, 'format': l1.format,
+            'id': l1.id,
+            'type': l1.type,
+            'name': l1.name,
+            'format': l1.format,
         })
 
 
@@ -97,22 +103,22 @@ def run_ansible(job_id):
 
     os.chdir(conf['env']['stack_dir'])
     cmd = [
-        'ansible-playbook',
-        '-e',
-        f'@{config.RUN_DIR}/{job_id}/config.json',
-        '-i',
-        f'{config.RUN_DIR}/{job_id}/inventory.json',
-        playbook
+        'ansible-playbook', '-e', f'@{config.RUN_DIR}/{job_id}/config.json',
+        '-i', f'{config.RUN_DIR}/{job_id}/inventory.json', playbook
     ]
     if 'params' in conf['job']:
         if 'ansible_tags' in conf['job']['params']:
             cmd.append('--tags=' + conf['job']['params']['ansible_tags'])
 
-    proc = subprocess.Popen(cmd, env=env_configuration(conf), stdout=out_file, stderr=err_file)
+    proc = subprocess.Popen(cmd,
+                            env=env_configuration(conf),
+                            stdout=out_file,
+                            stderr=err_file)
     log.info("job #%s run cmd: %s", job_id, ' '.join(cmd))
     cm.job.set_job_status(job_id, config.Job.RUNNING, event, proc.pid)
     event.send_state()
-    log.info("run ansible job #%s, pid %s, playbook %s", job_id, proc.pid, playbook)
+    log.info("run ansible job #%s, pid %s, playbook %s", job_id, proc.pid,
+             playbook)
     ret = proc.wait()
     cm.job.finish_check(job_id)
     ret = set_job_status(job_id, ret, proc.pid, event)

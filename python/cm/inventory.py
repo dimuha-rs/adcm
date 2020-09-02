@@ -33,16 +33,18 @@ def process_config_and_attr(obj, conf, attr=None, spec=None):
     return new_conf
 
 
-def get_import(cluster):   # pylint: disable=too-many-branches
+def get_import(cluster):  # pylint: disable=too-many-branches
     def get_actual_import(bind, obj):
         if bind.service:
             proto = bind.service.prototype
         else:
             proto = bind.cluster.prototype
-        return PrototypeImport.objects.get(prototype=proto, name=obj.prototype.name)
+        return PrototypeImport.objects.get(prototype=proto,
+                                           name=obj.prototype.name)
 
     imports = {}
-    for obj in [cluster] + [o for o in ClusterObject.objects.filter(cluster=cluster)]:   # pylint: disable=unnecessary-comprehension
+    for obj in [cluster
+                ] + [o for o in ClusterObject.objects.filter(cluster=cluster)]:  # pylint: disable=unnecessary-comprehension
         for imp in PrototypeImport.objects.filter(prototype=obj.prototype):
             if imp.default:
                 if imp.multibind:
@@ -50,8 +52,10 @@ def get_import(cluster):   # pylint: disable=too-many-branches
                 else:
                     imports[imp.name] = {}
                 for group in imp.default:
-                    cl = ConfigLog.objects.get(obj_ref=obj.config, id=obj.config.current)
-                    conf = process_config_and_attr(obj, json.loads(cl.config), cl.attr)
+                    cl = ConfigLog.objects.get(obj_ref=obj.config,
+                                               id=obj.config.current)
+                    conf = process_config_and_attr(obj, json.loads(cl.config),
+                                                   cl.attr)
                     if imp.multibind:
                         imports[imp.name].append({group: conf[group]})
                     else:
@@ -78,7 +82,8 @@ def get_import(cluster):   # pylint: disable=too-many-branches
             imports[export_proto.name] = {}
         for export in PrototypeExport.objects.filter(prototype=export_proto):
             if actual_import.multibind:
-                imports[export_proto.name].append({export.name: conf[export.name]})
+                imports[export_proto.name].append(
+                    {export.name: conf[export.name]})
             else:
                 imports[export_proto.name][export.name] = conf[export.name]
     return imports
@@ -123,16 +128,19 @@ def get_cluster_config(cluster_id):
             'state': get_obj_state(service),
             'config': get_obj_config(service)
         }
-        for component in ServiceComponent.objects.filter(cluster=cluster, service=service):
-            res['services'][service.prototype.name][component.component.name] = {
-                'component_id': component.id
-            }
+        for component in ServiceComponent.objects.filter(cluster=cluster,
+                                                         service=service):
+            res['services'][service.prototype.name][
+                component.component.name] = {
+                    'component_id': component.id
+                }
     return res
 
 
 def get_provider_config(provider_id):
     provider = HostProvider.objects.get(id=provider_id)
-    host_proto = Prototype.objects.get(bundle=provider.prototype.bundle, type='host')
+    host_proto = Prototype.objects.get(bundle=provider.prototype.bundle,
+                                       type='host')
     return {
         'provider': {
             'config': get_obj_config(provider),
@@ -151,7 +159,8 @@ def get_host_groups(cluster_id, delta, action_host=None):
     for hc in all_hosts:
         if action_host and hc.host.id not in action_host:
             continue
-        key1 = '{}.{}'.format(hc.service.prototype.name, hc.component.component.name)
+        key1 = '{}.{}'.format(hc.service.prototype.name,
+                              hc.component.component.name)
         if key1 not in groups:
             groups[key1] = {'hosts': {}}
         groups[key1]['hosts'][hc.host.fqdn] = get_obj_config(hc.host)
@@ -184,24 +193,35 @@ def get_hosts(host_list, action_host=None):
 
 
 def get_cluster_hosts(cluster_id, action_host=None):
-    return {'CLUSTER': {
-        'hosts': get_hosts(Host.objects.filter(cluster__id=cluster_id), action_host),
-        'vars': get_cluster_config(cluster_id)
-    }}
+    return {
+        'CLUSTER': {
+            'hosts':
+            get_hosts(Host.objects.filter(cluster__id=cluster_id),
+                      action_host),
+            'vars':
+            get_cluster_config(cluster_id)
+        }
+    }
 
 
 def get_provider_hosts(provider_id, action_host=None):
-    return {'PROVIDER': {
-        'hosts': get_hosts(Host.objects.filter(provider__id=provider_id), action_host),
-    }}
+    return {
+        'PROVIDER': {
+            'hosts':
+            get_hosts(Host.objects.filter(provider__id=provider_id),
+                      action_host),
+        }
+    }
 
 
 def get_host(host_id):
     host = Host.objects.get(id=host_id)
-    groups = {'HOST': {
-        'hosts': get_hosts([host]),
-        'vars': get_provider_config(host.provider.id)
-    }}
+    groups = {
+        'HOST': {
+            'hosts': get_hosts([host]),
+            'vars': get_provider_config(host.provider.id)
+        }
+    }
     return groups
 
 
@@ -210,12 +230,15 @@ def prepare_job_inventory(selector, job_id, delta, action_host=None):
     fd = open(os.path.join(config.RUN_DIR, f'{job_id}/inventory.json'), 'w')
     inv = {'all': {'children': {}}}
     if 'cluster' in selector:
-        inv['all']['children'].update(get_cluster_hosts(selector['cluster'], action_host))
-        inv['all']['children'].update(get_host_groups(selector['cluster'], delta, action_host))
+        inv['all']['children'].update(
+            get_cluster_hosts(selector['cluster'], action_host))
+        inv['all']['children'].update(
+            get_host_groups(selector['cluster'], delta, action_host))
     if 'host' in selector:
         inv['all']['children'].update(get_host(selector['host']))
     if 'provider' in selector:
-        inv['all']['children'].update(get_provider_hosts(selector['provider'], action_host))
+        inv['all']['children'].update(
+            get_provider_hosts(selector['provider'], action_host))
         inv['all']['vars'] = get_provider_config(selector['provider'])
     json.dump(inv, fd, indent=3)
     fd.close()

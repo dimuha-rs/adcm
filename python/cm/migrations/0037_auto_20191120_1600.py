@@ -27,7 +27,8 @@ def fix_task(apps, schema_editor):
         if action.prototype.type == 'service':
             if 'service' not in selector:
                 selector['service'] = task.object_id
-                log.debug('update task #%s new selector: %s', task.id, selector)
+                log.debug('update task #%s new selector: %s', task.id,
+                          selector)
                 task.selector = selector
                 task.save()
 

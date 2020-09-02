@@ -23,7 +23,6 @@ TIMEOUT = 0.01
 
 
 class Event:
-
     def __init__(self):
         self.events = []
 
@@ -49,15 +48,13 @@ class Event:
 def api_post(path, data):
     url = API_URL + path
     try:
-        r = requests.post(
-            url,
-            data=json.dumps(data),
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': 'Token ' + STATUS_SECRET_KEY
-            },
-            timeout=TIMEOUT
-        )
+        r = requests.post(url,
+                          data=json.dumps(data),
+                          headers={
+                              'Content-Type': 'application/json',
+                              'Authorization': 'Token ' + STATUS_SECRET_KEY
+                          },
+                          timeout=TIMEOUT)
         if r.status_code not in (200, 201):
             log.error("POST %s error %d: %s", url, r.status_code, r.text)
         return r
@@ -72,14 +69,12 @@ def api_post(path, data):
 def api_get(path):
     url = API_URL + path
     try:
-        r = requests.get(
-            url,
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': 'Token ' + STATUS_SECRET_KEY
-            },
-            timeout=TIMEOUT
-        )
+        r = requests.get(url,
+                         headers={
+                             'Content-Type': 'application/json',
+                             'Authorization': 'Token ' + STATUS_SECRET_KEY
+                         },
+                         timeout=TIMEOUT)
         if r.status_code not in (200, 201):
             log.error("GET %s error %d: %s", url, r.status_code, r.text)
         return r

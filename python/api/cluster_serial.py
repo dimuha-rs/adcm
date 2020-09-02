@@ -18,7 +18,7 @@ import cm.job
 import cm.status_api
 import logrotate
 from cm.api import safe_api
-from cm.logger import log   # pylint: disable=unused-import
+from cm.logger import log  # pylint: disable=unused-import
 from cm.errors import AdcmApiEx, AdcmEx
 from cm.models import Action, Cluster, Host, Prototype, ServiceComponent, Component
 
@@ -51,14 +51,16 @@ class ClusterSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     prototype_id = serializers.IntegerField(help_text='id of cluster type')
     name = serializers.CharField(help_text='cluster name')
-    description = serializers.CharField(help_text='cluster description', required=False)
+    description = serializers.CharField(help_text='cluster description',
+                                        required=False)
     state = serializers.CharField(read_only=True)
     url = hlink('cluster-details', 'id', 'cluster_id')
 
     def validate_prototype_id(self, prototype_id):
-        cluster = check_obj(
-            Prototype, {'id': prototype_id, 'type': 'cluster'}, "PROTOTYPE_NOT_FOUND"
-        )
+        cluster = check_obj(Prototype, {
+            'id': prototype_id,
+            'type': 'cluster'
+        }, "PROTOTYPE_NOT_FOUND")
         return cluster
 
     def create(self, validated_data):
@@ -77,7 +79,8 @@ class ClusterSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
+        instance.description = validated_data.get('description',
+                                                  instance.description)
         try:
             instance.save()
         except IntegrityError:
@@ -134,7 +137,9 @@ class ClusterUISerializer(ClusterDetailSerializer):
         act_set = Action.objects.filter(prototype=obj.prototype)
         self.context['object'] = obj
         self.context['cluster_id'] = obj.id
-        actions = ClusterActionShort(filter_actions(obj, act_set), many=True, context=self.context)
+        actions = ClusterActionShort(filter_actions(obj, act_set),
+                                     many=True,
+                                     context=self.context)
         return actions.data
 
     def get_name(self, obj):
@@ -169,7 +174,8 @@ class ClusterHostSerializer(serializers.Serializer):
 
 class ClusterHostDetailSerializer(ClusterHostSerializer):
     issue = serializers.SerializerMethodField()
-    action = ClusterHostUrlField(read_only=True, view_name='cluster-host-action')
+    action = ClusterHostUrlField(read_only=True,
+                                 view_name='cluster-host-action')
     cluster_url = hlink('cluster-details', 'cluster_id', 'cluster_id')
     status = serializers.SerializerMethodField()
     monitoring = serializers.SerializerMethodField()
@@ -190,7 +196,8 @@ class ClusterHostAddSerializer(ClusterHostDetailSerializer):
     host_id = serializers.IntegerField(source='id')
 
     def create(self, validated_data):
-        cluster = check_obj(Cluster, validated_data.get('cluster_id'), "CLUSTER_NOT_FOUND")
+        cluster = check_obj(Cluster, validated_data.get('cluster_id'),
+                            "CLUSTER_NOT_FOUND")
         host = check_obj(Host, validated_data.get('id'), "HOST_NOT_FOUND")
         try:
             cm.api.add_host_to_cluster(cluster, host)
@@ -212,9 +219,9 @@ class ClusterHostUISerializer(ClusterHostDetailSerializer):
         act_set = Action.objects.filter(prototype=obj.prototype)
         self.context['object'] = obj
         self.context['host_id'] = obj.id
-        actions = ClusterHostActionShort(
-            filter_actions(obj, act_set), many=True, context=self.context
-        )
+        actions = ClusterHostActionShort(filter_actions(obj, act_set),
+                                         many=True,
+                                         context=self.context)
         return actions.data
 
     def get_prototype_version(self, obj):
@@ -246,13 +253,15 @@ class StatusSerializer(serializers.Serializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['component'] = instance.component.component.name
-        data['component_display_name'] = instance.component.component.display_name
+        data[
+            'component_display_name'] = instance.component.component.display_name
         data['host'] = instance.host.fqdn
         data['service_name'] = instance.service.prototype.name
         data['service_display_name'] = instance.service.prototype.display_name
         data['service_version'] = instance.service.prototype.version
         data['monitoring'] = instance.component.component.monitoring
-        status = cm.status_api.get_hc_status(instance.host_id, instance.component_id)
+        status = cm.status_api.get_hc_status(instance.host_id,
+                                             instance.component_id)
         data['status'] = status
         return data
 
@@ -270,7 +279,8 @@ class HostComponentSerializer(serializers.Serializer):
     host = serializers.CharField(read_only=True)
     service_id = serializers.IntegerField()
     component = serializers.CharField(help_text='component name')
-    component_id = serializers.IntegerField(read_only=True, help_text='component id')
+    component_id = serializers.IntegerField(read_only=True,
+                                            help_text='component id')
     state = serializers.CharField(read_only=True, required=False)
     url = MyUrlField(read_only=True, view_name='host-component-details')
     host_url = hlink('host-details', 'host_id', 'host_id')
@@ -278,7 +288,8 @@ class HostComponentSerializer(serializers.Serializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['component'] = instance.component.component.name
-        data['component_display_name'] = instance.component.component.display_name
+        data[
+            'component_display_name'] = instance.component.component.display_name
         data['host'] = instance.host.fqdn
         data['service_name'] = instance.service.prototype.name
         data['service_display_name'] = instance.service.prototype.display_name
@@ -293,11 +304,14 @@ class HostComponentUISerializer(serializers.Serializer):
 
     def get_host(self, obj):
         hosts = Host.objects.filter(cluster=self.context.get('cluster'))
-        return ClusterHostSerializer(hosts, many=True, context=self.context).data
+        return ClusterHostSerializer(hosts, many=True,
+                                     context=self.context).data
 
     def get_component(self, obj):
-        comps = ServiceComponent.objects.filter(cluster=self.context.get('cluster'))
-        return HCComponentSerializer(comps, many=True, context=self.context).data
+        comps = ServiceComponent.objects.filter(
+            cluster=self.context.get('cluster'))
+        return HCComponentSerializer(comps, many=True,
+                                     context=self.context).data
 
 
 class HostComponentSaveSerializer(serializers.Serializer):
@@ -331,8 +345,10 @@ class ClusterServiceSerializer(serializers.Serializer):
     name = serializers.SerializerMethodField()
     display_name = serializers.SerializerMethodField()
     state = serializers.CharField(read_only=True)
-    url = ClusterServiceUrlField(read_only=True, view_name='cluster-service-details')
-    prototype_id = serializers.IntegerField(help_text='id of service prototype')
+    url = ClusterServiceUrlField(read_only=True,
+                                 view_name='cluster-service-details')
+    prototype_id = serializers.IntegerField(
+        help_text='id of service prototype')
 
     def get_name(self, obj):
         return obj.prototype.name
@@ -341,9 +357,10 @@ class ClusterServiceSerializer(serializers.Serializer):
         return obj.prototype.display_name
 
     def validate_prototype_id(self, prototype_id):
-        service = check_obj(
-            Prototype, {'id': prototype_id, 'type': 'service'}, "PROTOTYPE_NOT_FOUND"
-        )
+        service = check_obj(Prototype, {
+            'id': prototype_id,
+            'type': 'service'
+        }, "PROTOTYPE_NOT_FOUND")
         return service
 
     def create(self, validated_data):
@@ -366,11 +383,16 @@ class ClusterServiceDetailSerializer(ClusterServiceSerializer):
     issue = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     monitoring = serializers.SerializerMethodField()
-    action = ClusterServiceUrlField(read_only=True, view_name='cluster-service-action')
-    config = ClusterServiceUrlField(read_only=True, view_name='cluster-service-config')
-    component = ClusterServiceUrlField(read_only=True, view_name='service-component')
-    imports = ClusterServiceUrlField(read_only=True, view_name='cluster-service-import')
-    bind = ClusterServiceUrlField(read_only=True, view_name='cluster-service-bind')
+    action = ClusterServiceUrlField(read_only=True,
+                                    view_name='cluster-service-action')
+    config = ClusterServiceUrlField(read_only=True,
+                                    view_name='cluster-service-config')
+    component = ClusterServiceUrlField(read_only=True,
+                                       view_name='service-component')
+    imports = ClusterServiceUrlField(read_only=True,
+                                     view_name='cluster-service-import')
+    bind = ClusterServiceUrlField(read_only=True,
+                                  view_name='cluster-service-bind')
     prototype = hlink('service-type-details', 'prototype_id', 'prototype_id')
 
     def get_description(self, obj):
@@ -394,8 +416,10 @@ class ClusterServiceUISerializer(ClusterServiceDetailSerializer):
     components = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
-    action = ClusterServiceUrlField(read_only=True, view_name='cluster-service-action')
-    config = ClusterServiceUrlField(read_only=True, view_name='cluster-service-config')
+    action = ClusterServiceUrlField(read_only=True,
+                                    view_name='cluster-service-action')
+    config = ClusterServiceUrlField(read_only=True,
+                                    view_name='cluster-service-config')
 
     def get_actions(self, obj):
         act_set = Action.objects.filter(prototype=obj.prototype)
@@ -406,8 +430,11 @@ class ClusterServiceUISerializer(ClusterServiceDetailSerializer):
         return acts.data
 
     def get_components(self, obj):
-        comps = ServiceComponent.objects.filter(service=obj, cluster=obj.cluster)
-        return ServiceComponentDetailSerializer(comps, many=True, context=self.context).data
+        comps = ServiceComponent.objects.filter(service=obj,
+                                                cluster=obj.cluster)
+        return ServiceComponentDetailSerializer(comps,
+                                                many=True,
+                                                context=self.context).data
 
     def get_name(self, obj):
         return obj.prototype.name
@@ -494,13 +521,13 @@ class HCComponentSerializer(ServiceComponentDetailSerializer):
                 comp = Component.objects.get(
                     name=c['component'],
                     prototype__name=c['service'],
-                    prototype__bundle_id=obj.component.prototype.bundle_id
-                )
+                    prototype__bundle_id=obj.component.prototype.bundle_id)
                 if comp == obj.component:
                     return
                 if comp.prototype.name not in comp_list:
                     comp_list[comp.prototype.name] = {
-                        'components': {}, 'service': comp.prototype
+                        'components': {},
+                        'service': comp.prototype
                     }
                 if comp.name in comp_list[comp.prototype.name]['components']:
                     return
@@ -536,8 +563,10 @@ class HCComponentSerializer(ServiceComponentDetailSerializer):
 
 class BindSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    export_cluster_id = serializers.IntegerField(read_only=True, source='source_cluster_id')
-    export_cluster_name = serializers.CharField(read_only=True, source='source_cluster')
+    export_cluster_id = serializers.IntegerField(read_only=True,
+                                                 source='source_cluster_id')
+    export_cluster_name = serializers.CharField(read_only=True,
+                                                source='source_cluster')
     export_cluster_prototype_name = serializers.SerializerMethodField()
     export_service_id = serializers.SerializerMethodField()
     export_service_name = serializers.SerializerMethodField()
@@ -583,10 +612,7 @@ class ServiceBindSerializer(BindSerializer):
 class ClusterBindSerializer(BindSerializer):
     class MyUrlField(UrlField):
         def get_kwargs(self, obj):
-            return {
-                'bind_id': obj.id,
-                'cluster_id': obj.cluster.id
-            }
+            return {'bind_id': obj.id, 'cluster_id': obj.cluster.id}
 
     url = MyUrlField(read_only=True, view_name='cluster-bind-details')
 
@@ -599,16 +625,13 @@ class DoBindSerializer(serializers.Serializer):
     export_cluster_prototype_name = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
-        export_cluster = check_obj(
-            Cluster, validated_data.get('export_cluster_id'), "CLUSTER_NOT_FOUND"
-        )
+        export_cluster = check_obj(Cluster,
+                                   validated_data.get('export_cluster_id'),
+                                   "CLUSTER_NOT_FOUND")
         try:
-            return cm.api.bind(
-                validated_data.get('cluster'),
-                None,
-                export_cluster,
-                validated_data.get('export_service_id', 0)
-            )
+            return cm.api.bind(validated_data.get('cluster'), None,
+                               export_cluster,
+                               validated_data.get('export_service_id', 0))
         except AdcmEx as e:
             raise AdcmApiEx(e.code, e.msg, e.http_code) from e
 
@@ -622,16 +645,13 @@ class DoServiceBindSerializer(serializers.Serializer):
     export_cluster_prototype_name = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
-        export_cluster = check_obj(
-            Cluster, validated_data.get('export_cluster_id'), "CLUSTER_NOT_FOUND"
-        )
+        export_cluster = check_obj(Cluster,
+                                   validated_data.get('export_cluster_id'),
+                                   "CLUSTER_NOT_FOUND")
         try:
-            return cm.api.bind(
-                validated_data.get('cluster'),
-                validated_data.get('service'),
-                export_cluster,
-                validated_data.get('export_service_id')
-            )
+            return cm.api.bind(validated_data.get('cluster'),
+                               validated_data.get('service'), export_cluster,
+                               validated_data.get('export_service_id'))
         except AdcmEx as e:
             raise AdcmApiEx(e.code, e.msg, e.http_code) from e
 
@@ -644,9 +664,12 @@ class ClusterServiceConfigSerializer(serializers.Serializer):
                 'service_id': self.context['service_id'],
             }
 
-    history = MyUrlField(read_only=True, view_name='cluster-service-config-history')
-    current = MyUrlField(read_only=True, view_name='cluster-service-config-curr')
-    previous = MyUrlField(read_only=True, view_name='cluster-service-config-prev')
+    history = MyUrlField(read_only=True,
+                         view_name='cluster-service-config-history')
+    current = MyUrlField(read_only=True,
+                         view_name='cluster-service-config-curr')
+    previous = MyUrlField(read_only=True,
+                          view_name='cluster-service-config-prev')
 
 
 class AdcmConfigSerializer(serializers.Serializer):
@@ -712,7 +735,8 @@ class ObjectConfigUpdate(ObjectConfig):
             desc = validated_data.get('description', '')
             cl = cm.api.update_obj_config(instance.obj_ref, conf, attr, desc)
             if validated_data.get('ui'):
-                cl.config = cm.adcm_config.ui_config(validated_data.get('obj'), cl)
+                cl.config = cm.adcm_config.ui_config(validated_data.get('obj'),
+                                                     cl)
             if hasattr(instance.obj_ref, 'adcm'):
                 logrotate.run()
         except AdcmEx as e:
@@ -724,10 +748,8 @@ class ObjectConfigRestore(ObjectConfig):
     def update(self, instance, validated_data):
         try:
             cc = cm.adcm_config.restore_cluster_config(
-                instance.obj_ref,
-                instance.id,
-                validated_data.get('description', instance.description)
-            )
+                instance.obj_ref, instance.id,
+                validated_data.get('description', instance.description))
         except AdcmEx as e:
             raise AdcmApiEx(e.code, e.msg, e.http_code) from e
         return cc
@@ -764,7 +786,10 @@ class AdcmConfigHistorySerializer(ConfigHistorySerializer):
 class ProviderConfigHistorySerializer(ConfigHistorySerializer):
     class MyUrlField(UrlField):
         def get_kwargs(self, obj):
-            return {'provider_id': obj.obj_ref.hostprovider.id, 'version': obj.id}
+            return {
+                'provider_id': obj.obj_ref.hostprovider.id,
+                'version': obj.id
+            }
 
     url = MyUrlField(read_only=True, view_name='provider-config-id')
 

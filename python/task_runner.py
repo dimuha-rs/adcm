@@ -13,7 +13,6 @@
 
 # pylint: disable=unused-import, useless-return, protected-access, bare-except, global-statement
 
-
 import os
 import signal
 import subprocess
@@ -68,10 +67,10 @@ signal.signal(signal.SIGTERM, terminate_task)
 def run_job(task_id, job_id, err_file):
     log.debug("run job #%s of task #%s", job_id, task_id)
     try:
-        proc = subprocess.Popen([
-            os.path.join(config.CODE_DIR, 'job_runner.py'),
-            str(job_id)
-        ], stderr=err_file)
+        proc = subprocess.Popen(
+            [os.path.join(config.CODE_DIR, 'job_runner.py'),
+             str(job_id)],
+            stderr=err_file)
         res = proc.wait()
         return res
     except:
@@ -80,12 +79,16 @@ def run_job(task_id, job_id, err_file):
 
 
 def set_body_ansible(job):
-    log_storage = LogStorage.objects.filter(job=job, name='ansible', type__in=['stdout', 'stderr'])
+    log_storage = LogStorage.objects.filter(job=job,
+                                            name='ansible',
+                                            type__in=['stdout', 'stderr'])
     for ls in log_storage:
-        file_path = os.path.join(config.RUN_DIR, f'{ls.job.id}', f'ansible-{ls.type}.{ls.format}')
+        file_path = os.path.join(config.RUN_DIR, f'{ls.job.id}',
+                                 f'ansible-{ls.type}.{ls.format}')
         with open(file_path, 'r') as f:
             body = f.read()
-        LogStorage.objects.filter(job=job, name=ls.name, type=ls.type).update(body=body)
+        LogStorage.objects.filter(job=job, name=ls.name,
+                                  type=ls.type).update(body=body)
 
 
 def run_task(task_id, args=None):
@@ -111,7 +114,8 @@ def run_task(task_id, args=None):
     res = 0
     for job in jobs:
         if args == 'restart' and job.status == config.Job.SUCCESS:
-            log.info('skip job #%s status "%s" of task #%s', job.id, job.status, task_id)
+            log.info('skip job #%s status "%s" of task #%s', job.id,
+                     job.status, task_id)
             continue
         cm.job.re_prepare_job(task, job)
         job.start_date = timezone.now()
@@ -135,7 +139,8 @@ def run_task(task_id, args=None):
 def do():
     global TASK_ID
     if len(sys.argv) < 2:
-        print("\nUsage:\n{} task_id [restart]\n".format(os.path.basename(sys.argv[0])))
+        print("\nUsage:\n{} task_id [restart]\n".format(
+            os.path.basename(sys.argv[0])))
         sys.exit(4)
     elif len(sys.argv) > 2:
         TASK_ID = sys.argv[1]

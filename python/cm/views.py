@@ -29,13 +29,18 @@ def index(request):
 
 
 def ws_test(request, ws_type='event', dev='production'):
-    context = {'local': dev, 'type': ws_type, 'token': config.STATUS_SECRET_KEY}
+    context = {
+        'local': dev,
+        'type': ws_type,
+        'token': config.STATUS_SECRET_KEY
+    }
     return render(request, 'ws.html', context)
 
 
 def complete(request, *args, **kwargs):
     try:
-        return social_django.views.complete(request, 'google-oauth2', *args, **kwargs)
+        return social_django.views.complete(request, 'google-oauth2', *args,
+                                            **kwargs)
     except AuthForbidden as e:
         log.error("social AUTH_ERROR: %s", e)
         params = urlencode({'error_code': 'AUTH_ERROR', 'error_msg': e})
@@ -55,8 +60,13 @@ def get_token(strategy, user, response, *args, **kwargs):
         user.is_superuser = True
         user.save()
     log.info("authorize social user %s", user)
-    login(strategy.request, user, backend='django.contrib.auth.backends.ModelBackend')
-    return render(strategy.request, 'token.html', {'login': user.username, 'token': token.key})
+    login(strategy.request,
+          user,
+          backend='django.contrib.auth.backends.ModelBackend')
+    return render(strategy.request, 'token.html', {
+        'login': user.username,
+        'token': token.key
+    })
 
 
 def error(request, msg):

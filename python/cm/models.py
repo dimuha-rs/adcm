@@ -27,7 +27,6 @@ PROTO_TYPE = (
     ('provider', 'provider'),
 )
 
-
 LICENSE_STATE = (
     ('absent', 'absent'),
     ('accepted', 'accepted'),
@@ -46,7 +45,8 @@ class JSONField(models.Field):
             except json.JSONDecodeError:
                 raise AdcmEx(
                     'JSON_DB_ERROR',
-                    msg=f"Not correct field format '{expression.field.attname}'") from None
+                    msg=f"Not correct field format '{expression.field.attname}'"
+                ) from None
         return value
 
     def get_prep_value(self, value):
@@ -68,7 +68,9 @@ class Bundle(models.Model):
     version = models.CharField(max_length=80)
     version_order = models.PositiveIntegerField(default=0)
     edition = models.CharField(max_length=80, default='community')
-    license = models.CharField(max_length=16, choices=LICENSE_STATE, default='absent')
+    license = models.CharField(max_length=16,
+                               choices=LICENSE_STATE,
+                               default='absent')
     license_path = models.CharField(max_length=160, default=None, null=True)
     license_hash = models.CharField(max_length=64, default=None, null=True)
     hash = models.CharField(max_length=64)
@@ -76,7 +78,7 @@ class Bundle(models.Model):
     date = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('name', 'version', 'edition'),)
+        unique_together = (('name', 'version', 'edition'), )
 
 
 class Upgrade(models.Model):
@@ -109,14 +111,16 @@ class Prototype(models.Model):
     required = models.BooleanField(default=False)
     shared = models.BooleanField(default=False)
     adcm_min_version = models.CharField(max_length=80, default=None, null=True)
-    monitoring = models.CharField(max_length=16, choices=MONITORING_TYPE, default='active')
+    monitoring = models.CharField(max_length=16,
+                                  choices=MONITORING_TYPE,
+                                  default='active')
     description = models.TextField(blank=True)
 
     def __str__(self):
         return str(self.name)
 
     class Meta:
-        unique_together = (('bundle', 'type', 'name', 'version'),)
+        unique_together = (('bundle', 'type', 'name', 'version'), )
 
 
 class ObjectConfig(models.Model):
@@ -126,16 +130,20 @@ class ObjectConfig(models.Model):
 
 class ConfigLog(models.Model):
     obj_ref = models.ForeignKey(ObjectConfig, on_delete=models.CASCADE)
-    config = models.TextField()         # JSON
-    attr = models.TextField(default=None, null=True)   # JSON
+    config = models.TextField()  # JSON
+    attr = models.TextField(default=None, null=True)  # JSON
     date = models.DateTimeField(auto_now=True)
     description = models.TextField(blank=True)
 
 
 class ADCM(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
-    name = models.CharField(max_length=16, choices=(('ADCM', 'ADCM'),), unique=True)
-    config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=16,
+                            choices=(('ADCM', 'ADCM'), ),
+                            unique=True)
+    config = models.OneToOneField(ObjectConfig,
+                                  on_delete=models.CASCADE,
+                                  null=True)
     state = models.CharField(max_length=64, default='created')
     stack = JSONField()
     issue = JSONField(default={})
@@ -145,7 +153,9 @@ class Cluster(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
     name = models.CharField(max_length=80, unique=True)
     description = models.TextField(blank=True)
-    config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)
+    config = models.OneToOneField(ObjectConfig,
+                                  on_delete=models.CASCADE,
+                                  null=True)
     state = models.CharField(max_length=64, default='created')
     stack = JSONField()
     issue = JSONField()
@@ -158,7 +168,9 @@ class HostProvider(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
     name = models.CharField(max_length=80, unique=True)
     description = models.TextField(blank=True)
-    config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)
+    config = models.OneToOneField(ObjectConfig,
+                                  on_delete=models.CASCADE,
+                                  null=True)
     state = models.CharField(max_length=64, default='created')
     stack = JSONField()
     issue = JSONField()
@@ -171,9 +183,17 @@ class Host(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
     fqdn = models.CharField(max_length=160, unique=True)
     description = models.TextField(blank=True)
-    provider = models.ForeignKey(HostProvider, on_delete=models.CASCADE, null=True, default=None)
-    cluster = models.ForeignKey(Cluster, on_delete=models.SET_NULL, null=True, default=None)
-    config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)
+    provider = models.ForeignKey(HostProvider,
+                                 on_delete=models.CASCADE,
+                                 null=True,
+                                 default=None)
+    cluster = models.ForeignKey(Cluster,
+                                on_delete=models.SET_NULL,
+                                null=True,
+                                default=None)
+    config = models.OneToOneField(ObjectConfig,
+                                  on_delete=models.CASCADE,
+                                  null=True)
     state = models.CharField(max_length=64, default='created')
     stack = JSONField()
     issue = JSONField()
@@ -185,13 +205,15 @@ class Host(models.Model):
 class ClusterObject(models.Model):
     cluster = models.ForeignKey(Cluster, on_delete=models.CASCADE)
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
-    config = models.OneToOneField(ObjectConfig, on_delete=models.CASCADE, null=True)
+    config = models.OneToOneField(ObjectConfig,
+                                  on_delete=models.CASCADE,
+                                  null=True)
     state = models.CharField(max_length=64, default='created')
     stack = JSONField()
     issue = JSONField()
 
     class Meta:
-        unique_together = (('cluster', 'prototype'),)
+        unique_together = (('cluster', 'prototype'), )
 
 
 class Component(models.Model):
@@ -202,10 +224,12 @@ class Component(models.Model):
     params = JSONField(default={})
     constraint = JSONField(default=[])
     requires = JSONField(default={})
-    monitoring = models.CharField(max_length=16, choices=MONITORING_TYPE, default='active')
+    monitoring = models.CharField(max_length=16,
+                                  choices=MONITORING_TYPE,
+                                  default='active')
 
     class Meta:
-        unique_together = (('prototype', 'name'),)
+        unique_together = (('prototype', 'name'), )
 
 
 class ServiceComponent(models.Model):
@@ -214,7 +238,7 @@ class ServiceComponent(models.Model):
     component = models.ForeignKey(Component, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = (('cluster', 'service', 'component'),)
+        unique_together = (('cluster', 'service', 'component'), )
 
 
 ACTION_TYPE = (
@@ -256,7 +280,7 @@ class Action(models.Model):
         return "{} {}".format(self.prototype, self.name)
 
     class Meta:
-        unique_together = (('prototype', 'name'),)
+        unique_together = (('prototype', 'name'), )
 
 
 class SubAction(models.Model):
@@ -277,7 +301,7 @@ class HostComponent(models.Model):
     state = models.CharField(max_length=64, default='created')
 
     class Meta:
-        unique_together = (('host', 'service', 'component'),)
+        unique_together = (('host', 'service', 'component'), )
 
 
 CONFIG_FIELD_TYPE = (
@@ -300,19 +324,22 @@ CONFIG_FIELD_TYPE = (
 
 class PrototypeConfig(models.Model):
     prototype = models.ForeignKey(Prototype, on_delete=models.CASCADE)
-    action = models.ForeignKey(Action, on_delete=models.CASCADE, null=True, default=None)
+    action = models.ForeignKey(Action,
+                               on_delete=models.CASCADE,
+                               null=True,
+                               default=None)
     name = models.CharField(max_length=160)
     subname = models.CharField(max_length=160, blank=True)
     default = models.TextField(blank=True)
     type = models.CharField(max_length=16, choices=CONFIG_FIELD_TYPE)
     display_name = models.CharField(max_length=160, blank=True)
     description = models.TextField(blank=True)
-    limits = models.TextField(blank=True)   # JSON
-    ui_options = models.TextField(blank=True, null=True, default=None)   # JSON
+    limits = models.TextField(blank=True)  # JSON
+    ui_options = models.TextField(blank=True, null=True, default=None)  # JSON
     required = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = (('prototype', 'action', 'name', 'subname'),)
+        unique_together = (('prototype', 'action', 'name', 'subname'), )
 
 
 class PrototypeExport(models.Model):
@@ -320,7 +347,7 @@ class PrototypeExport(models.Model):
     name = models.CharField(max_length=160)
 
     class Meta:
-        unique_together = (('prototype', 'name'),)
+        unique_together = (('prototype', 'name'), )
 
 
 class PrototypeImport(models.Model):
@@ -335,33 +362,31 @@ class PrototypeImport(models.Model):
     multibind = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = (('prototype', 'name'),)
+        unique_together = (('prototype', 'name'), )
 
 
 class ClusterBind(models.Model):
     cluster = models.ForeignKey(Cluster, on_delete=models.CASCADE)
-    service = models.ForeignKey(ClusterObject, on_delete=models.CASCADE, null=True, default=None)
-    source_cluster = models.ForeignKey(
-        Cluster, related_name='source_cluster', on_delete=models.CASCADE
-    )
-    source_service = models.ForeignKey(
-        ClusterObject,
-        related_name='source_service',
-        on_delete=models.CASCADE,
-        null=True,
-        default=None
-    )
+    service = models.ForeignKey(ClusterObject,
+                                on_delete=models.CASCADE,
+                                null=True,
+                                default=None)
+    source_cluster = models.ForeignKey(Cluster,
+                                       related_name='source_cluster',
+                                       on_delete=models.CASCADE)
+    source_service = models.ForeignKey(ClusterObject,
+                                       related_name='source_service',
+                                       on_delete=models.CASCADE,
+                                       null=True,
+                                       default=None)
 
     class Meta:
-        unique_together = (('cluster', 'service', 'source_cluster', 'source_service'),)
+        unique_together = (('cluster', 'service', 'source_cluster',
+                            'source_service'), )
 
 
-JOB_STATUS = (
-    ('created', 'created'),
-    ('running', 'running'),
-    ('success', 'success'),
-    ('failed', 'failed')
-)
+JOB_STATUS = (('created', 'created'), ('running', 'running'),
+              ('success', 'success'), ('failed', 'failed'))
 
 
 class UserProfile(models.Model):
@@ -411,13 +436,16 @@ class GroupCheckLog(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=['job_id', 'title'], name='unique_group_job')
+            models.UniqueConstraint(fields=['job_id', 'title'],
+                                    name='unique_group_job')
         ]
 
 
 class CheckLog(models.Model):
-    group = models.ForeignKey(GroupCheckLog, blank=True, null=True, on_delete=models.CASCADE)
+    group = models.ForeignKey(GroupCheckLog,
+                              blank=True,
+                              null=True,
+                              on_delete=models.CASCADE)
     job_id = models.PositiveIntegerField(default=0)
     title = models.TextField()
     message = models.TextField()
@@ -446,12 +474,14 @@ class LogStorage(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=['job'], condition=models.Q(type='check'), name='unique_check_job')
+            models.UniqueConstraint(fields=['job'],
+                                    condition=models.Q(type='check'),
+                                    name='unique_check_job')
         ]
 
 
 # Stage: Temporary tables to load bundle
+
 
 class StagePrototype(models.Model):
     type = models.CharField(max_length=16, choices=PROTO_TYPE)
@@ -466,13 +496,15 @@ class StagePrototype(models.Model):
     shared = models.BooleanField(default=False)
     adcm_min_version = models.CharField(max_length=80, default=None, null=True)
     description = models.TextField(blank=True)
-    monitoring = models.CharField(max_length=16, choices=MONITORING_TYPE, default='active')
+    monitoring = models.CharField(max_length=16,
+                                  choices=MONITORING_TYPE,
+                                  default='active')
 
     def __str__(self):
         return str(self.name)
 
     class Meta:
-        unique_together = (('type', 'name', 'version'),)
+        unique_together = (('type', 'name', 'version'), )
 
 
 class StageUpgrade(models.Model):
@@ -495,10 +527,12 @@ class StageComponent(models.Model):
     params = JSONField(default={})
     constraint = JSONField(default=[])
     requires = JSONField(default={})
-    monitoring = models.CharField(max_length=16, choices=MONITORING_TYPE, default='active')
+    monitoring = models.CharField(max_length=16,
+                                  choices=MONITORING_TYPE,
+                                  default='active')
 
     class Meta:
-        unique_together = (('prototype', 'name'),)
+        unique_together = (('prototype', 'name'), )
 
 
 class StageAction(models.Model):
@@ -529,7 +563,7 @@ class StageAction(models.Model):
         return "{}:{}".format(self.prototype, self.name)
 
     class Meta:
-        unique_together = (('prototype', 'name'),)
+        unique_together = (('prototype', 'name'), )
 
 
 class StageSubAction(models.Model):
@@ -544,19 +578,22 @@ class StageSubAction(models.Model):
 
 class StagePrototypeConfig(models.Model):
     prototype = models.ForeignKey(StagePrototype, on_delete=models.CASCADE)
-    action = models.ForeignKey(StageAction, on_delete=models.CASCADE, null=True, default=None)
+    action = models.ForeignKey(StageAction,
+                               on_delete=models.CASCADE,
+                               null=True,
+                               default=None)
     name = models.CharField(max_length=160)
     subname = models.CharField(max_length=160, blank=True)
     default = models.TextField(blank=True)
     type = models.CharField(max_length=16, choices=CONFIG_FIELD_TYPE)
     display_name = models.CharField(max_length=160, blank=True)
     description = models.TextField(blank=True)
-    limits = models.TextField(blank=True)   # JSON
-    ui_options = models.TextField(blank=True, null=True, default=None)   # JSON
+    limits = models.TextField(blank=True)  # JSON
+    ui_options = models.TextField(blank=True, null=True, default=None)  # JSON
     required = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = (('prototype', 'action', 'name', 'subname'),)
+        unique_together = (('prototype', 'action', 'name', 'subname'), )
 
 
 class StagePrototypeExport(models.Model):
@@ -564,7 +601,7 @@ class StagePrototypeExport(models.Model):
     name = models.CharField(max_length=160)
 
     class Meta:
-        unique_together = (('prototype', 'name'),)
+        unique_together = (('prototype', 'name'), )
 
 
 class StagePrototypeImport(models.Model):
@@ -579,7 +616,7 @@ class StagePrototypeImport(models.Model):
     multibind = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = (('prototype', 'name'),)
+        unique_together = (('prototype', 'name'), )
 
 
 class DummyData(models.Model):

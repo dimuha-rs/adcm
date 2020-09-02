@@ -32,15 +32,14 @@ from cm.adcm_config import obj_ref, process_file_type
 from cm.errors import raise_AdcmEx as err
 from cm.inventory import get_obj_config, process_config_and_attr
 from cm.logger import log
-from cm.models import (
-    Cluster, Action, SubAction, TaskLog, JobLog, CheckLog, Host, ADCM,
-    ClusterObject, HostComponent, ServiceComponent, HostProvider, DummyData,
-    LogStorage, ConfigLog, GroupCheckLog
-)
+from cm.models import (Cluster, Action, SubAction, TaskLog, JobLog, CheckLog,
+                       Host, ADCM, ClusterObject, HostComponent,
+                       ServiceComponent, HostProvider, DummyData, LogStorage,
+                       ConfigLog, GroupCheckLog)
 from cm.status_api import Event, post_event
 
 
-def start_task(action_id, selector, conf, attr, hc, hosts):   # pylint: disable=too-many-locals
+def start_task(action_id, selector, conf, attr, hc, hosts):  # pylint: disable=too-many-locals
     try:
         action = Action.objects.get(id=action_id)
     except Action.DoesNotExist:
@@ -57,9 +56,8 @@ def start_task(action_id, selector, conf, attr, hc, hosts):   # pylint: disable=
         err('WRONG_ACTION_TYPE', msg)
 
     event = Event()
-    task = prepare_task(
-        action, obj, selector, act_conf, attr, spec, old_hc, delta, host_map, cluster, hosts, event
-    )
+    task = prepare_task(action, obj, selector, act_conf, attr, spec, old_hc,
+                        delta, host_map, cluster, hosts, event)
     event.send_state()
     run_task(task, event)
     event.send_state()
@@ -81,7 +79,10 @@ def check_action_hosts(action, cluster, provider, hosts):
     if not hosts:
         return
     if not action.partial_execution:
-        err('TASK_ERROR', 'Only action with partial_execution permission can receive host list')
+        err(
+            'TASK_ERROR',
+            'Only action with partial_execution permission can receive host list'
+        )
     if not isinstance(hosts, list):
         err('TASK_ERROR', 'Hosts should be array')
     for host_id in hosts:
@@ -92,23 +93,29 @@ def check_action_hosts(action, cluster, provider, hosts):
         except Host.DoesNotExist:
             err('TASK_ERROR', f'Can not find host with id #{host_id}')
         if cluster and host.cluster != cluster:
-            err('TASK_ERROR', f'host #{host_id} does not belong to cluster #{cluster.id}')
+            err('TASK_ERROR',
+                f'host #{host_id} does not belong to cluster #{cluster.id}')
         if provider and host.provider != provider:
-            err('TASK_ERROR', f'host #{host_id} does not belong to host provider #{provider.id}')
+            err(
+                'TASK_ERROR',
+                f'host #{host_id} does not belong to host provider #{provider.id}'
+            )
 
 
 @transaction.atomic
-def prepare_task(action, obj, selector, conf, attr, spec, old_hc, delta, host_map, cluster,
-                 hosts, event):
+def prepare_task(action, obj, selector, conf, attr, spec, old_hc, delta,
+                 host_map, cluster, hosts, event):
     lock_objects(obj, event)
 
     if host_map:
         api.save_hc(cluster, host_map)
 
     if action.type == 'task':
-        task = create_task(action, selector, obj, conf, attr, old_hc, delta, hosts, event)
+        task = create_task(action, selector, obj, conf, attr, old_hc, delta,
+                           hosts, event)
     else:
-        task = create_one_job_task(action, selector, obj, conf, attr, old_hc, hosts, event)
+        task = create_one_job_task(action, selector, obj, conf, attr, old_hc,
+                                   hosts, event)
         _job = create_job(action, None, selector, event, task.id)
 
     if conf:
@@ -131,7 +138,8 @@ def restart_task(task):
         run_task(task, event, 'restart')
         event.send_state()
     else:
-        err('TASK_ERROR', f'task #{task.id} has unexpected status: {task.status}')
+        err('TASK_ERROR',
+            f'task #{task.id} has unexpected status: {task.status}')
 
 
 def cancel_task(task):
@@ -139,16 +147,19 @@ def cancel_task(task):
         config.Job.FAILED: ('TASK_IS_FAILED', f'task #{task.id} is failed'),
         config.Job.ABORTED: ('TASK_IS_ABORTED', f'task #{task.id} is aborted'),
         config.Job.SUCCESS: ('TASK_IS_SUCCESS', f'task #{task.id} is success')
-
     }
     action = Action.objects.get(id=task.action_id)
     if not action.allow_to_terminate:
-        err('NOT_ALLOWED_TERMINATION',
+        err(
+            'NOT_ALLOWED_TERMINATION',
             f'not allowed termination task #{task.id} for action #{action.id}')
-    if task.status in [config.Job.FAILED, config.Job.ABORTED, config.Job.SUCCESS]:
+    if task.status in [
+            config.Job.FAILED, config.Job.ABORTED, config.Job.SUCCESS
+    ]:
         err(*errors.get(task.status))
     i = 0
-    while not JobLog.objects.filter(task_id=task.id, status=config.Job.RUNNING) and i < 10:
+    while not JobLog.objects.filter(task_id=task.id,
+                                    status=config.Job.RUNNING) and i < 10:
         time.sleep(0.5)
         i += 1
     if i == 10:
@@ -179,7 +190,8 @@ def get_action_context(action, selector):
         check_selector(selector, 'adcm')
         obj = check_adcm(selector['adcm'])
     else:
-        err('WRONG_ACTION_CONTEXT', f'unknown action context "{action.prototype.type}"')
+        err('WRONG_ACTION_CONTEXT',
+            f'unknown action context "{action.prototype.type}"')
     return obj, cluster, provider
 
 
@@ -324,7 +336,8 @@ def check_action_config(action, obj, conf, attr):
         obj_conf = json.loads(cl.config)
     adcm_config.check_attr(proto, attr, flat_spec)
     adcm_config.process_variant(obj, spec, obj_conf)
-    new_conf = adcm_config.check_config_spec(proto, action, spec, flat_spec, conf, None, attr)
+    new_conf = adcm_config.check_config_spec(proto, action, spec, flat_spec,
+                                             conf, None, attr)
     return new_conf, spec
 
 
@@ -363,7 +376,8 @@ def cook_delta(cluster, new_hc, action_hc, old=None):
     if not old:
         old = {}
         for hc in HostComponent.objects.filter(cluster=cluster):
-            key = cook_comp_key(hc.service.prototype.name, hc.component.component.name)
+            key = cook_comp_key(hc.service.prototype.name,
+                                hc.component.component.name)
             add_to_dict(old, key, hc.host.fqdn, hc.host)
 
     delta = {'add': {}, 'remove': {}}
@@ -398,7 +412,8 @@ def check_hostcomponentmap(cluster, action, hc):
         err('TASK_ERROR', 'hc is required')
 
     if not cluster:
-        err('TASK_ERROR', 'Only cluster objects can have action with hostcomponentmap')
+        err('TASK_ERROR',
+            'Only cluster objects can have action with hostcomponentmap')
 
     hostmap = api.check_hc(cluster, hc)
     return hostmap, cook_delta(cluster, hostmap, action.hostcomponentmap)
@@ -414,11 +429,13 @@ def check_service_task(cluster_id, action):
     try:
         cluster = Cluster.objects.get(id=cluster_id)
         try:
-            service = ClusterObject.objects.get(cluster=cluster, prototype=action.prototype)
+            service = ClusterObject.objects.get(cluster=cluster,
+                                                prototype=action.prototype)
             return service
         except ClusterObject.DoesNotExist:
-            msg = (f'service #{action.prototype.id} for action '
-                   f'"{action.name}" is not installed in cluster #{cluster.id}')
+            msg = (
+                f'service #{action.prototype.id} for action '
+                f'"{action.name}" is not installed in cluster #{cluster.id}')
             err('CLUSTER_SERVICE_NOT_FOUND', msg)
     except Cluster.DoesNotExist:
         err('CLUSTER_NOT_FOUND')
@@ -556,13 +573,16 @@ def prepare_context(selector):
 
 def prepare_job_config(action, sub_action, selector, job_id, obj, conf):
     job_conf = {
-        'adcm': {'config': get_adcm_config()},
+        'adcm': {
+            'config': get_adcm_config()
+        },
         'context': prepare_context(selector),
         'env': {
             'run_dir': config.RUN_DIR,
             'log_dir': config.LOG_DIR,
             'tmp_dir': os.path.join(config.RUN_DIR, f'{job_id}', 'tmp'),
-            'stack_dir': get_bundle_root(action) + '/' + action.prototype.bundle.hash,
+            'stack_dir':
+            get_bundle_root(action) + '/' + action.prototype.bundle.hash,
             'status_api_token': config.STATUS_SECRET_KEY,
         },
         'job': {
@@ -605,7 +625,8 @@ def prepare_job_config(action, sub_action, selector, job_id, obj, conf):
     elif action.prototype.type == 'adcm':
         job_conf['job']['hostgroup'] = '127.0.0.1'
     else:
-        err('NOT_IMPLEMENTED', 'unknown prototype type "{}"'.format(action.prototype.type))
+        err('NOT_IMPLEMENTED',
+            'unknown prototype type "{}"'.format(action.prototype.type))
 
     if conf:
         job_conf['job']['config'] = conf
@@ -616,7 +637,8 @@ def prepare_job_config(action, sub_action, selector, job_id, obj, conf):
 
 
 def create_task(action, selector, obj, conf, attr, hc, delta, hosts, event):
-    task = create_one_job_task(action, selector, obj, conf, attr, hc, hosts, event)
+    task = create_one_job_task(action, selector, obj, conf, attr, hc, hosts,
+                               event)
     for sub in SubAction.objects.filter(action=action):
         _job = create_job(action, sub, selector, event, task.id)
     return task
@@ -641,27 +663,34 @@ def create_one_job_task(action, selector, obj, conf, attr, hc, hosts, event):
 
 
 def create_job(action, sub_action, selector, event, task_id=0):
-    job = JobLog(
-        task_id=task_id,
-        action_id=action.id,
-        selector=selector,
-        log_files=action.log_files,
-        start_date=timezone.now(),
-        finish_date=timezone.now(),
-        status=config.Job.CREATED
-    )
+    job = JobLog(task_id=task_id,
+                 action_id=action.id,
+                 selector=selector,
+                 log_files=action.log_files,
+                 start_date=timezone.now(),
+                 finish_date=timezone.now(),
+                 status=config.Job.CREATED)
     if sub_action:
         job.sub_action_id = sub_action.id
     job.save()
-    LogStorage.objects.create(job=job, name='ansible', type='stdout', format='txt')
-    LogStorage.objects.create(job=job, name='ansible', type='stderr', format='txt')
+    LogStorage.objects.create(job=job,
+                              name='ansible',
+                              type='stdout',
+                              format='txt')
+    LogStorage.objects.create(job=job,
+                              name='ansible',
+                              type='stderr',
+                              format='txt')
     set_job_status(job.id, config.Job.CREATED, event)
-    os.makedirs(os.path.join(config.RUN_DIR, f'{job.id}', 'tmp'), exist_ok=True)
+    os.makedirs(os.path.join(config.RUN_DIR, f'{job.id}', 'tmp'),
+                exist_ok=True)
     return job
 
 
 def set_job_status(job_id, status, event, pid=0):
-    JobLog.objects.filter(id=job_id).update(status=status, pid=pid, finish_date=timezone.now())
+    JobLog.objects.filter(id=job_id).update(status=status,
+                                            pid=pid,
+                                            finish_date=timezone.now())
     event.set_job_status(job_id, status)
 
 
@@ -722,7 +751,8 @@ def get_state(action, job, status):
 
 def set_action_state(action, task, obj, state):
     if not obj:
-        log.warning('empty object for action %s of task #%s', action.name, task.id)
+        log.warning('empty object for action %s of task #%s', action.name,
+                    task.id)
         return
     msg = 'action "%s" of task #%s will set %s state to "%s"'
     log.info(msg, action.name, task.id, obj_ref(obj), state)
@@ -744,8 +774,11 @@ def restore_hc(task, action, status):
     host_comp_list = []
     for hc in task.hostcomponentmap:
         host = Host.objects.get(id=hc['host_id'])
-        service = ClusterObject.objects.get(id=hc['service_id'], cluster=cluster)
-        comp = ServiceComponent.objects.get(id=hc['component_id'], cluster=cluster, service=service)
+        service = ClusterObject.objects.get(id=hc['service_id'],
+                                            cluster=cluster)
+        comp = ServiceComponent.objects.get(id=hc['component_id'],
+                                            cluster=cluster,
+                                            service=service)
         host_comp_list.append((service, host, comp))
 
     log.warning('task #%s is failed, restore old hc', task.id)
@@ -804,14 +837,16 @@ def log_check(job_id, group_data, check_data):
     try:
         job = JobLog.objects.get(id=job_id)
         if job.status != config.Job.RUNNING:
-            err('JOB_NOT_FOUND', f'job #{job.id} has status "{job.status}", not "running"')
+            err('JOB_NOT_FOUND',
+                f'job #{job.id} has status "{job.status}", not "running"')
     except JobLog.DoesNotExist:
         err('JOB_NOT_FOUND', f'no job with id #{job_id}')
 
     group_title = group_data.pop('title')
 
     if group_title:
-        group, _ = GroupCheckLog.objects.get_or_create(job_id=job_id, title=group_title)
+        group, _ = GroupCheckLog.objects.get_or_create(job_id=job_id,
+                                                       title=group_title)
     else:
         group = None
 
@@ -822,10 +857,16 @@ def log_check(job_id, group_data, check_data):
         group_data.update({'group': group})
         log_group_check(**group_data)
 
-    ls, _ = LogStorage.objects.get_or_create(job=job, name='ansible', type='check', format='json')
+    ls, _ = LogStorage.objects.get_or_create(job=job,
+                                             name='ansible',
+                                             type='check',
+                                             format='json')
 
     post_event('add_job_log', 'job', job_id, {
-        'id': ls.id, 'type': ls.type, 'name': ls.name, 'format': ls.format,
+        'id': ls.id,
+        'type': ls.type,
+        'name': ls.name,
+        'format': ls.format,
     })
     return cl
 
@@ -837,15 +878,27 @@ def get_check_log(job_id):
     for cl in CheckLog.objects.filter(job_id=job_id):
         group = cl.group
         if group is None:
-            data.append(
-                {'title': cl.title, 'type': 'check', 'message': cl.message, 'result': cl.result})
+            data.append({
+                'title': cl.title,
+                'type': 'check',
+                'message': cl.message,
+                'result': cl.result
+            })
         else:
             if group not in group_subs:
-                data.append(
-                    {'title': group.title, 'type': 'group', 'message': group.message,
-                     'result': group.result, 'content': group_subs[group]})
-            group_subs[group].append(
-                {'title': cl.title, 'type': 'check', 'message': cl.message, 'result': cl.result})
+                data.append({
+                    'title': group.title,
+                    'type': 'group',
+                    'message': group.message,
+                    'result': group.result,
+                    'content': group_subs[group]
+                })
+            group_subs[group].append({
+                'title': cl.title,
+                'type': 'check',
+                'message': cl.message,
+                'result': cl.result
+            })
     return data
 
 
@@ -857,8 +910,10 @@ def finish_check(job_id):
         return
 
     job = JobLog.objects.get(id=job_id)
-    LogStorage.objects.filter(job=job, name='ansible', type='check', format='json').update(
-        body=json.dumps(data))
+    LogStorage.objects.filter(job=job,
+                              name='ansible',
+                              type='check',
+                              format='json').update(body=json.dumps(data))
 
     GroupCheckLog.objects.filter(job_id=job_id).delete()
     CheckLog.objects.filter(job_id=job_id).delete()
@@ -867,11 +922,16 @@ def finish_check(job_id):
 def log_custom(job_id, name, log_format, body):
     try:
         job = JobLog.objects.get(id=job_id)
-        l1 = LogStorage.objects.create(
-            job=job, name=name, type='custom', format=log_format, body=body
-        )
+        l1 = LogStorage.objects.create(job=job,
+                                       name=name,
+                                       type='custom',
+                                       format=log_format,
+                                       body=body)
         post_event('add_job_log', 'job', job_id, {
-            'id': l1.id, 'type': l1.type, 'name': l1.name, 'format': l1.format,
+            'id': l1.id,
+            'type': l1.type,
+            'name': l1.name,
+            'format': l1.format,
         })
     except JobLog.DoesNotExist:
         err('JOB_NOT_FOUND', f'no job with id #{job_id}')
@@ -883,11 +943,10 @@ def check_all_status():
 
 def run_task(task, event, args=''):
     err_file = open(os.path.join(config.LOG_DIR, 'task_runner.err'), 'a+')
-    proc = subprocess.Popen([
-        os.path.join(config.CODE_DIR, 'task_runner.py'),
-        str(task.id),
-        args
-    ], stderr=err_file)
+    proc = subprocess.Popen(
+        [os.path.join(config.CODE_DIR, 'task_runner.py'),
+         str(task.id), args],
+        stderr=err_file)
     log.info("run task #%s, python process %s", task.id, proc.pid)
     task.pid = proc.pid
 
@@ -898,7 +957,8 @@ def run_task(task, event, args=''):
 def log_rotation():
     log.info('Run log rotation')
     adcm_object = ADCM.objects.get(id=1)
-    cl = ConfigLog.objects.get(obj_ref=adcm_object.config, id=adcm_object.config.current)
+    cl = ConfigLog.objects.get(obj_ref=adcm_object.config,
+                               id=adcm_object.config.current)
     adcm_conf = json.loads(cl.config)
 
     log_rotation_on_db = adcm_conf['job_log']['log_rotation_in_db']
@@ -906,9 +966,12 @@ def log_rotation():
 
     if log_rotation_on_db:
         rotation_jobs_on_db = JobLog.objects.filter(
-            finish_date__lt=timezone.now() - timedelta(days=log_rotation_on_db))
+            finish_date__lt=timezone.now() -
+            timedelta(days=log_rotation_on_db))
         if rotation_jobs_on_db:
-            task_ids = [job['task_id'] for job in rotation_jobs_on_db.values('task_id')]
+            task_ids = [
+                job['task_id'] for job in rotation_jobs_on_db.values('task_id')
+            ]
             with transaction.atomic():
                 rotation_jobs_on_db.delete()
                 TaskLog.objects.filter(id__in=task_ids).delete()
@@ -917,11 +980,14 @@ def log_rotation():
 
     if log_rotation_on_fs:
         for name in os.listdir(config.RUN_DIR):
-            if not name.startswith('.'):  # a line of code is used for development
+            if not name.startswith(
+                    '.'):  # a line of code is used for development
                 path = os.path.join(config.RUN_DIR, name)
                 try:
-                    m_time = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
-                    if timezone.now() - m_time > timedelta(days=log_rotation_on_fs):
+                    m_time = datetime.fromtimestamp(os.path.getmtime(path),
+                                                    tz=timezone.utc)
+                    if timezone.now() - m_time > timedelta(
+                            days=log_rotation_on_fs):
                         if os.path.isdir(path):
                             shutil.rmtree(path)
                         else:
@@ -934,11 +1000,10 @@ def log_rotation():
 
 def prepare_ansible_config(job_id):
     config_parser = ConfigParser()
-    config_parser['defaults'] = {
-        'stdout_callback': 'yaml'
-    }
+    config_parser['defaults'] = {'stdout_callback': 'yaml'}
     adcm_object = ADCM.objects.get(id=1)
-    cl = ConfigLog.objects.get(obj_ref=adcm_object.config, id=adcm_object.config.current)
+    cl = ConfigLog.objects.get(obj_ref=adcm_object.config,
+                               id=adcm_object.config.current)
     adcm_conf = json.loads(cl.config)
     mitogen = adcm_conf['ansible_settings']['mitogen']
     if mitogen:
@@ -953,7 +1018,9 @@ def prepare_ansible_config(job_id):
     params = action.params
 
     if 'jinja2_native' in params:
-        config_parser['defaults']['jinja2_native'] = str(params['jinja2_native'])
+        config_parser['defaults']['jinja2_native'] = str(
+            params['jinja2_native'])
 
-    with open(os.path.join(config.RUN_DIR, f'{job_id}/ansible.cfg'), 'w') as config_file:
+    with open(os.path.join(config.RUN_DIR, f'{job_id}/ansible.cfg'),
+              'w') as config_file:
         config_parser.write(config_file)

@@ -22,7 +22,6 @@ import adcm.init_django
 from cm.ansible_plugin import ContextActionModule
 import cm.adcm_config
 
-
 ANSIBLE_METADATA = {'metadata_version': '1.1', 'supported_by': 'Arenadata'}
 DOCUMENTATION = r'''
 ---
@@ -83,68 +82,50 @@ value:
 
 class ActionModule(ContextActionModule):
 
-    _VALID_ARGS = frozenset(('type', 'key', 'value', 'service_name', 'host_id'))
+    _VALID_ARGS = frozenset(
+        ('type', 'key', 'value', 'service_name', 'host_id'))
     _MANDATORY_ARGS = ('type', 'key', 'value')
 
     def _do_cluster(self, task_vars, context):
-        res = self._wrap_call(
-            cm.adcm_config.set_cluster_config,
-            context['cluster_id'],
-            self._task.args["key"],
-            self._task.args["value"]
-        )
+        res = self._wrap_call(cm.adcm_config.set_cluster_config,
+                              context['cluster_id'], self._task.args["key"],
+                              self._task.args["value"])
         res['value'] = self._task.args["value"]
         return res
 
     def _do_service_by_name(self, task_vars, context):
-        res = self._wrap_call(
-            cm.adcm_config.set_service_config,
-            context['cluster_id'],
-            self._task.args["service_name"],
-            self._task.args["key"],
-            self._task.args["value"]
-        )
+        res = self._wrap_call(cm.adcm_config.set_service_config,
+                              context['cluster_id'],
+                              self._task.args["service_name"],
+                              self._task.args["key"], self._task.args["value"])
         res['value'] = self._task.args["value"]
         return res
 
     def _do_service(self, task_vars, context):
-        res = self._wrap_call(
-            cm.adcm_config.set_service_config_by_id,
-            context['cluster_id'],
-            context['service_id'],
-            self._task.args["key"],
-            self._task.args["value"]
-        )
+        res = self._wrap_call(cm.adcm_config.set_service_config_by_id,
+                              context['cluster_id'], context['service_id'],
+                              self._task.args["key"], self._task.args["value"])
         res['value'] = self._task.args["value"]
         return res
 
     def _do_host(self, task_vars, context):
-        res = self._wrap_call(
-            cm.adcm_config.set_host_config,
-            context['host_id'],
-            self._task.args["key"],
-            self._task.args["value"]
-        )
+        res = self._wrap_call(cm.adcm_config.set_host_config,
+                              context['host_id'], self._task.args["key"],
+                              self._task.args["value"])
         res['value'] = self._task.args["value"]
         return res
 
     def _do_host_from_provider(self, task_vars, context):
         # TODO: Check that host is in provider
-        res = self._wrap_call(
-            cm.adcm_config.set_host_config,
-            self._task.args['host_id'],
-            self._task.args["key"],
-            self._task.args["value"]
-        )
+        res = self._wrap_call(cm.adcm_config.set_host_config,
+                              self._task.args['host_id'],
+                              self._task.args["key"], self._task.args["value"])
         res['value'] = self._task.args["value"]
         return res
 
     def _do_provider(self, task_vars, context):
-        res = self._wrap_call(
-            cm.adcm_config.set_provider_config,
-            context['provider_id'],
-            self._task.args["key"],
-            self._task.args["value"]
-        )
+        res = self._wrap_call(cm.adcm_config.set_provider_config,
+                              context['provider_id'], self._task.args["key"],
+                              self._task.args["value"])
         res['value'] = self._task.args["value"]
         return res

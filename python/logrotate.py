@@ -21,11 +21,7 @@ from django.utils import timezone
 from cm.logger import log
 from cm.models import ADCM, ConfigLog
 
-PERIODS = {
-    'HOURLY': Task.HOURLY,
-    'DAILY': Task.DAILY,
-    'WEEKLY': Task.WEEKLY
-}
+PERIODS = {'HOURLY': Task.HOURLY, 'DAILY': Task.DAILY, 'WEEKLY': Task.WEEKLY}
 
 
 @background(schedule=60)
@@ -54,9 +50,11 @@ def create_task(path, name, period, turn):
 
 def run():
     adcm_object = ADCM.objects.get(id=1)
-    cl = ConfigLog.objects.get(obj_ref=adcm_object.config, id=adcm_object.config.current)
+    cl = ConfigLog.objects.get(obj_ref=adcm_object.config,
+                               id=adcm_object.config.current)
     adcm_conf = json.loads(cl.config)
     period = PERIODS[adcm_conf['logrotate']['rotation_period']]
 
     use_rotation_nginx_server = adcm_conf['logrotate']['nginx_server']
-    create_task('/etc/logrotate.d/nginx', 'nginx', period, use_rotation_nginx_server)
+    create_task('/etc/logrotate.d/nginx', 'nginx', period,
+                use_rotation_nginx_server)

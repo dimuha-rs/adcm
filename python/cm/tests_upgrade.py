@@ -22,20 +22,17 @@ from cm.errors import AdcmEx
 
 
 class TestUpgradeVersion(TestCase):
-
     def cook_cluster(self):
         b = Bundle(name="ADH", version="1.0")
         proto = Prototype(type="cluster", name="ADH", bundle=b)
         return Cluster(prototype=proto, issue={})
 
     def cook_upgrade(self):
-        return Upgrade(
-            min_version="1.0",
-            max_version="2.0",
-            min_strict=False,
-            max_strict=False,
-            state_available='any'
-        )
+        return Upgrade(min_version="1.0",
+                       max_version="2.0",
+                       min_strict=False,
+                       max_strict=False,
+                       state_available='any')
 
     def check_upgrade(self, obj, upgrade, result):
         ok, msg = cm.upgrade.check_upgrade(obj, upgrade)
@@ -100,10 +97,16 @@ class SetUp():
     def cook_cluster_bundle(self, ver):
         b = Bundle.objects.create(name='ADH', version=ver)
         b.save()
-        Prototype.objects.create(type="cluster", name="ADH", version=ver, bundle=b)
+        Prototype.objects.create(type="cluster",
+                                 name="ADH",
+                                 version=ver,
+                                 bundle=b)
         sp2 = Prototype.objects.create(type="service", name="hive", bundle=b)
         Component.objects.create(prototype=sp2, name='server')
-        sp1 = Prototype.objects.create(type="service", name="hadoop", version=ver, bundle=b)
+        sp1 = Prototype.objects.create(type="service",
+                                       name="hadoop",
+                                       version=ver,
+                                       bundle=b)
         Component.objects.create(prototype=sp1, name='server')
         Component.objects.create(prototype=sp1, name='node')
         return b
@@ -111,14 +114,21 @@ class SetUp():
     def cook_provider_bundle(self, ver):
         b = Bundle.objects.create(name='DF', version=ver)
         b.save()
-        Prototype.objects.create(type="provider", name="DF", version=ver, bundle=b)
-        Prototype.objects.create(type="host", name="DfHost", version=ver, bundle=b)
+        Prototype.objects.create(type="provider",
+                                 name="DF",
+                                 version=ver,
+                                 bundle=b)
+        Prototype.objects.create(type="host",
+                                 name="DfHost",
+                                 version=ver,
+                                 bundle=b)
         return b
 
     def cook_provider(self, bundle, name):
         pp = Prototype.objects.get(type="provider", bundle=bundle)
         provider = cm.api.add_host_provider(pp, name)
-        host_proto = Prototype.objects.get(bundle=provider.prototype.bundle, type='host')
+        host_proto = Prototype.objects.get(bundle=provider.prototype.bundle,
+                                           type='host')
         cm.api.add_host(host_proto, provider, 'server02.inter.net')
         cm.api.add_host(host_proto, provider, 'server01.inter.net')
         return provider
@@ -128,17 +138,17 @@ class SetUp():
         cluster = cm.api.add_cluster(cp, name)
         sp2 = Prototype.objects.get(type="service", name="hive", bundle=bundle)
         cm.api.add_service_to_cluster(cluster, sp2)
-        sp1 = Prototype.objects.get(type="service", name="hadoop", bundle=bundle)
+        sp1 = Prototype.objects.get(type="service",
+                                    name="hadoop",
+                                    bundle=bundle)
         cm.api.add_service_to_cluster(cluster, sp1)
         return cluster
 
     def cook_upgrade(self, bundle):
-        return Upgrade.objects.create(
-            bundle=bundle,
-            min_version="1.0",
-            max_version="2.0",
-            state_available=['created']
-        )
+        return Upgrade.objects.create(bundle=bundle,
+                                      min_version="1.0",
+                                      max_version="2.0",
+                                      state_available=['created'])
 
 
 def get_config(obj):
@@ -154,8 +164,14 @@ class TestConfigUpgrade(TestCase):
 
     def cook_proto(self):
         b = Bundle.objects.create(name='AD1', version='1.0')
-        proto1 = Prototype.objects.create(type="cluster", name="AD1", version="1.0", bundle=b)
-        proto2 = Prototype.objects.create(type="cluster", name="AD1", version="2.0", bundle=b)
+        proto1 = Prototype.objects.create(type="cluster",
+                                          name="AD1",
+                                          version="1.0",
+                                          bundle=b)
+        proto2 = Prototype.objects.create(type="cluster",
+                                          name="AD1",
+                                          version="2.0",
+                                          bundle=b)
         return (proto1, proto2)
 
     def test_empty_config(self):
@@ -167,7 +183,10 @@ class TestConfigUpgrade(TestCase):
 
     def test_empty_first_config(self):
         (proto1, proto2) = self.cook_proto()
-        self.add_conf(prototype=proto2, name='port', type='integer', default=42)
+        self.add_conf(prototype=proto2,
+                      name='port',
+                      type='integer',
+                      default=42)
         cluster = cm.api.add_cluster(proto1, 'Cluster1')
         self.assertEqual(cluster.config, None)
         cm.adcm_config.switch_config(cluster, proto2, proto1)
@@ -176,9 +195,18 @@ class TestConfigUpgrade(TestCase):
 
     def test_adding_parameter(self):
         (proto1, proto2) = self.cook_proto()
-        self.add_conf(prototype=proto1, name='host', type='string', default='arenadata.com')
-        self.add_conf(prototype=proto2, name='host', type='string', default='arenadata.com')
-        self.add_conf(prototype=proto2, name='port', type='integer', default=42)
+        self.add_conf(prototype=proto1,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
+        self.add_conf(prototype=proto2,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
+        self.add_conf(prototype=proto2,
+                      name='port',
+                      type='integer',
+                      default=42)
         cluster = cm.api.add_cluster(proto1, 'Cluster1')
         old_conf, _ = get_config(cluster)
         self.assertEqual(old_conf, {'host': 'arenadata.com'})
@@ -188,8 +216,14 @@ class TestConfigUpgrade(TestCase):
 
     def test_deleting_parameter(self):
         (proto1, proto2) = self.cook_proto()
-        self.add_conf(prototype=proto1, name='host', type='string', default='arenadata.com')
-        self.add_conf(prototype=proto2, name='port', type='integer', default=42)
+        self.add_conf(prototype=proto1,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
+        self.add_conf(prototype=proto2,
+                      name='port',
+                      type='integer',
+                      default=42)
         cluster = cm.api.add_cluster(proto1, 'Cluster1')
         old_conf, _ = get_config(cluster)
         self.assertEqual(old_conf, {'host': 'arenadata.com'})
@@ -199,8 +233,14 @@ class TestConfigUpgrade(TestCase):
 
     def test_default(self):
         (proto1, proto2) = self.cook_proto()
-        self.add_conf(prototype=proto1, name='port', type='integer', default=42)
-        self.add_conf(prototype=proto2, name='port', type='integer', default=43)
+        self.add_conf(prototype=proto1,
+                      name='port',
+                      type='integer',
+                      default=42)
+        self.add_conf(prototype=proto2,
+                      name='port',
+                      type='integer',
+                      default=43)
         cluster = cm.api.add_cluster(proto1, 'Cluster1')
         old_conf, _ = get_config(cluster)
         self.assertEqual(old_conf, {'port': 42})
@@ -210,8 +250,14 @@ class TestConfigUpgrade(TestCase):
 
     def test_non_default(self):
         (proto1, proto2) = self.cook_proto()
-        self.add_conf(prototype=proto1, name='port', type='integer', default=42)
-        self.add_conf(prototype=proto2, name='port', type='integer', default=43)
+        self.add_conf(prototype=proto1,
+                      name='port',
+                      type='integer',
+                      default=42)
+        self.add_conf(prototype=proto2,
+                      name='port',
+                      type='integer',
+                      default=43)
         cluster = cm.api.add_cluster(proto1, 'Cluster1')
         old_conf, _ = get_config(cluster)
         old_conf['port'] = 100500
@@ -222,50 +268,98 @@ class TestConfigUpgrade(TestCase):
 
     def test_add_group(self):
         (proto1, proto2) = self.cook_proto()
-        self.add_conf(prototype=proto1, name='host', type='string', default='arenadata.com')
-        self.add_conf(prototype=proto2, name='host', type='string', default='arenadata.com')
+        self.add_conf(prototype=proto1,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
+        self.add_conf(prototype=proto2,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
         self.add_conf(prototype=proto2, name='advance', type='group')
-        self.add_conf(prototype=proto2, name='advance', subname='port', type='integer', default=42)
+        self.add_conf(prototype=proto2,
+                      name='advance',
+                      subname='port',
+                      type='integer',
+                      default=42)
         cluster = cm.api.add_cluster(proto1, 'Cluster1')
         old_conf, _ = get_config(cluster)
         self.assertEqual(old_conf, {'host': 'arenadata.com'})
         cm.adcm_config.switch_config(cluster, proto2, proto1)
         new_config, _ = get_config(cluster)
-        self.assertEqual(new_config, {'host': 'arenadata.com', 'advance': {'port': 42}})
+        self.assertEqual(new_config, {
+            'host': 'arenadata.com',
+            'advance': {
+                'port': 42
+            }
+        })
 
     def test_add_non_active_group(self):
         (proto1, proto2) = self.cook_proto()
-        self.add_conf(prototype=proto1, name='host', type='string', default='arenadata.com')
-        self.add_conf(prototype=proto2, name='host', type='string', default='arenadata.com')
+        self.add_conf(prototype=proto1,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
+        self.add_conf(prototype=proto2,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
         limits = {"activatable": True, "active": False}
-        self.add_conf(prototype=proto2, name='advance', type='group', limits=json.dumps(limits))
-        self.add_conf(prototype=proto2, name='advance', subname='port', type='integer', default=42)
+        self.add_conf(prototype=proto2,
+                      name='advance',
+                      type='group',
+                      limits=json.dumps(limits))
+        self.add_conf(prototype=proto2,
+                      name='advance',
+                      subname='port',
+                      type='integer',
+                      default=42)
         cluster = cm.api.add_cluster(proto1, 'Cluster1')
         old_conf, _ = get_config(cluster)
         self.assertEqual(old_conf, {'host': 'arenadata.com'})
         cm.adcm_config.switch_config(cluster, proto2, proto1)
         new_config, new_attr = get_config(cluster)
-        self.assertEqual(new_config, {'host': 'arenadata.com', 'advance': None})
+        self.assertEqual(new_config, {
+            'host': 'arenadata.com',
+            'advance': None
+        })
         self.assertEqual(new_attr, {'advance': {'active': False}})
 
     def test_add_active_group(self):
         (proto1, proto2) = self.cook_proto()
-        self.add_conf(prototype=proto1, name='host', type='string', default='arenadata.com')
-        self.add_conf(prototype=proto2, name='host', type='string', default='arenadata.com')
+        self.add_conf(prototype=proto1,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
+        self.add_conf(prototype=proto2,
+                      name='host',
+                      type='string',
+                      default='arenadata.com')
         limits = {"activatable": True, "active": True}
-        self.add_conf(prototype=proto2, name='advance', type='group', limits=json.dumps(limits))
-        self.add_conf(prototype=proto2, name='advance', subname='port', type='integer', default=42)
+        self.add_conf(prototype=proto2,
+                      name='advance',
+                      type='group',
+                      limits=json.dumps(limits))
+        self.add_conf(prototype=proto2,
+                      name='advance',
+                      subname='port',
+                      type='integer',
+                      default=42)
         cluster = cm.api.add_cluster(proto1, 'Cluster1')
         old_conf, _ = get_config(cluster)
         self.assertEqual(old_conf, {'host': 'arenadata.com'})
         cm.adcm_config.switch_config(cluster, proto2, proto1)
         new_config, new_attr = get_config(cluster)
-        self.assertEqual(new_config, {'host': 'arenadata.com', 'advance': {'port': 42}})
+        self.assertEqual(new_config, {
+            'host': 'arenadata.com',
+            'advance': {
+                'port': 42
+            }
+        })
         self.assertEqual(new_attr, {'advance': {'active': True}})
 
 
 class TestUpgrade(TestCase):
-
     def test_cluster_upgrade(self):
         setup = SetUp()
         b1 = setup.cook_cluster_bundle('1.0')
@@ -274,25 +368,32 @@ class TestUpgrade(TestCase):
         cluster = setup.cook_cluster(b1, 'Test1')
         upgrade = setup.cook_upgrade(b2)
 
-        co1 = ClusterObject.objects.get(cluster=cluster, prototype__name='hadoop')
+        co1 = ClusterObject.objects.get(cluster=cluster,
+                                        prototype__name='hadoop')
 
         try:
             r = cm.upgrade.do_upgrade(co1, upgrade)
             self.assertEqual(r, 'ok')
         except AdcmEx as e:
             self.assertEqual(e.code, 'UPGRADE_ERROR')
-            self.assertEqual(e.msg, 'can upgrade only cluster or host provider')
+            self.assertEqual(e.msg,
+                             'can upgrade only cluster or host provider')
 
-        old_proto = Prototype.objects.get(type="service", name="hadoop", bundle=b1)
-        new_proto = Prototype.objects.get(type="service", name="hadoop", bundle=b2)
+        old_proto = Prototype.objects.get(type="service",
+                                          name="hadoop",
+                                          bundle=b1)
+        new_proto = Prototype.objects.get(type="service",
+                                          name="hadoop",
+                                          bundle=b2)
         self.assertEqual(co1.prototype.id, old_proto.id)
 
         cm.upgrade.do_upgrade(cluster, upgrade)
-        co2 = ClusterObject.objects.get(cluster=cluster, prototype__name='hadoop')
+        co2 = ClusterObject.objects.get(cluster=cluster,
+                                        prototype__name='hadoop')
         self.assertEqual(co1.id, co2.id)
         self.assertEqual(co2.prototype.id, new_proto.id)
 
-    def test_hc(self):   # pylint: disable=too-many-locals
+    def test_hc(self):  # pylint: disable=too-many-locals
         setup = SetUp()
         b1 = setup.cook_cluster_bundle('1.0')
         b2 = setup.cook_cluster_bundle('2.0')
@@ -301,34 +402,56 @@ class TestUpgrade(TestCase):
         cluster = setup.cook_cluster(b1, 'Test1')
         provider = setup.cook_provider(b3, "DF01")
 
-        co = ClusterObject.objects.get(cluster=cluster, prototype__name='hadoop')
-        sc1 = ServiceComponent.objects.get(cluster=cluster, service=co, component__name='server')
-        sc2 = ServiceComponent.objects.get(cluster=cluster, service=co, component__name='node')
+        co = ClusterObject.objects.get(cluster=cluster,
+                                       prototype__name='hadoop')
+        sc1 = ServiceComponent.objects.get(cluster=cluster,
+                                           service=co,
+                                           component__name='server')
+        sc2 = ServiceComponent.objects.get(cluster=cluster,
+                                           service=co,
+                                           component__name='node')
         h1 = Host.objects.get(provider=provider, fqdn='server01.inter.net')
         h2 = Host.objects.get(provider=provider, fqdn='server02.inter.net')
         cm.api.add_host_to_cluster(cluster, h1)
         cm.api.add_host_to_cluster(cluster, h2)
 
         hc = [
-            {'service_id': co.id, 'host_id': h1.id, 'component_id': sc1.id},
-            {'service_id': co.id, 'host_id': h2.id, 'component_id': sc2.id},
+            {
+                'service_id': co.id,
+                'host_id': h1.id,
+                'component_id': sc1.id
+            },
+            {
+                'service_id': co.id,
+                'host_id': h2.id,
+                'component_id': sc2.id
+            },
         ]
         cm.api.add_hc(cluster, hc)
-        hc1 = HostComponent.objects.get(cluster=cluster, service=co, component=sc2)
+        hc1 = HostComponent.objects.get(cluster=cluster,
+                                        service=co,
+                                        component=sc2)
         self.assertEqual(hc1.component.id, sc2.id)
 
-        new_co_proto = Prototype.objects.get(type="service", name="hadoop", bundle=b2)
-        new_comp_node = Component.objects.get(name='node', prototype=new_co_proto)
+        new_co_proto = Prototype.objects.get(type="service",
+                                             name="hadoop",
+                                             bundle=b2)
+        new_comp_node = Component.objects.get(name='node',
+                                              prototype=new_co_proto)
         new_comp_node.delete()
 
         upgrade = setup.cook_upgrade(b2)
         cm.upgrade.do_upgrade(cluster, upgrade)
-        hc2 = HostComponent.objects.get(cluster=cluster, service=co, component=sc1)
+        hc2 = HostComponent.objects.get(cluster=cluster,
+                                        service=co,
+                                        component=sc1)
         self.assertEqual(hc2.component.id, sc1.id)
-        r = HostComponent.objects.filter(cluster=cluster, service=co, component=sc2)
+        r = HostComponent.objects.filter(cluster=cluster,
+                                         service=co,
+                                         component=sc2)
         self.assertEqual(len(r), 0)
 
-    def test_component(self):   # pylint: disable=too-many-locals
+    def test_component(self):  # pylint: disable=too-many-locals
         setup = SetUp()
         b1 = setup.cook_cluster_bundle('1.0')
         b2 = setup.cook_cluster_bundle('2.0')
@@ -337,27 +460,41 @@ class TestUpgrade(TestCase):
         setup.cook_cluster(b1, 'Test0')
         cluster = setup.cook_cluster(b1, 'Test1')
 
-        co = ClusterObject.objects.get(cluster=cluster, prototype__name='hadoop')
-        sc11 = ServiceComponent.objects.get(cluster=cluster, service=co, component__name='server')
+        co = ClusterObject.objects.get(cluster=cluster,
+                                       prototype__name='hadoop')
+        sc11 = ServiceComponent.objects.get(cluster=cluster,
+                                            service=co,
+                                            component__name='server')
         self.assertEqual(sc11.component.prototype, co.prototype)
 
-        sc12 = ServiceComponent.objects.get(cluster=cluster, service=co, component__name='node')
+        sc12 = ServiceComponent.objects.get(cluster=cluster,
+                                            service=co,
+                                            component__name='node')
         self.assertEqual(sc12.component.prototype, co.prototype)
 
-        new_co_proto = Prototype.objects.get(type="service", name="hadoop", bundle=b2)
+        new_co_proto = Prototype.objects.get(type="service",
+                                             name="hadoop",
+                                             bundle=b2)
         cm.upgrade.switch_components(cluster, co, new_co_proto)
 
-        new_comp1 = Component.objects.get(name='server', prototype=new_co_proto)
-        sc21 = ServiceComponent.objects.get(cluster=cluster, service=co, component__name='server')
+        new_comp1 = Component.objects.get(name='server',
+                                          prototype=new_co_proto)
+        sc21 = ServiceComponent.objects.get(cluster=cluster,
+                                            service=co,
+                                            component__name='server')
         self.assertEqual(sc11.id, sc21.id)
         self.assertEqual(sc21.component, new_comp1)
         new_comp2 = Component.objects.get(name='node', prototype=new_co_proto)
-        sc22 = ServiceComponent.objects.get(cluster=cluster, service=co, component__name='node')
+        sc22 = ServiceComponent.objects.get(cluster=cluster,
+                                            service=co,
+                                            component__name='node')
         self.assertEqual(sc12.id, sc22.id)
         self.assertEqual(sc22.component, new_comp2)
 
         new_comp3 = Component.objects.get(name='data', prototype=new_co_proto)
-        sc23 = ServiceComponent.objects.get(cluster=cluster, service=co, component__name='data')
+        sc23 = ServiceComponent.objects.get(cluster=cluster,
+                                            service=co,
+                                            component__name='data')
         self.assertEqual(sc23.component, new_comp3)
 
     def test_provider_upgrade(self):
@@ -374,10 +511,15 @@ class TestUpgrade(TestCase):
             self.assertEqual(r, 'ok')
         except AdcmEx as e:
             self.assertEqual(e.code, 'UPGRADE_ERROR')
-            self.assertEqual(e.msg, 'can upgrade only cluster or host provider')
+            self.assertEqual(e.msg,
+                             'can upgrade only cluster or host provider')
 
-        old_proto = Prototype.objects.get(type="host", name="DfHost", bundle=b1)
-        new_proto = Prototype.objects.get(type="host", name="DfHost", bundle=b2)
+        old_proto = Prototype.objects.get(type="host",
+                                          name="DfHost",
+                                          bundle=b1)
+        new_proto = Prototype.objects.get(type="host",
+                                          name="DfHost",
+                                          bundle=b2)
         self.assertEqual(h1.prototype.id, old_proto.id)
 
         cm.upgrade.do_upgrade(provider, upgrade)

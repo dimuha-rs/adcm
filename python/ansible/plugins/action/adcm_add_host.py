@@ -77,7 +77,8 @@ class ActionModule(ActionBase):
         if 'description' in self._task.args:
             desc = self._task.args['description']
 
-        log.info('ansible module adcm_add_host: provider %s, fqdn %s', provider_id, fqdn)
+        log.info('ansible module adcm_add_host: provider %s, fqdn %s',
+                 provider_id, fqdn)
 
         try:
             host = cm.api.add_provider_host(provider_id, fqdn, desc)

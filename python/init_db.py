@@ -14,7 +14,7 @@
 import json
 import random
 import string
-import adcm.init_django		# pylint: disable=unused-import
+import adcm.init_django  # pylint: disable=unused-import
 
 from django.contrib.auth.models import User
 
@@ -27,7 +27,8 @@ from cm.status_api import Event
 
 
 def random_string(strlen=10):
-    return "".join([random.choice(string.ascii_letters) for _ in range(strlen)])
+    return "".join(
+        [random.choice(string.ascii_letters) for _ in range(strlen)])
 
 
 def create_status_user():
@@ -41,12 +42,14 @@ def create_status_user():
     token = random_string(40)
     User.objects.create_superuser(user, "", password)
     with open(SECRETS_FILE, 'w') as f:
-        json.dump({
-            'adcmuser': {
-                'user': user,
-                'password': password
-            },
-            'token': token}, f)
+        json.dump(
+            {
+                'adcmuser': {
+                    'user': user,
+                    'password': password
+                },
+                'token': token
+            }, f)
     log.info('Update secret file %s OK', SECRETS_FILE)
 
 

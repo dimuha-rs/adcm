@@ -21,9 +21,9 @@ from rest_framework.reverse import reverse
 
 import cm.config as config
 from api.api_views import DetailViewRO, create, PageView
-from api.job_serial import (
-    JobSerializer, JobListSerializer, LogStorageSerializer, LogStorageListSerializer, LogSerializer
-)
+from api.job_serial import (JobSerializer, JobListSerializer,
+                            LogStorageSerializer, LogStorageListSerializer,
+                            LogSerializer)
 from api.serializers import TaskSerializer, TaskListSerializer, TaskPostSerializer
 from api.serializers import check_obj
 from cm.errors import AdcmEx, AdcmApiEx
@@ -39,7 +39,8 @@ class JobList(PageView):
     queryset = JobLog.objects.order_by('-id')
     serializer_class = JobListSerializer
     serializer_class_ui = JobSerializer
-    filterset_fields = ('action_id', 'task_id', 'pid', 'status', 'start_date', 'finish_date')
+    filterset_fields = ('action_id', 'task_id', 'pid', 'status', 'start_date',
+                        'finish_date')
     ordering_fields = ('status', 'start_date', 'finish_date')
 
 
@@ -56,24 +57,23 @@ class JobDetail(GenericAPIView):
         logs = get_log(job)
         for lg in logs:
             log_id = lg['id']
-            lg['url'] = reverse(
-                'log-storage',
-                kwargs={
-                    'job_id': job.id,
-                    'log_id': log_id
-                },
-                request=request)
-            lg['download_url'] = reverse(
-                'download-log',
-                kwargs={
-                    'job_id': job.id,
-                    'log_id': log_id
-                },
-                request=request
-            )
+            lg['url'] = reverse('log-storage',
+                                kwargs={
+                                    'job_id': job.id,
+                                    'log_id': log_id
+                                },
+                                request=request)
+            lg['download_url'] = reverse('download-log',
+                                         kwargs={
+                                             'job_id': job.id,
+                                             'log_id': log_id
+                                         },
+                                         request=request)
 
         job.log_files = logs
-        serializer = self.serializer_class(job, data=request.data, context={'request': request})
+        serializer = self.serializer_class(job,
+                                           data=request.data,
+                                           context={'request': request})
         serializer.is_valid()
         return Response(serializer.data)
 
@@ -100,8 +100,10 @@ class LogStorageView(GenericAPIView):
                 log_storage = LogStorage.objects.get(id=log_id, job=job)
             except LogStorage.DoesNotExist:
                 raise AdcmApiEx(
-                    'LOG_NOT_FOUND', f'log {log_id} not found for job {job_id}') from None
-            serializer = self.serializer_class(log_storage, context={'request': request})
+                    'LOG_NOT_FOUND',
+                    f'log {log_id} not found for job {job_id}') from None
+            serializer = self.serializer_class(log_storage,
+                                               context={'request': request})
             return Response(serializer.data)
         except AdcmEx as e:
             raise AdcmApiEx(e.code, e.msg, e.http_code) from e
@@ -153,9 +155,13 @@ class LogFile(GenericAPIView):
             _type = 'check'
             tag = 'ansible'
 
-        ls = LogStorage.objects.get(job_id=job_id, name=tag, type=_type, format=log_type)
+        ls = LogStorage.objects.get(job_id=job_id,
+                                    name=tag,
+                                    type=_type,
+                                    format=log_type)
         try:
-            serializer = self.serializer_class(ls, context={'request': request})
+            serializer = self.serializer_class(ls,
+                                               context={'request': request})
             return Response(serializer.data)
         except AdcmEx as e:
             raise AdcmApiEx(e.code, e.msg, e.http_code) from e
@@ -170,7 +176,8 @@ class Task(PageView):
     serializer_class = TaskListSerializer
     serializer_class_ui = TaskSerializer
     post_serializer = TaskPostSerializer
-    filterset_fields = ('action_id', 'pid', 'status', 'start_date', 'finish_date')
+    filterset_fields = ('action_id', 'pid', 'status', 'start_date',
+                        'finish_date')
     ordering_fields = ('status', 'start_date', 'finish_date')
 
     def post(self, request):
@@ -178,7 +185,8 @@ class Task(PageView):
         Create and run new task
         Return handler to new task
         """
-        serializer = self.post_serializer(data=request.data, context={'request': request})
+        serializer = self.post_serializer(data=request.data,
+                                          context={'request': request})
         return create(serializer)
 
 

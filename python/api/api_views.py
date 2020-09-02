@@ -69,7 +69,7 @@ class DjangoModelPerm(DjangoModelPermissions):
 
 
 class GenericAPIPermView(GenericAPIView):
-    permission_classes = (DjangoModelPerm,)
+    permission_classes = (DjangoModelPerm, )
 
 
 class InterfaceView():
@@ -108,7 +108,7 @@ def fix_ordering(field, view):
         fix = fix.replace('provider_', 'provider__')
     if fix not in ('cluster_id', 'cluster_is_null'):
         fix = fix.replace('cluster_', 'cluster__')
-    if view.__class__.__name__ not in ('BundleList',):
+    if view.__class__.__name__ not in ('BundleList', ):
         fix = fix.replace('version', 'version_order')
     if view.__class__.__name__ == 'ClusterServiceList':
         if 'display_name' in fix:
@@ -120,7 +120,8 @@ def fix_ordering(field, view):
 
 
 class ActionFilter(drf_filters.FilterSet):
-    button_is_null = drf_filters.BooleanFilter(field_name='button', lookup_expr='isnull')
+    button_is_null = drf_filters.BooleanFilter(field_name='button',
+                                               lookup_expr='isnull')
 
     class Meta:
         model = Action
@@ -130,10 +131,12 @@ class ActionFilter(drf_filters.FilterSet):
 class AdcmOrderingFilter(OrderingFilter):
     def get_ordering(self, request, queryset, view):
         ordering = None
-        fields = getlist_from_querydict(request.query_params, self.ordering_param)
+        fields = getlist_from_querydict(request.query_params,
+                                        self.ordering_param)
         if fields:
             re_fields = [fix_ordering(field, view) for field in fields]
-            ordering = self.remove_invalid_fields(queryset, re_fields, view, request)
+            ordering = self.remove_invalid_fields(queryset, re_fields, view,
+                                                  request)
         # log.debug('ordering: %s', ordering)
         return ordering
 
@@ -155,7 +158,7 @@ class AdcmFilterBackend(drf_filters.DjangoFilterBackend):
 class PageView(GenericAPIView, InterfaceView):
     filter_backends = (AdcmFilterBackend, AdcmOrderingFilter)
     pagination_class = rest_framework.pagination.LimitOffsetPagination
-    permission_classes = (DjangoModelPerm,)
+    permission_classes = (DjangoModelPerm, )
 
     def get_ordering(self, request, queryset, view):
         Order = AdcmOrderingFilter()
@@ -192,8 +195,10 @@ class PageView(GenericAPIView, InterfaceView):
                     obj = obj.values(*fields)
 
             except (FieldError, ValueError):
-                qp = ','.join([f'{k}={v}' for k, v in request.query_params.items()
-                               if k in ['fields', 'distinct']])
+                qp = ','.join([
+                    f'{k}={v}' for k, v in request.query_params.items()
+                    if k in ['fields', 'distinct']
+                ])
                 msg = f'Bad query params: {qp}'
                 raise AdcmApiEx('BAD_QUERY_PARAMS', msg=msg) from None
 
@@ -221,30 +226,34 @@ class PageView(GenericAPIView, InterfaceView):
 class PageViewAdd(PageView):
     def post(self, request):
         serializer_class = self.select_serializer(request)
-        serializer = serializer_class(data=request.data, context={'request': request})
+        serializer = serializer_class(data=request.data,
+                                      context={'request': request})
         return create(serializer)
 
 
 class ListView(GenericAPIView, InterfaceView):
-    filter_backends = (AdcmFilterBackend,)
-    permission_classes = (DjangoModelPerm,)
+    filter_backends = (AdcmFilterBackend, )
+    permission_classes = (DjangoModelPerm, )
 
     def get(self, request):
         obj = self.filter_queryset(self.get_queryset())
         serializer_class = self.select_serializer(request)
-        serializer = serializer_class(obj, many=True, context={'request': request})
+        serializer = serializer_class(obj,
+                                      many=True,
+                                      context={'request': request})
         return Response(serializer.data)
 
 
 class ListViewAdd(ListView):
     def post(self, request):
         serializer_class = self.select_serializer(request)
-        serializer = serializer_class(data=request.data, context={'request': request})
+        serializer = serializer_class(data=request.data,
+                                      context={'request': request})
         return create(serializer)
 
 
 class DetailViewRO(GenericAPIView, InterfaceView):
-    permission_classes = (DjangoModelPerm,)
+    permission_classes = (DjangoModelPerm, )
 
     def get_object(self):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
@@ -261,7 +270,9 @@ class DetailViewRO(GenericAPIView, InterfaceView):
 class DetailViewEdit(DetailViewRO):
     def put(self, request, *args, **kwargs):
         obj = self.get_object()
-        serializer = self.serializer_class(obj, data=request.data, context={'request': request})
+        serializer = self.serializer_class(obj,
+                                           data=request.data,
+                                           context={'request': request})
         return update(serializer)
 
 

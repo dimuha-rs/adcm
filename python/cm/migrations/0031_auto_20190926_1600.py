@@ -19,17 +19,16 @@ def add_group(apps, proto):
     if PrototypeConfig.objects.filter(prototype=proto, type='group'):
         return
     group = {}
-    for pc in PrototypeConfig.objects.filter(prototype=proto).exclude(subname=''):
+    for pc in PrototypeConfig.objects.filter(prototype=proto).exclude(
+            subname=''):
         group[pc.name] = True
 
     for name in group:
-        pc = PrototypeConfig(
-            prototype=proto,
-            name=name,
-            display_name=name,
-            type='group',
-            limits='{}'
-        )
+        pc = PrototypeConfig(prototype=proto,
+                             name=name,
+                             display_name=name,
+                             type='group',
+                             limits='{}')
         pc.save()
 
 

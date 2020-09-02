@@ -18,7 +18,7 @@ import yspec.checker
 from django.conf import settings
 from django.db.utils import OperationalError
 
-from cm.logger import log   # pylint: disable=unused-import
+from cm.logger import log  # pylint: disable=unused-import
 import cm.config as config
 from cm.models import Cluster, Prototype, Host, HostProvider, ADCM
 from cm.models import ClusterObject, PrototypeConfig, ObjectConfig, ConfigLog
@@ -63,7 +63,7 @@ def to_flat_dict(conf, spec):
     return flat
 
 
-def get_default(c, proto=None):   # pylint: disable=too-many-branches
+def get_default(c, proto=None):  # pylint: disable=too-many-branches
     value = c.default
     if c.default == '':
         value = None
@@ -89,9 +89,8 @@ def get_default(c, proto=None):   # pylint: disable=too-many-branches
     elif c.type == 'file':
         if proto:
             if c.default:
-                value = read_file_type(
-                    proto, c.default, proto.bundle.hash, c.name, c.subname
-                )
+                value = read_file_type(proto, c.default, proto.bundle.hash,
+                                       c.name, c.subname)
     return value
 
 
@@ -129,10 +128,7 @@ def read_bundle_file(proto, fname, bundle_hash, pattern, ref=None):
 def init_object_config(spec, conf, attr):
     if not conf:
         return None
-    obj_conf = ObjectConfig(
-        current=0,
-        previous=0
-    )
+    obj_conf = ObjectConfig(current=0, previous=0)
     obj_conf.save()
     save_obj_config(obj_conf, conf, 'init', attr)
     return obj_conf
@@ -149,7 +145,8 @@ def prepare_social_auth(conf):
     settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = gconf['client_id']
     settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = gconf['secret']
     if 'whitelisted_domains' in gconf:
-        settings.SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = gconf['whitelisted_domains']
+        settings.SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = gconf[
+            'whitelisted_domains']
 
 
 def load_social_auth():
@@ -160,7 +157,8 @@ def load_social_auth():
     except OperationalError:
         return
     try:
-        cl = ConfigLog.objects.get(obj_ref=adcm[0].config, id=adcm[0].config.current)
+        cl = ConfigLog.objects.get(obj_ref=adcm[0].config,
+                                   id=adcm[0].config.current)
         prepare_social_auth(json.loads(cl.config))
     except OperationalError as e:
         log.error('load_social_auth error: %s', e)
@@ -172,8 +170,9 @@ def get_prototype_config(proto, action=None):
     conf = {}
     attr = {}
     flist = ('default', 'required', 'type', 'limits')
-    for c in PrototypeConfig.objects.filter(
-            prototype=proto, action=action, type='group').order_by('id'):
+    for c in PrototypeConfig.objects.filter(prototype=proto,
+                                            action=action,
+                                            type='group').order_by('id'):
         spec[c.name] = {}
         conf[c.name] = {}
         if c.limits:
@@ -181,7 +180,8 @@ def get_prototype_config(proto, action=None):
             if 'activatable' in limits:
                 attr[c.name] = {'active': limits['active']}
 
-    for c in PrototypeConfig.objects.filter(prototype=proto, action=action).order_by('id'):
+    for c in PrototypeConfig.objects.filter(prototype=proto,
+                                            action=action).order_by('id'):
         flat_spec['{}/{}'.format(c.name, c.subname)] = c
         if c.subname == '':
             if c.type != 'group':
@@ -193,7 +193,7 @@ def get_prototype_config(proto, action=None):
     return (spec, flat_spec, conf, attr)
 
 
-def switch_config(obj, new_proto, old_proto):   # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+def switch_config(obj, new_proto, old_proto):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     # process objects without config
     if not obj.config:
         spec, _, conf, attr = get_prototype_config(new_proto)
@@ -213,7 +213,8 @@ def switch_config(obj, new_proto, old_proto):   # pylint: disable=too-many-local
             return False
         if old_spec[key].default:
             if key in old_conf:
-                return bool(get_default(old_spec[key], old_proto) == old_conf[key])
+                return bool(
+                    get_default(old_spec[key], old_proto) == old_conf[key])
             else:
                 return True
         return False
@@ -237,7 +238,8 @@ def switch_config(obj, new_proto, old_proto):   # pylint: disable=too-many-local
             if is_new_default(key):
                 new_conf[key] = get_default(new_spec[key], new_proto)
             else:
-                new_conf[key] = old_conf.get(key, get_default(new_spec[key], new_proto))
+                new_conf[key] = old_conf.get(
+                    key, get_default(new_spec[key], new_proto))
         else:
             new_conf[key] = get_default(new_spec[key], new_proto)
 
@@ -271,7 +273,8 @@ def restore_cluster_config(obj_conf, version, desc=''):
     try:
         cl = ConfigLog.objects.get(obj_ref=obj_conf, id=version)
     except ConfigLog.DoesNotExist:
-        raise AdcmApiEx('CONFIG_NOT_FOUND', "config version doesn't exist") from None
+        raise AdcmApiEx('CONFIG_NOT_FOUND',
+                        "config version doesn't exist") from None
     obj_conf.previous = obj_conf.current
     obj_conf.current = version
     obj_conf.save()
@@ -282,11 +285,7 @@ def restore_cluster_config(obj_conf, version, desc=''):
 
 
 def save_obj_config(obj_conf, conf, desc='', attr=None):
-    cl = ConfigLog(
-        obj_ref=obj_conf,
-        config=json.dumps(conf),
-        description=desc
-    )
+    cl = ConfigLog(obj_ref=obj_conf, config=json.dumps(conf), description=desc)
     if isinstance(attr, dict):
         cl.attr = json.dumps(attr)
     else:
@@ -302,7 +301,8 @@ def cook_file_type_name(obj, key, subkey):
     obj_type = 'task'
     if hasattr(obj, 'prototype'):
         obj_type = obj.prototype.type
-    return os.path.join(config.FILE_DIR, '{}.{}.{}.{}'.format(obj_type, obj.id, key, subkey))
+    return os.path.join(config.FILE_DIR,
+                        '{}.{}.{}.{}'.format(obj_type, obj.id, key, subkey))
 
 
 def save_file_type(obj, key, subkey, value):
@@ -351,7 +351,8 @@ def process_config(obj, spec, old_conf):
                 conf[key] = cook_file_type_name(obj, key, '')
         elif conf[key]:
             for subkey in conf[key]:
-                if spec[key][subkey]['type'] == 'file' and conf[key][subkey] is not None:
+                if spec[key][subkey]['type'] == 'file' and conf[key][
+                        subkey] is not None:
                     conf[key][subkey] = cook_file_type_name(obj, key, subkey)
     return conf
 
@@ -424,7 +425,8 @@ def process_variant(obj, spec, conf):
         else:
             for subkey in spec[key]:
                 if spec[key][subkey]['type'] == 'variant':
-                    spec[key][subkey]['limits'] = set_variant(spec[key][subkey])
+                    spec[key][subkey]['limits'] = set_variant(
+                        spec[key][subkey])
 
 
 def ui_config(obj, cl):
@@ -432,7 +434,8 @@ def ui_config(obj, cl):
     _, spec, _, _ = get_prototype_config(obj.prototype)
     obj_conf = json.loads(cl.config)
     flat_conf = to_flat_dict(obj_conf, spec)
-    slist = ('name', 'subname', 'type', 'description', 'display_name', 'required')
+    slist = ('name', 'subname', 'type', 'description', 'display_name',
+             'required')
     for key in spec:
         item = obj_to_dict(spec[key], slist)
         limits = json.loads(spec[key].limits)
@@ -444,7 +447,8 @@ def ui_config(obj, cl):
         item['read_only'] = bool(config_is_ro(obj, key, spec[key].limits))
         item['activatable'] = bool(group_is_activatable(spec[key]))
         if item['type'] == 'variant':
-            item['limits']['source']['value'] = get_variant(obj, obj_conf, limits)
+            item['limits']['source']['value'] = get_variant(
+                obj, obj_conf, limits)
         item['default'] = get_default(spec[key])
         if key in flat_conf:
             item['value'] = flat_conf[key]
@@ -477,7 +481,8 @@ def config_is_ro(obj, key, limits):
     wr = jslimits.get('writable', [])
     if ro and wr:
         msg = 'can not have "read_only" and "writable" simultaneously (config key "{}" of {})'
-        err('INVALID_CONFIG_DEFINITION', msg.format(key, proto_ref(obj.prototype)))
+        err('INVALID_CONFIG_DEFINITION',
+            msg.format(key, proto_ref(obj.prototype)))
     if ro == 'any':
         return True
     if obj.state in ro:
@@ -496,18 +501,20 @@ def check_read_only(obj, spec, conf, old_conf):
         if config_is_ro(obj, s, spec[s].limits) and s in flat_conf:
             if flat_conf[s] != flat_old_conf[s]:
                 msg = 'config key {} of {} is read only'
-                err('CONFIG_VALUE_ERROR', msg.format(s, proto_ref(obj.prototype)))
+                err('CONFIG_VALUE_ERROR',
+                    msg.format(s, proto_ref(obj.prototype)))
 
 
 def restore_read_only(obj, spec, conf, old_conf):
-    for key in spec:   # pylint: disable=too-many-nested-blocks
+    for key in spec:  # pylint: disable=too-many-nested-blocks
         if 'type' in spec[key]:
             if config_is_ro(obj, key, spec[key]['limits']) and key not in conf:
                 if key in old_conf:
                     conf[key] = old_conf[key]
         else:
             for subkey in spec[key]:
-                if config_is_ro(obj, key + "/" + subkey, spec[key][subkey]['limits']):
+                if config_is_ro(obj, key + "/" + subkey,
+                                spec[key][subkey]['limits']):
                     if key in conf:
                         if subkey not in conf:
                             if key in old_conf and subkey in old_conf[key]:
@@ -521,7 +528,8 @@ def check_json_config(proto, obj, new_conf, old_conf=None, attr=None):
     spec, flat_spec, _, _ = get_prototype_config(proto)
     check_attr(proto, attr, flat_spec)
     process_variant(obj, spec, new_conf)
-    return check_config_spec(proto, obj, spec, flat_spec, new_conf, old_conf, attr)
+    return check_config_spec(proto, obj, spec, flat_spec, new_conf, old_conf,
+                             attr)
 
 
 def check_attr(proto, attr, spec):
@@ -551,7 +559,13 @@ def check_attr(proto, attr, spec):
                 err('ATTRIBUTE_ERROR', msg.format('active', key, ref))
 
 
-def check_config_spec(proto, obj, spec, flat_spec, conf, old_conf=None, attr=None):   # pylint: disable=too-many-branches,too-many-statements
+def check_config_spec(proto,
+                      obj,
+                      spec,
+                      flat_spec,
+                      conf,
+                      old_conf=None,
+                      attr=None):  # pylint: disable=too-many-branches,too-many-statements
     ref = proto_ref(proto)
     if isinstance(conf, (float, int)):
         err('JSON_ERROR', 'config should not be just one int or float')
@@ -560,7 +574,8 @@ def check_config_spec(proto, obj, spec, flat_spec, conf, old_conf=None, attr=Non
         err('JSON_ERROR', 'config should not be just one string')
 
     def key_is_required(key, subkey, spec):
-        if config_is_ro(obj, '{}/{}'.format(key, subkey), spec.get('limits', '')):
+        if config_is_ro(obj, '{}/{}'.format(key, subkey),
+                        spec.get('limits', '')):
             return False
         if spec['required']:
             return True
@@ -578,17 +593,16 @@ def check_config_spec(proto, obj, spec, flat_spec, conf, old_conf=None, attr=Non
             err('CONFIG_KEY_ERROR', msg.format(key, ref))
         if not conf[key]:
             msg = 'Key "{}" should contains some subkeys ({})'
-            err('CONFIG_KEY_ERROR', msg.format(key, ref), list(spec[key].keys()))
+            err('CONFIG_KEY_ERROR', msg.format(key, ref),
+                list(spec[key].keys()))
         for subkey in conf[key]:
             if subkey not in spec[key]:
                 msg = 'There is unknown subkey "{}" for key "{}" in input config ({})'
                 err('CONFIG_KEY_ERROR', msg.format(subkey, key, ref))
         for subkey in spec[key]:
             if subkey in conf[key]:
-                check_config_type(
-                    proto, key, subkey, spec[key][subkey],
-                    conf[key][subkey], False, is_inactive(key)
-                )
+                check_config_type(proto, key, subkey, spec[key][subkey],
+                                  conf[key][subkey], False, is_inactive(key))
             elif key_is_required(key, subkey, spec[key][subkey]):
                 msg = 'There is no required subkey "{}" for key "{}" ({})'
                 err('CONFIG_KEY_ERROR', msg.format(subkey, key, ref))
@@ -606,7 +620,8 @@ def check_config_spec(proto, obj, spec, flat_spec, conf, old_conf=None, attr=Non
             msg = 'There is unknown key "{}" in input config ({})'
             err('CONFIG_KEY_ERROR', msg.format(key, ref))
         if 'type' in spec[key] and spec[key]['type'] != 'group':
-            if isinstance(conf[key], dict) and not type_is_complex(spec[key]['type']):
+            if isinstance(conf[key],
+                          dict) and not type_is_complex(spec[key]['type']):
                 msg = 'Key "{}" in input config should not have any subkeys ({})'
                 err('CONFIG_KEY_ERROR', msg.format(key, ref))
 
@@ -632,7 +647,13 @@ def check_config_spec(proto, obj, spec, flat_spec, conf, old_conf=None, attr=Non
     return conf
 
 
-def check_config_type(proto, key, subkey, spec, value, default=False, inactive=False):   # pylint: disable=too-many-branches,too-many-statements,too-many-locals
+def check_config_type(proto,
+                      key,
+                      subkey,
+                      spec,
+                      value,
+                      default=False,
+                      inactive=False):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     ref = proto_ref(proto)
     if default:
         label = 'Default value'
@@ -645,8 +666,7 @@ def check_config_type(proto, key, subkey, spec, value, default=False, inactive=F
         if not isinstance(v, str):
             msg = (
                 f'{label} ("{v}") of element "{idx}" of config key "{key}/{subkey}"'
-                f' should be string ({ref})'
-            )
+                f' should be string ({ref})')
             err('CONFIG_VALUE_ERROR', msg)
 
     def get_limits():
@@ -700,7 +720,8 @@ def check_config_type(proto, key, subkey, spec, value, default=False, inactive=F
         try:
             yspec.checker.process_rule(value, schema, 'root')
         except yspec.checker.FormatError as e:
-            msg = tmpl1.format("yspec error: {} at block {}".format(str(e), e.data))
+            msg = tmpl1.format("yspec error: {} at block {}".format(
+                str(e), e.data))
             err('CONFIG_VALUE_ERROR', msg)
         except yspec.checker.SchemaError as e:
             err('CONFIG_VALUE_ERROR', 'yspec error: {}'.format(str(e)))
@@ -750,7 +771,8 @@ def check_config_type(proto, key, subkey, spec, value, default=False, inactive=F
             if not default:
                 if source['type'] in ('config', 'builtin'):
                     if value not in source['value']:
-                        msg = 'not in variant list: "{}"'.format(source['value'])
+                        msg = 'not in variant list: "{}"'.format(
+                            source['value'])
                         err('CONFIG_VALUE_ERROR', tmpl2.format(msg))
 
 
@@ -798,9 +820,9 @@ def set_service_config(cluster_id, service_name, keys, value):
         msg = 'Cluster # {} does not exist'
         err('CLUSTER_NOT_FOUND', msg.format(cluster_id))
     try:
-        proto = Prototype.objects.get(
-            type='service', name=service_name, bundle=cluster.prototype.bundle
-        )
+        proto = Prototype.objects.get(type='service',
+                                      name=service_name,
+                                      bundle=cluster.prototype.bundle)
     except Prototype.DoesNotExist:
         msg = 'Service "{}" does not exist'
         err('SERVICE_NOT_FOUND', msg.format(service_name))
@@ -814,9 +836,9 @@ def set_service_config(cluster_id, service_name, keys, value):
 
 def set_service_config_by_id(cluster_id, service_id, keys, value):
     try:
-        obj = ClusterObject.objects.get(
-            id=service_id, cluster__id=cluster_id, prototype__type='service'
-        )
+        obj = ClusterObject.objects.get(id=service_id,
+                                        cluster__id=cluster_id,
+                                        prototype__type='service')
     except ClusterObject.DoesNotExist:
         msg = 'service # {} does not exist in cluster # {}'
         err('OBJECT_NOT_FOUND', msg.format(service_id, cluster_id))
@@ -832,7 +854,10 @@ def set_object_config(obj, keys, value):
             subkey = ''
         else:
             subkey = spl[1]
-        pconf = PrototypeConfig.objects.get(prototype=proto, action=None, name=key, subname=subkey)
+        pconf = PrototypeConfig.objects.get(prototype=proto,
+                                            action=None,
+                                            name=key,
+                                            subname=subkey)
     except PrototypeConfig.DoesNotExist:
         msg = '{} does not has config key "{}/{}"'
         err('CONFIG_NOT_FOUND', msg.format(proto_ref(proto), key, subkey))
@@ -841,12 +866,14 @@ def set_object_config(obj, keys, value):
         msg = 'You can not update config group "{}" for {}'
         err('CONFIG_VALUE_ERROR', msg.format(key, obj_ref(obj)))
 
-    check_config_type(proto, key, subkey, obj_to_dict(pconf, ('type', 'limits', 'option')), value)
+    check_config_type(proto, key, subkey,
+                      obj_to_dict(pconf, ('type', 'limits', 'option')), value)
     # if config_is_ro(obj, keys, pconf.limits):
     #    msg = 'config key {} of {} is read only'
     #    err('CONFIG_VALUE_ERROR', msg.format(key, ref))
     replace_object_config(obj, key, subkey, value)
     if pconf.type == 'file':
         save_file_type(obj, key, subkey, value)
-    log.info('update %s config %s/%s to "%s"', obj_ref(obj), key, subkey, value)
+    log.info('update %s config %s/%s to "%s"', obj_ref(obj), key, subkey,
+             value)
     return value
