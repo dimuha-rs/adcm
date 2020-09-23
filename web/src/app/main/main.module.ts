@@ -14,8 +14,8 @@ import { CommonModule } from '@angular/common';
 
 import { SharedModule } from '@app/shared';
 import { MainRoutingModule } from '@app/main/routing.module';
+import { LoginModule } from '@app/main/login/login.module';
 
-import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SupportComponent } from './support/support.component';
 import { TopComponent } from './top/top.component';
@@ -23,9 +23,13 @@ import { ProgressComponent } from './progress.component';
 import { PageNotFoundComponent, FatalErrorComponent, GatewayTimeoutComponent } from './server-status.component';
 
 @NgModule({
-  imports: [CommonModule, MainRoutingModule, SharedModule],
+  imports: [
+    CommonModule,
+    MainRoutingModule,
+    SharedModule,
+    LoginModule,
+  ],
   declarations: [
-    LoginComponent,
     ProfileComponent,
     SupportComponent,
     FatalErrorComponent,
@@ -35,6 +39,6 @@ import { PageNotFoundComponent, FatalErrorComponent, GatewayTimeoutComponent } f
     ProgressComponent,
   ],
   exports: [TopComponent, ProgressComponent],
-  
+
 })
 export class MainModule {}
