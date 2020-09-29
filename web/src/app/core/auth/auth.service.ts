@@ -10,10 +10,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { Injectable } from '@angular/core';
-import { environment } from '@env/environment';
-import { throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
+import { environment } from '@env/environment';
 import { ApiService } from '../api';
 
 @Injectable()
@@ -35,7 +35,7 @@ export class AuthService {
 
   constructor(private api: ApiService) {}
 
-  checkGoogle() {
+  checkGoogle(): Observable<boolean> {
     return this.api.get<{google_oauth: boolean}>(`${environment.apiRoot}info/`).pipe(map(a => a.google_oauth));
   }
 

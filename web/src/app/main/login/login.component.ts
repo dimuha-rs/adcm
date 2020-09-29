@@ -11,14 +11,15 @@
 // limitations under the License.
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '@app/core';
-import { authLogin, authLogout, AuthState, getAuthState } from '@app/core/auth/auth.store';
-import { clearProfile } from '@app/core/store';
-import { BaseDirective } from '@app/shared';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+
+import { AuthService } from '@app/core';
+import { BaseDirective } from '@app/shared';
+import { clearProfile } from '@app/core/store';
+import { authLogin, authLogout, AuthState, getAuthState } from '@app/core/auth/auth.store';
+import { AuthCredentials } from 'adwp_ui';
 
 @Component({
   selector: 'app-login',
@@ -26,16 +27,21 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent extends BaseDirective implements OnInit, OnDestroy {
-  authForm = new FormGroup({ login: new FormControl('', Validators.required), password: new FormControl('', Validators.required) });
+
   message: string;
   checkGL$: Observable<any>;
 
-  constructor(private auth: AuthService, private router: Router, private store: Store<AuthState>, private route: ActivatedRoute) {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private store: Store<AuthState>,
+    private route: ActivatedRoute,
+  ) {
     super();
   }
 
   ngOnInit() {
-    this.checkGL$ = this.auth.checkGoogle();
+    this.checkGL$ = this.authService.checkGoogle();
     this.store.dispatch(authLogout());
 
     const a$ = this.store
@@ -44,7 +50,7 @@ export class LoginComponent extends BaseDirective implements OnInit, OnDestroy {
       .subscribe(state => {
         if (state.isValid) {
           a$.unsubscribe();
-          const redirectUrl = this.auth.redirectUrl;
+          const redirectUrl = this.authService.redirectUrl;
           this.router.navigateByUrl(redirectUrl && redirectUrl !== 'login' && redirectUrl !== '/504' ? redirectUrl : '/admin');
         } else {
           this.store.dispatch(clearProfile());
@@ -60,15 +66,8 @@ export class LoginComponent extends BaseDirective implements OnInit, OnDestroy {
       .subscribe(p => (this.message = p['error_msg']));
   }
 
-  login() {
-    this.message = '';
-    if (this.authForm.valid) {
-      const { login, password } = this.authForm.value;
-      this.store.dispatch(authLogin({ login, password }));
-    }
+  auth(credentials: AuthCredentials) {
+    this.store.dispatch(authLogin(credentials));
   }
 
-  google() {
-    window.location.href = '/social/login/google-oauth2/';
-  }
 }
