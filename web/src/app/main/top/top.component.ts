@@ -17,6 +17,7 @@ import { authLogout, AuthState, EventMessage, getMessage, isAuthenticated, Socke
 import { select, Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
 import { filter, switchMap, tap } from 'rxjs/operators';
+import { MenuItem } from '@app/main/top-menu/top-menu.component';
 
 interface JobStat {
   running: number;
@@ -34,6 +35,14 @@ export class TopComponent implements OnInit {
   jobStat$: Observable<JobStat>;
   jobStatus: JobStat = { running: 0, success: 0, failed: 0 };
   lastJob: string;
+
+  menuItems: MenuItem[] = [
+    { label: 'CLUSTERS', link: '/cluster' },
+    { label: 'HOSTPROVIDERS', link: '/provider' },
+    { label: 'HOSTS', link: '/host' },
+    { label: 'JOBS', link: '/task' },
+    { label: 'BUNDLES', link: '/bundle' },
+  ];
 
   @Output()
   onburger = new EventEmitter();

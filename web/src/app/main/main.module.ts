@@ -18,6 +18,7 @@ import { MainRoutingModule } from '@app/main/routing.module';
 import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SupportComponent } from './support/support.component';
+import { TopMenuComponent} from '@app/main/top-menu/top-menu.component';
 import { TopComponent } from './top/top.component';
 import { ProgressComponent } from './progress.component';
 import { PageNotFoundComponent, FatalErrorComponent, GatewayTimeoutComponent } from './server-status.component';
@@ -31,10 +32,15 @@ import { PageNotFoundComponent, FatalErrorComponent, GatewayTimeoutComponent } f
     FatalErrorComponent,
     GatewayTimeoutComponent,
     PageNotFoundComponent,
+    TopMenuComponent,
     TopComponent,
     ProgressComponent,
   ],
-  exports: [TopComponent, ProgressComponent],
-  
+  exports: [
+    TopMenuComponent,
+    TopComponent,
+    ProgressComponent,
+  ],
+
 })
 export class MainModule {}
