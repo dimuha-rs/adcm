@@ -17,6 +17,7 @@ import { Bundle, Cluster, Entities, Host, IAction, TypeName } from '@app/core/ty
 import { environment } from '@env/environment';
 import { switchMap, tap, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import {ListResult} from '@app/shared/components/list/list.component';
 
 const COLUMNS_SET = {
   cluster: ['name', 'prototype_version', 'description', 'state', 'status', 'actions', 'import', 'upgrade', 'config', 'controls'],
@@ -48,7 +49,7 @@ export class ListService {
     return this.current;
   }
 
-  getList(p: ParamMap, typeName: string) {
+  getList(p: ParamMap, typeName: string): Observable<ListResult<any>> {
     const listParamStr = localStorage.getItem('list:param');
     if (p?.keys.length) {
       const param = p.keys.reduce((a, c) => ({ ...a, [c]: p.get(c) }), {});
@@ -56,7 +57,9 @@ export class ListService {
         const json = JSON.parse(listParamStr);
         json[typeName] = param;
         localStorage.setItem('list:param', JSON.stringify(json));
-      } else localStorage.setItem('list:param', JSON.stringify({ [typeName]: param }));
+      } else {
+        localStorage.setItem('list:param', JSON.stringify({ [typeName]: param }));
+      }
     }
 
     switch (typeName) {

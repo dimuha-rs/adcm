@@ -41,6 +41,6 @@ export class UsersService {
   }
 
   public changePassword(value: string, link: string): Observable<User> {
-    return this.http.patch<User>(link, { 'password': value });
+    return this.http.patch<User>(link, { password: value });
   }
 }

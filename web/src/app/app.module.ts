@@ -26,8 +26,6 @@ import { MainModule } from './main/main.module';
 import { SharedModule } from './shared/shared.module';
 import { LogComponent } from './ws-logs/log.component';
 
-//registerLocaleData(localeRu, 'ru');
-
 @NgModule({
   declarations: [AppComponent, LogComponent],
   imports: [

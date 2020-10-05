@@ -60,11 +60,13 @@ export class ItemComponent implements OnInit {
   controlType: controlType;
   validator: ValidatorInfo;
 
-  ngOnInit() {
+  ngOnInit(): void {
     const rules = this.item.rules as IYField;
     this.controlType = rules.controlType;
     this.validator = rules.validator;
-    if (this.controlType === 'boolean' && this.isReadOnly) this.control.disable();
+    if (this.controlType === 'boolean' && this.isReadOnly) {
+      this.control.disable();
+    }
     this.item.form.markAllAsTouched();
   }
 

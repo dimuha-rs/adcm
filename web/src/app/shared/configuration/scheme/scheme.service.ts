@@ -68,16 +68,29 @@ export class SchemeService {
     }
   }
 
-  addControls(name: string, value: TValue | IValue, currentForm: FormGroup | FormArray, opt: IYContainer | IYField | (IYContainer | IYField)[], type: reqursionType): IControl {
+  addControls(
+    name: string,
+    value: TValue | IValue,
+    currentForm: FormGroup | FormArray,
+    opt: IYContainer | IYField | (IYContainer | IYField)[],
+    type: reqursionType,
+  ): IControl {
     const rules = Array.isArray(opt) ? opt.find((a) => a.name === name) : opt;
-    if (!rules) return;
+    if (!rules) {
+      return;
+    }
     let form = currentForm;
     if (rules.type !== 'list' && rules.type !== 'dict') {
       const { validator, controlType } = rules as IYField;
       if (Array.isArray(currentForm.controls)) {
         name = currentForm.controls.length.toString();
         (currentForm as FormArray).push(new FormControl(value || '', this.service.setValidator({ validator, controlType })));
-      } else (currentForm as FormGroup).addControl(rules.name, new FormControl(rules.type !== 'bool' ? value || '' : value, this.service.setValidator({ validator, controlType })));
+      } else {
+        (currentForm as FormGroup).addControl(
+          rules.name,
+          new FormControl(rules.type !== 'bool' ? value || '' : value, this.service.setValidator({ validator, controlType }))
+        );
+      }
     } else {
       form = rules.type === 'list' ? new FormArray([]) : new FormGroup({});
       (currentForm as FormGroup).addControl(rules.name, form);

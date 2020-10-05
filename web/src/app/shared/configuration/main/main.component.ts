@@ -52,7 +52,7 @@ export class ConfigComponent extends SocketListenerDirective implements OnInit {
   @Output()
   event = new EventEmitter<{ name: string; data?: any }>();
 
-  get cUrl() {
+  get cUrl(): string {
     return `${this.url}current/`;
   }
 

@@ -43,11 +43,11 @@ export class HistoryComponent extends BaseDirective implements OnInit {
 
   comparator = new FormControl();
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.comparator.valueChanges.pipe(this.takeUntil()).subscribe((ids: number[]) => this.compare.emit(ids));
   }
 
-  changeVersion(id: number) {
+  changeVersion(id: number): void {
     this.version.emit(id);
   }
 
@@ -55,7 +55,7 @@ export class HistoryComponent extends BaseDirective implements OnInit {
     return item.id;
   }
 
-  reset() {
+  reset(): void {
     this.compareConfig = [];
     this.comparator.reset();
   }

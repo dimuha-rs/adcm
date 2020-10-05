@@ -120,26 +120,6 @@ const data4form: itemOptions[] = [
   },
 ];
 
-const data4form_simple = [
-  {
-    required: false,
-    name: 'field_string',
-    display_name: 'display_name',
-    subname: '',
-    type: 'string',
-    activatable: false,
-    read_only: false,
-    default: null,
-    value: '',
-    description: '',
-    key: 'field_string',
-    validator: { required: false, min: null, max: null, pattern: null },
-    controlType: 'textbox',
-    hidden: false,
-    compare: [],
-  },
-];
-
 describe('Configuration fields service', () => {
   let service: FieldService;
   let checkValue: (value: resultTypes, type: ConfigValueTypes) => resultTypes;

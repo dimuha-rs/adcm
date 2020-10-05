@@ -44,10 +44,10 @@ export interface IAllStatus {
 export class StatusService {
   constructor(private api: ApiService) {}
 
-  getStatusInfo(id: number, hostcomponent_link: string) {
-    const statuses$ = this.getAllClusterStatus(id),
-      host_components$ = this.getHostComponents(hostcomponent_link);
-    return combineLatest([statuses$, host_components$]);
+  getStatusInfo(id: number, hostComponentLink: string): Observable<any> {
+    const statuses$ = this.getAllClusterStatus(id);
+    const hostComponents$ = this.getHostComponents(hostComponentLink);
+    return combineLatest([statuses$, hostComponents$]);
   }
 
   getServiceComponentsByCluster(cluster: Cluster, service_id?: number): Observable<Component[]> {
@@ -154,23 +154,23 @@ export class StatusService {
       .filter(b => b.status !== 0);
   }
 
-  getClusterById(id: number) {
+  getClusterById(id: number): Observable<any> {
     return this.api.getOne<Cluster>('cluster', id);
   }
 
-  getAllClusterStatus(id: number) {
+  getAllClusterStatus(id: number): Observable<any> {
     return this.api.get<IAllStatus>(`/status/api/v1/cluster/${id}/`);
   }
 
-  getHostStatus(host: Host, cid: number) {
+  getHostStatus(host: Host, cid: number): Observable<any> {
     return this.api.get<IStatus>(`/status/api/v1/cluster/${cid}/host/${host.id}/`).pipe(map(c => ({ ...host, ...c })));
   }
 
-  getHosts(url: string) {
+  getHosts(url: string): Observable<any> {
     return this.api.get<Host[]>(url);
   }
 
-  getServices(url: string) {
+  getServices(url: string): Observable<any> {
     return this.api.get<Service[]>(url);
   }
 

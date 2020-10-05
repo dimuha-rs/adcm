@@ -31,7 +31,7 @@ export class FieldComponent implements OnInit, OnChanges {
 
   @ViewChild('cc') inputControl: FieldDirective;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.initCurrentGroup();
   }
 

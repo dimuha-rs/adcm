@@ -24,7 +24,6 @@ describe('SchemeComponent', () => {
   let component: SchemeComponent;
   let fixture: ComponentFixture<SchemeComponent>;
   let service: SchemeService;
-  let fieldService: FieldService;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -40,7 +39,14 @@ describe('SchemeComponent', () => {
     component = fixture.componentInstance;
     component.form = new FormGroup({ field: new FormControl() });
     const yspec = { root: { match: 'list' as matchType, item: 'string' }, string: { match: 'string' as matchType } };
-    component.field = (<unknown>{ display_name: 'field_display_name', name: 'field', limits: { yspec }, required: true, value: null, default: null }) as FieldOptions;
+    component.field = ({
+      display_name: 'field_display_name',
+      name: 'field',
+      limits: { yspec },
+      required: true,
+      value: null,
+      default: null
+    } as any) as FieldOptions;
     fixture.detectChanges();
   });
 
@@ -63,5 +69,5 @@ describe('SchemeComponent', () => {
     expect(error.innerText).toBe('Field [field_display_name] is required!');
   });
 
- 
+
 });

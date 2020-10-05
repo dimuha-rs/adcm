@@ -48,7 +48,7 @@ export class ToolsComponent extends BaseDirective implements OnInit {
   @Output() save = new EventEmitter();
   @Output() showHistory = new EventEmitter<boolean>();
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.filter$.pipe(this.takeUntil()).subscribe(() => this.applyFilter.emit(this.filterParams));
   }
 

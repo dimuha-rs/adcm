@@ -32,21 +32,27 @@ import { NavigationService, INavItem } from '../navigation.service';
 export class LeftComponent {
   items: INavItem[] = [];
   @Input() set current(c: Partial<ApiBase>) {
-    if (c) this.items = this.navigation.getLeft(c);
+    if (c) {
+      this.items = this.navigation.getLeft(c);
+    }
   }
 
   @Input() set issue(i: Issue) {
-    if (i) this.items = this.items.map((a) => ({ ...a, issue: this.navigation.findIssue(a.url, i) ? 'issue' : '' }));
+    if (i) {
+      this.items = this.items.map((a) => ({ ...a, issue: this.navigation.findIssue(a.url, i) ? 'issue' : '' }));
+    }
   }
 
   @Input() set status(v: number) {
     const b = this.items.find((a) => a.url === 'status');
-    if (b) b.status = v;
+    if (b) {
+      b.status = v;
+    }
   }
 
   constructor(private navigation: NavigationService) {}
 
-  btnClick(action: () => void) {
+  btnClick(action: () => void): void {
     action();
   }
 }

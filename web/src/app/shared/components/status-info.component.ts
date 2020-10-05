@@ -17,6 +17,10 @@ import { switchMap, tap, map } from 'rxjs/operators';
 import { StatusService } from './status/status.service';
 import { ComponentData } from './tooltip/tooltip.service';
 
+interface LocalApiBase extends ApiBase {
+  cluster_id: any;
+}
+
 @Component({
   selector: 'app-status-info',
   template: `
@@ -38,7 +42,7 @@ import { ComponentData } from './tooltip/tooltip.service';
 export class StatusInfoComponent implements OnInit {
   path: string;
   cluster: Cluster;
-  current: ApiBase;
+  current: LocalApiBase;
   statusInfo$: Observable<any>;
 
   constructor(private service: StatusService, private componentData: ComponentData) {}
@@ -53,11 +57,11 @@ export class StatusInfoComponent implements OnInit {
 
     switch (name) {
       case 'cluster':
-        this.cluster = this.current as Cluster;
+        this.cluster = (this.current as ApiBase) as Cluster;
         req$ = this.service.getServiceComponentsByCluster(this.cluster);
         break;
       case 'service':
-        req$ = this.service.getClusterById((<any>this.current).cluster_id).pipe(
+        req$ = this.service.getClusterById(this.current.cluster_id).pipe(
           tap((c) => (this.cluster = c)),
           switchMap((cluster) => this.service.getServiceComponentsByCluster(cluster, this.current.id))
         );

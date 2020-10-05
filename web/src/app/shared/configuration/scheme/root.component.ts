@@ -31,10 +31,13 @@ export class RootComponent implements OnInit {
 
   constructor(private scheme: SchemeService) {}
 
-  init() {
+  init(): void {
     if (this.value) {
-      if (this.options.type === 'list' && Array.isArray(this.value)) (this.value as IValue[]).map((x, i) => this.add(['', x]));
-      else if (typeof this.value === 'object') Object.keys(this.value).map((x) => this.add([x, this.value[x]]));
+      if (this.options.type === 'list' && Array.isArray(this.value)) {
+        (this.value as IValue[]).map((x, i) => this.add(['', x]));
+      } else if (typeof this.value === 'object') {
+        Object.keys(this.value).map((x) => this.add([x, this.value[x]]));
+      }
     } else if (this.options.type === 'dict' && Array.isArray(this.options.options)) {
       this.options.options.map((x) => this.add([x.name, '']));
     }

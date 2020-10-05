@@ -29,7 +29,7 @@ const simpleStr: IYspec = {
   }
 };
 
-const ex_policy: IYspec = {
+const exPolicy: IYspec = {
   volume: {
     match: 'dict',
     items: {
@@ -134,25 +134,23 @@ describe('YspecService', () => {
       }
     };
 
-    const _out = service.build();
-    //console.log(_out);
-    expect(_out).toEqual(output);
+    expect(service.build()).toEqual(output);
   });
 
   it('Funcion findRules check required_items param 2 level', () => {
-    service.Root = ex_policy;
+    service.Root = exPolicy;
     const func1 = service.findRule(['move_factor', 'policy'], 'required_items');
     expect(func1).toBeTrue();
   });
 
   it('Funcion findRules check required_items param 4 level', () => {
-    service.Root = ex_policy;
+    service.Root = exPolicy;
     const func2 = service.findRule(['name', 'volume', 'volumes_list', 'policy'], 'required_items');
     expect(func2).toBeTrue();
   });
 
   it('Test required items', () => {
-    service.Root = ex_policy;
+    service.Root = exPolicy;
 
     const output: IYContainer = {
       type: 'list',

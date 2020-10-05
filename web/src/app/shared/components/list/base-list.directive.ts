@@ -72,7 +72,7 @@ export class BaseListDirective extends SocketListenerDirective implements OnInit
     super.startListenSocket();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     super.ngOnDestroy();
     this.parent.listItemEvt.complete();
   }

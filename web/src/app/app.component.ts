@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
 
   constructor(private elRef: ElementRef, private service: AppService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.service.getRootAndCheckAuth().subscribe((c) => {
       if (!c) this.elRef.nativeElement.innerHTML = '';
       else this.versionData = { ...c };

@@ -56,7 +56,7 @@ export class SchemeComponent extends FieldDirective implements OnInit, OnChanges
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.yspec.Root = this.field.limits.yspec;
     this.rules = this.yspec.build();
     this.field.limits.rules = this.rules;
@@ -65,7 +65,7 @@ export class SchemeComponent extends FieldDirective implements OnInit, OnChanges
   }
 
   /** this is using for restore default value */
-  reload() {
+  reload(): void {
     this.root.reload(this.field.default);
   }
 }

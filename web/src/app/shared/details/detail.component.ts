@@ -13,7 +13,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelService, ClusterService, WorkerInstance } from '@app/core';
 import { EventMessage, SocketState } from '@app/core/store';
-import { Cluster, Host, IAction, Issue, Job, isIssue } from '@app/core/types';
+import { Cluster, Host, IAction, Issue, Job, isIssue, Entities } from '@app/core/types';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -39,7 +39,7 @@ export class DetailComponent extends SocketListenerDirective implements OnInit, 
     super(socket);
   }
 
-  get Current() {
+  get Current(): Entities {
     return this.service.Current;
   }
 
@@ -60,8 +60,20 @@ export class DetailComponent extends SocketListenerDirective implements OnInit, 
     return isIssue(this.issue);
   }
 
-  run(w: WorkerInstance) {
-    const { id, name, typeName, action, actions, issue, status, prototype_name, prototype_display_name, prototype_version, bundle_id } = w.current;
+  run(w: WorkerInstance): void {
+    const {
+      id,
+      name,
+      typeName,
+      action,
+      actions,
+      issue,
+      status,
+      prototype_name,
+      prototype_display_name,
+      prototype_version,
+      bundle_id,
+    } = w.current;
     const { upgradable, upgrade, hostcomponent } = w.current as Cluster;
     const { log_files, objects } = w.current as Job;
     const { provider_id } = w.current as Host;
@@ -96,18 +108,18 @@ export class DetailComponent extends SocketListenerDirective implements OnInit, 
     };
   }
 
-  scroll(stop: { direct: -1 | 1 | 0; screenTop: number }) {
+  scroll(stop: { direct: -1 | 1 | 0; screenTop: number }): void {
     this.channel.next('scroll', stop);
   }
 
-  reset() {
+  reset(): void {
     this.request$ = this.service.reset().pipe(
       this.takeUntil(),
       tap((a) => this.run(a))
     );
   }
 
-  socketListener(m: EventMessage) {
+  socketListener(m: EventMessage): void {
     if ((m.event === 'create' || m.event === 'delete') && m.object.type === 'bundle') {
       this.reset();
       return;
@@ -123,12 +135,20 @@ export class DetailComponent extends SocketListenerDirective implements OnInit, 
         this.reset();
         return;
       }
-      if (m.event === 'clear_issue') this.issue = {};
-      if (m.event === 'raise_issue') this.issue = m.object.details.value;
-      if (m.event === 'change_status') this.status = +m.object.details.value;
+      if (m.event === 'clear_issue') {
+        this.issue = {};
+      }
+      if (m.event === 'raise_issue') {
+        this.issue = m.object.details.value;
+      }
+      if (m.event === 'change_status') {
+        this.status = +m.object.details.value;
+      }
     }
 
     // parent
-    if (this.service.Cluster?.id === m.object.id && this.Current?.typeName !== 'cluster' && m.object.type === 'cluster' && m.event === 'clear_issue') this.issue = {};
+    if (this.service.Cluster?.id === m.object.id && this.Current?.typeName !== 'cluster' && m.object.type === 'cluster' && m.event === 'clear_issue') {
+      this.issue = {};
+    }
   }
 }

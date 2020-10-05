@@ -19,9 +19,13 @@ import { ClusterService } from '@app/core';
   styles: [':host {padding: 0 20px;}'],
 })
 export class MainInfoComponent implements OnInit {
+
   value: SafeHtml;
+
   constructor(private service: ClusterService, private sanitizer: DomSanitizer) {}
-  ngOnInit() {
+
+  ngOnInit(): void {
     this.service.getMainInfo().subscribe((value) => (this.value = this.sanitizer.bypassSecurityTrustHtml(value)));
   }
+
 }

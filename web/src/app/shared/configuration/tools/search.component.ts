@@ -35,7 +35,11 @@ export class SearchComponent extends BaseDirective implements OnInit, OnDestroy 
     super();
   }
 
-  ngOnInit() {
-    this.search.valueChanges.pipe(this.takeUntil(), debounceTime(300), distinctUntilChanged()).subscribe((value) => this.pattern.emit(value));
+  ngOnInit(): void {
+    this.search.valueChanges.pipe(
+      this.takeUntil(),
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe((value) => this.pattern.emit(value));
   }
 }

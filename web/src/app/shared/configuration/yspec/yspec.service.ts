@@ -52,12 +52,12 @@ export interface IYField {
 }
 
 /**
- * ``` 
+ * ```
  * {
  *   name:      string;
  *   type:      reqursionType;    // 'list' | 'dict'
  *   options:   IYContainer | IYField | (IYContainer | IYField)[];
- * } 
+ * }
  *```
  */
 export interface IYContainer {

@@ -64,7 +64,7 @@ export class PatternComponent extends BaseDirective implements OnInit, OnDestroy
     super();
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getContext(this.router.routerState.snapshot.url);
 
     this.router.events

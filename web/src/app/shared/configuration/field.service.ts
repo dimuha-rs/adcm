@@ -98,9 +98,14 @@ export class FieldService {
     return data?.config
       ?.filter((a) => a.name !== '__main_info')
       .reduce((p, c) => {
-        if (c.subname) return p;
-        if (c.type !== 'group') return [...p, getField(c)];
-        else return [...p, getPanels(c, data)];
+        if (c.subname) {
+          return p;
+        }
+        if (c.type !== 'group') {
+          return [...p, getField(c)];
+        } else {
+          return [...p, getPanels(c, data)];
+        }
       }, []);
   }
 

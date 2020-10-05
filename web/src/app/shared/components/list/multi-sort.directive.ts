@@ -27,17 +27,17 @@ export class MultiSortDirective {
 
   @Output() mousedownevent = new EventEmitter<boolean>();
 
-  @HostListener('mousedown', ['$event']) onmousedown(e: MouseEvent) {
+  @HostListener('mousedown', ['$event']) onmousedown(e: MouseEvent): void {
     this.shiftKey = e.shiftKey;
     this.mousedownevent.emit(e.shiftKey);
   }
 
-  @HostListener('mouseover', ['$event.target']) onmouseover(h: HTMLElement) {
+  @HostListener('mouseover', ['$event.target']) onmouseover(h: HTMLElement): void {
     const el = this.el.nativeElement;
     this.params.map((p) => this.preCell(p, el));
   }
 
-  @HostListener('mouseout', ['$event.target']) mouseleave(row: HTMLElement) {
+  @HostListener('mouseout', ['$event.target']) mouseleave(row: HTMLElement): void {
     const el = this.el.nativeElement;
     setTimeout(() => this.params.map((p) => this.preCell(p, el)), 300);
   }

@@ -11,11 +11,11 @@
 // limitations under the License.
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './auth-interseptor';
-import { CachingInterseptor } from './caching-interseptor';
+import { CachingInterceptor } from './caching-interceptor.service';
 
-export const httpInterseptorProviders = [    
-    { provide: HTTP_INTERCEPTORS, useClass: CachingInterseptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+export const httpInterceptorProviders = [
+    { provide: HTTP_INTERCEPTORS, useClass: CachingInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
 ];
 
 export * from './request-cache.service';

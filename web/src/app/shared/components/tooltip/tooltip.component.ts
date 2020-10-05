@@ -45,7 +45,13 @@ export class TooltipComponent extends BaseDirective implements OnInit, OnDestroy
   CurrentComponent: Type<SimpleTextComponent | IssueInfoComponent | StatusInfoComponent>;
   componentInjector: Injector;
 
-  constructor(private el: ElementRef, private service: TooltipService, private renderer: Renderer2, private router: Router, private parentInjector: Injector) {
+  constructor(
+    private el: ElementRef,
+    private service: TooltipService,
+    private renderer: Renderer2,
+    private router: Router,
+    private parentInjector: Injector,
+  ) {
     super();
   }
 

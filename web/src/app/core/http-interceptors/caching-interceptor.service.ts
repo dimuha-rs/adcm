@@ -16,11 +16,13 @@ import { of, Observable } from 'rxjs';
 import { startWith, tap } from 'rxjs/operators';
 
 @Injectable()
-export class CachingInterseptor implements HttpInterceptor {
+export class CachingInterceptor implements HttpInterceptor {
   constructor(private cache: RequestCache) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler) {
-    if (!isCachable(req)) return next.handle(req);
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpResponse<any> | HttpEvent<any>> {
+    if (!isCachable(req)) {
+      return next.handle(req);
+    }
 
     const cachedResponse = this.cache.get(req);
 
@@ -34,10 +36,8 @@ export class CachingInterseptor implements HttpInterceptor {
   }
 }
 
-function isCachable(req: HttpRequest<any>) {
-  const method = req.method,
-    url = req.url;
-  return req.params.get('c') ? true : false;
+function isCachable(req: HttpRequest<any>): boolean {
+  return !!req.params.get('c');
 }
 
 function sendRequest(req: HttpRequest<any>, next: HttpHandler, cache: RequestCache): Observable<HttpEvent<any>> {
@@ -45,7 +45,9 @@ function sendRequest(req: HttpRequest<any>, next: HttpHandler, cache: RequestCac
 
   return next.handle(noHeaderClone).pipe(
     tap(event => {
-      if (event instanceof HttpResponse) cache.put(req, event);
+      if (event instanceof HttpResponse) {
+        cache.put(req, event);
+      }
     })
   );
 }

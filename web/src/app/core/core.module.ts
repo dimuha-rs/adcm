@@ -15,14 +15,14 @@ import { NgModule } from '@angular/core';
 import { ApiService } from './api/api.service';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthService } from './auth/auth.service';
-import { httpInterseptorProviders, RequestCache, RequestCacheService } from './http-interseptors';
+import { httpInterceptorProviders, RequestCache, RequestCacheService } from './http-interceptors';
 
 @NgModule({
   imports: [HttpClientModule],
   providers: [
     ApiService,
     { provide: RequestCache, useClass: RequestCacheService },
-    httpInterseptorProviders,
+    httpInterceptorProviders,
     AuthGuard,
     AuthService
   ],

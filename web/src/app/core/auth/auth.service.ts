@@ -22,7 +22,7 @@ export class AuthService {
     return this.auth.token;
   }
 
-  public get auth() {
+  public get auth(): { login: string, token: string } {
     const auth = localStorage.getItem('auth') || '';
     return auth ? JSON.parse(auth) : { login: '', token: '' };
   }

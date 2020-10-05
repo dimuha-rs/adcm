@@ -27,7 +27,17 @@ import { SubtitleComponent } from './subtitle.component';
 import { TopComponent } from './top/top.component';
 
 @NgModule({
-  imports: [CommonModule, RouterModule, StuffModule, MatCardModule, MatToolbarModule, MatSidenavModule, MatListModule, MatIconModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    StuffModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+  ],
   exports: [DetailComponent],
   declarations: [DetailComponent, SubtitleComponent, LeftComponent, TopComponent],
   providers: [NavigationService],

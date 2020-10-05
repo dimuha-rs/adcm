@@ -17,7 +17,14 @@ import { FormGroup, FormControl, FormArray } from '@angular/forms';
 import { FieldOptions } from '../types';
 
 const form = new FormGroup({ field: new FormControl() });
-const field = (<unknown>{ display_name: 'field_display_name', name: 'field', limits: {}, required: true, value: null, default: null }) as FieldOptions;
+const field = {
+  display_name: 'field_display_name',
+  name: 'field',
+  limits: {},
+  required: true,
+  value: null,
+  default: null
+} as FieldOptions;
 
 describe('SchemeService', () => {
   let service: SchemeService;

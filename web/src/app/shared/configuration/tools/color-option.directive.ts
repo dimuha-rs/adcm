@@ -15,9 +15,8 @@ import { Directive, ElementRef, Input, AfterViewInit, Renderer2 } from '@angular
   selector: '[appColorOption]'
 })
 export class ColorOptionDirective implements AfterViewInit {
-  
-  @Input('appColorOption')
-  colorOption: string;
+
+  @Input('appColorOption') colorOption: string;
 
   constructor(private el: ElementRef, private render: Renderer2) { }
 

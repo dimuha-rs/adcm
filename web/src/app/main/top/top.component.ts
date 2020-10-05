@@ -17,6 +17,7 @@ import { authLogout, AuthState, EventMessage, getMessage, isAuthenticated, Socke
 import { select, Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
 import { filter, switchMap, tap } from 'rxjs/operators';
+import {IRoot} from '@app/core/types';
 
 interface JobStat {
   running: number;
@@ -46,7 +47,7 @@ export class TopComponent implements OnInit {
     private preloader: PreloaderService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.isAuth$ = this.authStore.select(isAuthenticated);
 
     this.initStat();
@@ -70,12 +71,14 @@ export class TopComponent implements OnInit {
       .subscribe(() => this.initStat());
   }
 
-  initStat() {
+  initStat(): void {
     const lastJob = localStorage.getItem('lastJob') || '0';
-    if (lastJob !== this.lastJob) this.jobStat$ = this.getJobStat(lastJob);
+    if (lastJob !== this.lastJob) {
+      this.jobStat$ = this.getJobStat(lastJob);
+    }
   }
 
-  getJobStat(lastJob: string) {
+  getJobStat(lastJob: string): Observable<JobStat> {
     this.preloader.freeze();
     return this.api.root.pipe(
       switchMap(root =>
@@ -89,15 +92,15 @@ export class TopComponent implements OnInit {
     );
   }
 
-  profile() {
+  profile(): void {
     this.router.navigate(['profile']);
   }
 
-  logout() {
+  logout(): void {
     this.authStore.dispatch(authLogout());
   }
 
-  burger() {
+  burger(): void {
     this.onburger.emit('sidenav.toggle');
   }
 }

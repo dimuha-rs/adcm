@@ -80,7 +80,7 @@ export class UpgradeComponent extends BaseDirective {
     super();
   }
 
-  checkIssue() {
+  checkIssue(): boolean {
     return this.row.upgradable && !isIssue(this.row.issue);
   }
 

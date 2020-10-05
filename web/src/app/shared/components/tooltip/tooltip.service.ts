@@ -50,7 +50,7 @@ export class TooltipService {
    * @returns
    * @memberof TooltipComponent
    */
-  isShow(source: HTMLElement, options: TooltipDisplayOptions) {
+  isShow(source: HTMLElement, options: TooltipDisplayOptions): boolean {
     if (options.condition) {
       return source.offsetWidth !== source.scrollWidth;
     }

@@ -13,7 +13,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Injectable } from '@angular/core';
 import { ApiService } from '@app/core/api';
 import { ClusterService } from '@app/core/services';
-import { getRandomColor, isObject } from '@app/core/types';
+import { Entities, getRandomColor, isObject } from '@app/core/types';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -41,7 +41,7 @@ export const historyAnime = [
 export class MainService {
   constructor(private fields: FieldService, private api: ApiService, private current: ClusterService) {}
 
-  get Current() {
+  get Current(): Entities {
     return this.current.Current;
   }
 

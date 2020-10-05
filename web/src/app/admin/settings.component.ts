@@ -29,7 +29,7 @@ export class SettingsComponent implements OnInit {
 
   constructor(private api: ApiService, private store: Store<State>) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.set$ = this.api.root.pipe(
       switchMap((root) => this.api.get<ApiBase>(root.adcm)),
       map((adcm) => adcm[0])

@@ -39,7 +39,9 @@ export class ConfigFieldsComponent {
 
   @Input()
   set model(data: IConfig) {
-    if (!data) return;
+    if (!data) {
+      return;
+    }
     this.rawConfig = data;
     this.dataOptions = this.service.getPanels(data);
     this.form = this.service.toFormGroup(this.dataOptions);

@@ -15,14 +15,20 @@ import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '@app/core';
 import { ChannelService, PreloaderService } from '../services';
 
 const EXCLUDE_URLS = ['/api/v1/token/', '/assets/config.json'];
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService, private preloader: PreloaderService, private router: Router, private channel: ChannelService) {}
+
+  constructor(
+    private authService: AuthService,
+    private preloader: PreloaderService,
+    private router: Router,
+    private channel: ChannelService
+  ) {}
 
   addAuthHeader(request: HttpRequest<any>): HttpRequest<any> {
     const token = this.authService.token;

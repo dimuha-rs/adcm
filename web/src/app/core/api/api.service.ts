@@ -33,8 +33,10 @@ export class ApiService {
     return this.root.pipe(switchMap((root) => this.get<T[]>(root[typeName], params))).pipe(catchError(() => EMPTY));
   }
 
-  getOne<T>(typeName: TypeName, id: number, params: { [key: string]: string } = {}) {
-    return this.root.pipe(switchMap((root) => this.get<T>(`${root[typeName]}${id}/`, params))).pipe(catchError(() => EMPTY));
+  getOne<T>(typeName: TypeName, id: number, params: { [key: string]: string } = {}): Observable<T> {
+    return this.root
+      .pipe(switchMap((root) => this.get<T>(`${root[typeName]}${id}/`, params)))
+      .pipe(catchError(() => EMPTY));
   }
 
   get<T>(url: string, params: { [key: string]: string } = {}): Observable<T> {
@@ -44,8 +46,8 @@ export class ApiService {
   getList<T>(url: string, p: ParamMap): Observable<ListResult<T>> {
     const params = p.keys.reduce((pr, c) => ({ ...pr, [c]: p.get(c) }), {});
     if (p) {
-      const limit = p.get('limit') ? +p.get('limit') : +localStorage.getItem('limit'),
-        offset = (p.get('page') ? +p.get('page') : 0) * limit;
+      const limit = p.get('limit') ? +p.get('limit') : +localStorage.getItem('limit');
+      const offset = (p.get('page') ? +p.get('page') : 0) * limit;
       params['limit'] = limit.toString();
       params['offset'] = offset.toString();
       params['status'] = p.get('filter') || '';

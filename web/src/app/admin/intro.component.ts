@@ -25,8 +25,8 @@ import { Component } from '@angular/core';
         </li>
         <li>
           <i
-            >We have to know ADCM's Url [ <b style="color: #00e676;">{{ adcm_url }}</b> ] to send information from host. We try to gues that information from url you enter in
-            browser. <br />But if your network has more complicated structure and we gues wrong, <a routerLink="/admin/settings">please fix that here</a>.</i
+          >We have to know ADCM's Url [ <b style="color: #00e676;">{{ adcmUrl }}</b> ] to send information from host. We try to gues that information from url you enter in
+            browser. <br/>But if your network has more complicated structure and we gues wrong, <a routerLink="/admin/settings">please fix that here</a>.</i
           >
         </li>
       </ul>
@@ -57,7 +57,7 @@ import { Component } from '@angular/core';
     </p>
     <h3>Host</h3>
     <p>
-      This is a machine that your data app is running on. A host may be a virtual machine, a physical server, or something else.<br />
+      This is a machine that your data app is running on. A host may be a virtual machine, a physical server, or something else.<br/>
       A host can be added to only one cluster - you cannot share a host between multiple clusters.
     </p>
     <p>&nbsp;</p>
@@ -70,12 +70,12 @@ import { Component } from '@angular/core';
     </ul>
     If you need a more deep dive into ADCM's functionality,
     <a href="https://docs.arenadata.io/adcm/" target="_blank">start from docs</a>.
-    <br />
+    <br/>
     Now you are ready to start exploring ADCM by yourself - enjoy it!
     <p>&nbsp;</p>
   `,
   styles: [':host {padding: 0 10px;}', '.admin-warn {border:solid 1px #ff9800;margin-right: 20px;}', '.admin-warn ul li {padding: 8px 0;}'],
 })
 export class IntroComponent {
-  adcm_url = `${location.protocol}//${location.host}`;
+  adcmUrl = `${location.protocol}//${location.host}`;
 }

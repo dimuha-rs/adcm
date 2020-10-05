@@ -36,7 +36,9 @@ export class GroupFieldsComponent implements OnInit {
   constructor(private service: FieldService) {}
 
   ngOnInit(): void {
-    if (this.panel.activatable) this.activatable(this.panel.active);
+    if (this.panel.activatable) {
+      this.activatable(this.panel.active);
+    }
   }
 
   get isAdvanced() {

@@ -42,7 +42,7 @@ export class StatusComponent extends SocketListenerDirective implements OnInit, 
     super(socket);
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.details.worker$.pipe(this.takeUntil()).subscribe(() => this.init());
   }
 

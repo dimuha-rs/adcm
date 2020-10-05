@@ -16,6 +16,7 @@ import { Bundle, Cluster, Entities, Host, IAction, IImport, Job, LogFile, Provid
 import { environment } from '@env/environment';
 import { BehaviorSubject, EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
+import {ListResult} from '@app/shared/components/list/list.component';
 
 const EntitiNames: TypeName[] = ['host', 'service', 'cluster', 'provider', 'job', 'task', 'bundle'];
 
@@ -35,14 +36,19 @@ export class ClusterService {
 
   private _currentParamMap: { [key in pagesType]: number };
 
-  get Cluster() {
+  get Cluster(): Cluster {
     return this.worker ? this.worker.cluster : null;
   }
 
   set Cluster(cluster: Cluster) {
-    if (cluster) cluster.typeName = 'cluster';
-    if (this.worker) this.worker.cluster = cluster;
-    else this.worker = { current: cluster, cluster: cluster };
+    if (cluster) {
+      cluster.typeName = 'cluster';
+    }
+    if (this.worker) {
+      this.worker.cluster = cluster;
+    } else {
+      this.worker = { current: cluster, cluster };
+    }
   }
 
   get Current(): Entities {
@@ -51,7 +57,7 @@ export class ClusterService {
 
   constructor(private api: ApiService) {}
 
-  clearWorker() {
+  clearWorker(): void {
     this.worker = null;
   }
 
@@ -115,7 +121,7 @@ export class ClusterService {
     return typeof this.worker.current.action === 'string' ? this.api.get<IAction[]>(this.worker.current.action) : of([]);
   }
 
-  getServices(p: ParamMap) {
+  getServices(p: ParamMap): Observable<ListResult<Service>> {
     return this.api.getList<Service>(this.Cluster.service, p).pipe(
       map((r) => {
         r.results = r.results.map((a) => ({ ...a, cluster: this.Cluster }));
@@ -124,16 +130,16 @@ export class ClusterService {
     );
   }
 
-  addServices(output: { prototype_id: number }[]) {
+  addServices(output: { prototype_id: number }[]): Observable<Service[]> {
     return forkJoin(output.map((o) => this.api.post<Service>(this.Cluster.service, o)));
   }
 
-  getHosts(p: ParamMap) {
+  getHosts(p: ParamMap): Observable<ListResult<Host>> {
     return this.api.getList<Host>(this.Cluster.host, p);
   }
 
-  addHost(host_id: number) {
-    return this.api.post(this.Cluster.host, { host_id });
+  addHost(hostId: number): Observable<any> {
+    return this.api.post(this.Cluster.host, { host_id: hostId });
   }
 
   reset(): Observable<WorkerInstance> {
@@ -142,14 +148,16 @@ export class ClusterService {
     return this.api.get<Entities>(this.Current.url).pipe(
       filter((_) => !!this.worker),
       map((a) => {
-        if (typeName === 'cluster') this.worker.cluster = { ...(a as Cluster), typeName };
+        if (typeName === 'cluster') {
+          this.worker.cluster = { ...(a as Cluster), typeName };
+        }
         this.worker.current = { ...a, typeName, name: a.display_name || a.name || (a as Host).fqdn };
         return this.worker;
       })
     );
   }
 
-  getMainInfo() {
+  getMainInfo(): Observable<any> {
     return this.api.get<any>(`${this.Current.config}current/`).pipe(
       map((a: any) => a.config.find((b: { name: string }) => b.name === '__main_info')),
       filter((a) => a),

@@ -102,7 +102,15 @@ describe('LeftComponent', () => {
 
   // for jobs only
   it('if the item have action should add button-icon with specific name <cloud_download> (todo: custom name)', () => {
-    component.current = { typeName: 'job', log_files: [{ name: 'Test', type: 'type_test', id: 1, download_url: 'download_url_test' }] } as Job;
+    component.current = {
+      typeName: 'job',
+      log_files: [{
+        name: 'Test',
+        type: 'type_test',
+        id: 1,
+        download_url: 'download_url_test',
+      }],
+    } as Job;
     fixture.detectChanges();
     const list = fixture.nativeElement.querySelectorAll('a');
     expect(list.length).toBe(2); // main, test
@@ -113,7 +121,14 @@ describe('LeftComponent', () => {
   });
 
   it('if the item has an action, then this property should be a function and a click should call this function', () => {
-    component.current = { typeName: 'job', log_files: [{ name: 'Test', type: 'type_test', id: 1, download_url: 'download_url_test' }] } as Job;
+    component.current = {
+      typeName: 'job',
+      log_files: [{ name: 'Test',
+        type: 'type_test',
+        id: 1,
+        download_url: 'download_url_test',
+      }],
+    } as Job;
     fixture.detectChanges();
     const list = fixture.nativeElement.querySelectorAll('a');
     spyOn(component, 'btnClick');

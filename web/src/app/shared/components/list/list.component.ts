@@ -83,13 +83,13 @@ export class ListComponent implements OnInit {
 
   constructor(public dialog: MatDialog, public router: Router, public route: ActivatedRoute) {}
 
-  getSortParam(a: Sort) {
+  getSortParam(a: Sort): string {
     const penis: { [key: string]: string[] } = {
       prototype_version: ['prototype_display_name', 'prototype_version'],
     };
 
-    const dumb = penis[a.active] ? penis[a.active] : [a.active],
-      active = dumb.map((b: string) => `${Direction[a.direction]}${b}`).join(',');
+    const dumb = penis[a.active] ? penis[a.active] : [a.active];
+    const active = dumb.map((b: string) => `${Direction[a.direction]}${b}`).join(',');
 
     const current = this.sortParam;
     if (current && this.addToSorting) {

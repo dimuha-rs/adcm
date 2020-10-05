@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthService } from '@app/core';
@@ -43,7 +43,7 @@ export class UsersComponent implements OnInit {
 
   constructor(private us: UsersService, private auth: AuthService, private router: Router, private dialog: MatDialog) {}
 
-  get username() {
+  get username(): AbstractControl {
     return this.addForm.get('username');
   }
 

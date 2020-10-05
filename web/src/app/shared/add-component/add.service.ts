@@ -15,9 +15,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { convertToParamMap, Params } from '@angular/router';
 import { ClusterService, StackInfo, StackService } from '@app/core';
 import { ApiService } from '@app/core/api';
-import { Host, Prototype, ServicePrototype, StackBase, TypeName } from '@app/core/types';
+import { Cluster, Host, Prototype, ServicePrototype, StackBase, TypeName } from '@app/core/types';
 import { environment } from '@env/environment';
-import { Observable, of, throwError, forkJoin } from 'rxjs';
+import { Observable, of, throwError, forkJoin, Subscription } from 'rxjs';
 import { concatAll, filter, map, switchMap, catchError } from 'rxjs/operators';
 
 import { DialogComponent } from '../components/dialog.component';
@@ -75,28 +75,30 @@ export class AddService {
   get currentPrototype(): StackBase {
     return this._currentPrototype;
   }
-  
+
   constructor(private api: ApiService, private stack: StackService, private cluster: ClusterService, public dialog: MatDialog) {}
 
-  model(name: string) {
+  model(name: string): FormModel {
     return MODELS[name];
   }
 
-  get Cluster() {
+  get Cluster(): Cluster {
     return this.cluster.Cluster;
   }
 
-  genName(form: FormGroup) {
+  genName(form: FormGroup): Subscription {
     return form
       .get('prototype_id')
       .valueChanges.pipe(filter((v) => !!v))
       .subscribe(() => {
         const field = form.get('name');
-        if (!field.value) field.setValue(GenName.do());
+        if (!field.value) {
+          field.setValue(GenName.do());
+        }
       });
   }
 
-  add<T>(data: Partial<T>, name: TypeName) {
+  add<T>(data: Partial<T>, name: TypeName): Observable<T> {
     if (this.currentPrototype && this.currentPrototype.license === 'unaccepted') {
       return this.api.root.pipe(
         switchMap((root) =>
@@ -114,20 +116,28 @@ export class AddService {
                 .pipe(
                   filter((yes) => yes),
                   switchMap(() =>
-                    this.api.put(`${root.stack}bundle/${this.currentPrototype.bundle_id}/license/accept/`, {}).pipe(switchMap(() => this.api.post<T>(root[name], data)))
+                    this.api.put(`${root.stack}bundle/${this.currentPrototype.bundle_id}/license/accept/`, {}).pipe(
+                      switchMap(() => this.api.post<T>(root[name], data))
+                    )
                   )
                 )
             )
           )
         )
       );
-    } else return this.api.root.pipe(switchMap((root) => this.api.post<T>(root[name], data)));
+    } else {
+      return this.api.root.pipe(switchMap((root) => this.api.post<T>(root[name], data)));
+    }
   }
 
   addHost(host: Partial<Host>): Observable<Host> {
     const a$ = this.api.post<Host>(`${environment.apiRoot}provider/${host.provider_id}/host/`, { fqdn: host.fqdn });
     const b$ = a$.pipe(
-      map((h) => (host.cluster_id ? this.api.post<Host>(`${environment.apiRoot}cluster/${host.cluster_id}/host/`, { host_id: h.id }) : of(h)))
+      map((h) => (
+        host.cluster_id ? (
+          this.api.post<Host>(`${environment.apiRoot}cluster/${host.cluster_id}/host/`, { host_id: h.id })
+        ) : of(h)
+      ))
     );
     return b$.pipe(concatAll());
   }
@@ -145,7 +155,7 @@ export class AddService {
     return this.api.root.pipe(switchMap((root) => this.api.getList<T>(root[type], paramMap)));
   }
 
-  getList<T>(type: TypeName, param: Params = {}): Observable<T[]> {    
+  getList<T>(type: TypeName, param: Params = {}): Observable<T[]> {
     return this.getListResults<T>(type, param).pipe(map((list) => list.results));
   }
 
