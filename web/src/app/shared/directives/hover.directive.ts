@@ -18,13 +18,13 @@ export class HoverDirective {
   constructor(private el: ElementRef) {}
 
   @HostListener('mouseenter')
-  onmouseenter() {
+  onmouseenter(): void {
     this.el.nativeElement.style.backgroundColor = 'rgba(255, 255, 255, 0.12)';
     this.el.nativeElement.style.cursor = 'pointer';
   }
 
   @HostListener('mouseleave')
-  onmouseleave() {
+  onmouseleave(): void {
     this.el.nativeElement.style.backgroundColor = 'transparent';
     this.el.nativeElement.style.cursor = 'defautl';
   }

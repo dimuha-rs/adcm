@@ -42,6 +42,8 @@ export class SubtitleComponent {
   }
 
   getParentLink(objects: { id: number; type: string }[], ind: number) {
-    return objects.filter((a, i) => i <= ind).reduce((a, c) => [...a, c.type, c.id], ['/']);
+    return objects
+      .filter((a, i) => i <= ind)
+      .reduce((a, c) => [...a, c.type, c.id], ['/']);
   }
 }

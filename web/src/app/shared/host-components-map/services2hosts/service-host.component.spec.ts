@@ -237,22 +237,19 @@ describe('Service Host Map Component', () => {
   it('should display compnents and hosts as button', () => {
     raw.hc = hc;
     initDefault(raw);
-    //fixture.whenStable().then(() => {
     const cElement: HTMLElement = fixture.nativeElement;
     const components = cElement.querySelectorAll('.wrapper').item(0).querySelectorAll('app-much-2-many');
     const hosts = cElement.querySelectorAll('.wrapper').item(1).querySelectorAll('app-much-2-many');
     expect(hosts.length).toBe(1);
     expect(components.length).toBe(4);
-    const host_relations = hosts.item(0).querySelector('.relations-list').children;
-    expect(host_relations.length).toBe(4);
+    const hostRelations = hosts.item(0).querySelector('.relations-list').children;
+    expect(hostRelations.length).toBe(4);
     components.forEach((a) => expect(a.querySelector('.relations-list').children.length).toBe(1));
-    //});
   });
 
   it('should mark host/component as selected and(or) as linked', () => {
     raw.hc = hc;
     initDefault(raw);
-    //fixture.whenStable().then(() => {
     const cElement: HTMLElement = fixture.nativeElement;
     const components = cElement.querySelectorAll('.wrapper').item(0).querySelectorAll('app-much-2-many');
     const hosts = cElement.querySelectorAll('.wrapper').item(1).querySelectorAll('app-much-2-many');
@@ -261,70 +258,68 @@ describe('Service Host Map Component', () => {
     fixture.detectChanges();
     expect(host.querySelector('.m2m').classList.contains('selected')).toBeTrue();
     components.forEach((a) => expect(a.querySelector('.m2m').classList.contains('linked')).toBeTrue());
-    //});
   });
 
   it('should add relative on click and check linked and selected property', () => {
     raw.hc = [];
     initDefault(raw);
-    //fixture.whenStable().then(() => {
     const cElement: HTMLElement = fixture.nativeElement;
     const components = cElement.querySelectorAll('.wrapper').item(0).querySelectorAll('app-much-2-many');
     const hosts = cElement.querySelectorAll('.wrapper').item(1).querySelectorAll('app-much-2-many');
     const host = hosts.item(0);
     const comp = components.item(0);
-    const host_btn = host.querySelector('.m2m .title-container button.title') as HTMLElement;
-    const comp_btn = comp.querySelector('.m2m .title-container button.title') as HTMLElement;
-    const host_relations = host.querySelector('.relations-list').children;
-    const comp_relations = comp.querySelector('.relations-list').children;
+    const hostBtn = host.querySelector('.m2m .title-container button.title') as HTMLElement;
+    const compBtn = comp.querySelector('.m2m .title-container button.title') as HTMLElement;
+    const hostRelations = host.querySelector('.relations-list').children;
+    const compRelations = comp.querySelector('.relations-list').children;
 
-    const comp_isLinked = () => comp.querySelector('.m2m').classList.contains('linked');
-    const comp_isSelect = () => comp.querySelector('.m2m').classList.contains('selected');
-    const host_isSelect = () => host.querySelector('.m2m').classList.contains('selected');
-    const host_isLinked = () => host.querySelector('.m2m').classList.contains('linked');
+    const compIsLinked = () => comp.querySelector('.m2m').classList.contains('linked');
+    const compIsSelect = () => comp.querySelector('.m2m').classList.contains('selected');
+    const hostIsSelect = () => host.querySelector('.m2m').classList.contains('selected');
+    const hostIsLinked = () => host.querySelector('.m2m').classList.contains('linked');
 
     // start: host - select
-    host_btn.click();
+    hostBtn.click();
     fixture.detectChanges();
-    expect(host_isSelect()).toBeTrue();
+    expect(hostIsSelect()).toBeTrue();
 
-    comp_btn.click();
+    compBtn.click();
     fixture.detectChanges();
-    expect(comp_isLinked()).toBeTrue();
-    expect(host_relations.length).toBe(1);
-    expect(comp_relations.length).toBe(1);
+    expect(compIsLinked()).toBeTrue();
+    expect(hostRelations.length).toBe(1);
+    expect(compRelations.length).toBe(1);
 
-    comp_btn.click();
+    compBtn.click();
     fixture.detectChanges();
-    expect(comp_isLinked()).toBeFalse();
-    expect(host_relations.length).toBe(0);
-    expect(comp_relations.length).toBe(0);
+    expect(compIsLinked()).toBeFalse();
+    expect(hostRelations.length).toBe(0);
+    expect(compRelations.length).toBe(0);
 
-    host_btn.click();
+    hostBtn.click();
     fixture.detectChanges();
-    expect(host_isSelect()).toBeFalse();
+    expect(hostIsSelect()).toBeFalse();
     // end
 
     // start: component- select
-    comp_btn.click();
+    compBtn.click();
     fixture.detectChanges();
-    expect(comp_isSelect()).toBeTrue();
+    expect(compIsSelect()).toBeTrue();
 
-    host_btn.click();
+    hostBtn.click();
     fixture.detectChanges();
-    expect(host_isLinked()).toBeTrue();
-    expect(host_relations.length).toBe(1);
-    expect(comp_relations.length).toBe(1);
+    expect(hostIsLinked()).toBeTrue();
+    expect(hostRelations.length).toBe(1);
+    expect(compRelations.length).toBe(1);
 
-    host_btn.click();
+    hostBtn.click();
     fixture.detectChanges();
-    expect(host_isLinked()).toBeFalse();
-    expect(host_relations.length).toBe(0);
-    expect(comp_relations.length).toBe(0);
+    expect(hostIsLinked()).toBeFalse();
+    expect(hostRelations.length).toBe(0);
+    expect(compRelations.length).toBe(0);
 
-    comp_btn.click();
+    compBtn.click();
     fixture.detectChanges();
-    expect(host_isSelect()).toBeFalse();
+    expect(hostIsSelect()).toBeFalse();
     // end
     //});
   });
@@ -337,10 +332,10 @@ describe('Service Host Map Component', () => {
     const hosts = cElement.querySelectorAll('.wrapper').item(1).querySelectorAll('app-much-2-many');
     const host = hosts.item(0);
     const comp = components.item(0);
-    const host_btn = host.querySelector('.m2m .title-container button.title') as HTMLElement;
-    const comp_btn = comp.querySelector('.m2m .title-container button.title') as HTMLElement;
+    const hostBtn = host.querySelector('.m2m .title-container button.title') as HTMLElement;
+    const compBtn = comp.querySelector('.m2m .title-container button.title') as HTMLElement;
 
-    comp_btn.click();
+    compBtn.click();
     fixture.detectChanges();
 
     // check constraints
@@ -352,13 +347,12 @@ describe('Service Host Map Component', () => {
       if (data.constraint?.length) {
         expect(star).toBeDefined();
         // mouseover
-        //expect(last.attributes.getNamedItem('ng-reflect-message').value).toBe('Must be installed at least 1 components.');
       } else {
         expect(star).toBeNull();
       }
     });
 
-    host_btn.click();
+    hostBtn.click();
     fixture.detectChanges();
 
     // check dependencies
@@ -369,7 +363,6 @@ describe('Service Host Map Component', () => {
       const data = raw.component[i];
       if (i !== 0) {
         expect(star).toBeDefined();
-        //expect(last.attributes.getNamedItem('ng-reflect-message').value).toBe('Must be installed at least 1 components.');
       } else {
         expect(star).toBeNull();
       }

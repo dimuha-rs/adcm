@@ -18,7 +18,7 @@ export class ForTestDirective implements OnInit {
   @Input('appForTest') attr: string;
   constructor(private el: ElementRef) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     // old attrname = test
     this.el.nativeElement.setAttribute('adcm_test', this.attr);
   }

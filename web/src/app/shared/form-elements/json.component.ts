@@ -26,7 +26,8 @@ import { debounceTime } from 'rxjs/operators';
   `,
 })
 export class JsonComponent extends FieldDirective implements OnInit {
-  ngOnInit() {
+
+  ngOnInit(): void {
     super.ngOnInit();
     const control = this.form.controls[this.field.name];
     control.valueChanges.pipe(debounceTime(500)).subscribe((value) => {
@@ -36,4 +37,5 @@ export class JsonComponent extends FieldDirective implements OnInit {
       } catch (e) {}
     });
   }
+
 }

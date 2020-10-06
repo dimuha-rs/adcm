@@ -28,7 +28,7 @@ export class ErrorInfoComponent {
   @Input() control: FormControl;
   @Input() field: FieldOptions;
 
-  hasError(name: string) {
+  hasError(name: string): boolean {
     return this.control.hasError(name);
   }
 }

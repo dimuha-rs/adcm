@@ -34,7 +34,7 @@ import { FieldDirective } from './field.directive';
 export class DropdownComponent extends FieldDirective implements OnInit {
   options$: Observable<{ id: number | string; name: string }[]>;
 
-  ngOnInit() {
+  ngOnInit(): void {
     super.ngOnInit();
     if (this.field.limits) {
       const o = Object.entries<string | number>(this.field.limits.option).map((e) => ({

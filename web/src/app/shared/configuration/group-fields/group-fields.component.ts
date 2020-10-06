@@ -41,21 +41,21 @@ export class GroupFieldsComponent implements OnInit {
     }
   }
 
-  get isAdvanced() {
+  get isAdvanced(): boolean {
     return this.panel.ui_options && this.panel.ui_options.advanced;
   }
 
-  activeToggle(e: MatSlideToggleChange) {
+  activeToggle(e: MatSlideToggleChange): void {
     this.panel.active = e.checked;
     this.activatable(e.checked);
   }
 
-  activatable(flag: boolean) {
+  activatable(flag: boolean): void {
     this.active = flag;
     this.checkFields(this.active);
   }
 
-  checkFields(flag: boolean) {
+  checkFields(flag: boolean): void {
     this.panel.options
       .filter((a) => !('options' in a))
       .forEach((a: FieldOptions) => {
@@ -64,14 +64,19 @@ export class GroupFieldsComponent implements OnInit {
         const currentFormGroup = other.reverse().reduce((p, c) => p.get(c), this.form) as FormGroup;
         const formControl = currentFormGroup.controls[name];
         this.updateValidator(formControl, a, flag);
-        if (a.type === 'password') this.updateValidator(currentFormGroup.controls['confirm_' + name], a, flag);
+        if (a.type === 'password') {
+          this.updateValidator(currentFormGroup.controls['confirm_' + name], a, flag);
+        }
       });
   }
 
-  updateValidator(formControl: AbstractControl, a: FieldOptions, flag: boolean) {
+  updateValidator(formControl: AbstractControl, a: FieldOptions, flag: boolean): void {
     if (formControl) {
-      if (!flag) formControl.clearValidators();
-      else if (a.validator) formControl.setValidators(this.service.setValidator(a));
+      if (!flag) {
+        formControl.clearValidators();
+      } else if (a.validator) {
+        formControl.setValidators(this.service.setValidator(a));
+      }
       formControl.updateValueAndValidity();
       formControl.markAsTouched();
       this.form.updateValueAndValidity();

@@ -78,7 +78,7 @@ export class YspecService {
     this.root = yspec;
   }
 
-  get Root() {
+  get Root(): IYspec {
     return this.root;
   }
 
@@ -129,11 +129,11 @@ export class YspecService {
     return {
       type: 'dict',
       name,
-      options: Object.keys(items).map((item_name: string) => this.build(items[item_name], [...path, item_name]))
+      options: Object.keys(items).map((itemName: string) => this.build(items[itemName], [...path, itemName]))
     };
   }
 
-  one_of() {}
+  one_of(): void {}
 
-  dict_key_selection() {}
+  dict_key_selection(): void {}
 }

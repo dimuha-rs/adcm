@@ -27,7 +27,9 @@ export class ConfirmEqualValidatorDirective implements Validator {
 
   validate(control: AbstractControl): { [key: string]: any } | null {
     const controlToCompare = control.parent.controls[this.appConfirmEqualValidator];
-    if (controlToCompare && controlToCompare.value !== control.value) return { notEqual: true };
+    if (controlToCompare && controlToCompare.value !== control.value) {
+      return { notEqual: true };
+    }
     return null;
   }
 }

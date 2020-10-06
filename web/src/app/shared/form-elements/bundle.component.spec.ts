@@ -78,13 +78,13 @@ describe('Form control :: bundle component', () => {
       expect(component.bundles.length).toBe(20);
 
       const displayNameSelect = fixture.debugElement.nativeElement.querySelector('mat-select[formcontrolname=display_name]');
-      const select_id = displayNameSelect.getAttribute('id');
+      const selectId = displayNameSelect.getAttribute('id');
 
       displayNameSelect.click();
       tick();
       fixture.detectChanges();
 
-      const options = document.querySelector(`div#${select_id}-panel`).getElementsByTagName('mat-option');
+      const options = document.querySelector(`div#${selectId}-panel`).getElementsByTagName('mat-option');
       expect(options.length).toBe(21);
     });
   }));

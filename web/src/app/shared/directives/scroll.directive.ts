@@ -19,14 +19,19 @@ export class ScrollDirective {
 
   @Output() read = new EventEmitter<{ direct: -1 | 1 | 0; scrollTop: number }>();
 
-  @HostListener('scroll', ['$event.target']) onscroll(e: Element) {
+  @HostListener('scroll', ['$event.target']) onscroll(e: Element): void {
 
     const { scrollHeight, scrollTop, clientHeight } = e;
 
-    if (scrollTop < this.scrollTop) this.read.emit({ direct: -1, scrollTop });
-    else this.read.emit( { direct: 1, scrollTop });    
-    
-    if (scrollHeight <= scrollTop + clientHeight) this.read.emit({ direct: 0, scrollTop });
+    if (scrollTop < this.scrollTop) {
+      this.read.emit({ direct: -1, scrollTop });
+    } else {
+      this.read.emit( { direct: 1, scrollTop });
+    }
+
+    if (scrollHeight <= scrollTop + clientHeight) {
+      this.read.emit({ direct: 0, scrollTop });
+    }
 
     this.scrollTop = scrollTop;
 

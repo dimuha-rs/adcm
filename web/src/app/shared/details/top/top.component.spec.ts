@@ -49,22 +49,40 @@ describe('TopComponent', () => {
     expect(links.length).toBe(3);
   });
 
-  it('breadcrumbs for service (item with cluster - parent) should contains full path (app->clusters->cluster_name->services->service_name)', () => {
-    component.current = { name: 'service_test', typeName: 'service', id: 1, issue: {}, parent: { id: 1, name: 'cluster_test', issue: {} } as Cluster } as IDetails;
-    fixture.detectChanges();
-    const links = fixture.nativeElement.querySelectorAll('app-crumbs mat-nav-list a');
-    // app -- clusters -- cluster_tes -- services -- service_test
-    expect(links.length).toBe(5);
-  });
+  it(
+    'breadcrumbs for service (item with cluster - parent) should contains full path (app->clusters->cluster_name->services->service_name)',
+    () => {
+      component.current = {
+        name: 'service_test',
+        typeName: 'service',
+        id: 1,
+        issue: {},
+        parent: { id: 1, name: 'cluster_test', issue: {} } as Cluster,
+      } as IDetails;
+      fixture.detectChanges();
+      const links = fixture.nativeElement.querySelectorAll('app-crumbs mat-nav-list a');
+      // app -- clusters -- cluster_tes -- services -- service_test
+      expect(links.length).toBe(5);
+    }
+  );
 
-  it('previous element for current in the breadcrumbs should have to name `[current.typeName]s`', () => {
-    component.current = { name: 'service_test', typeName: 'service', id: 1, issue: {}, parent: { id: 1, name: 'cluster_test', issue: {}, typeName: 'cluster' } } as IDetails;
-    fixture.detectChanges();
-    const links = fixture.nativeElement.querySelectorAll('app-crumbs mat-nav-list a');
-    // app -- clusters -- cluster_tes -- services -- service_test
-    expect(links[1].innerText).toBe('CLUSTERS');
-    expect(links[3].innerText).toBe('SERVICES');
-  });
+  it(
+    'previous element for current in the breadcrumbs should have to name `[current.typeName]s`',
+    () => {
+      component.current = {
+        name: 'service_test',
+        typeName: 'service',
+        id: 1,
+        issue: {},
+        parent: { id: 1, name: 'cluster_test', issue: {}, typeName: 'cluster' },
+      } as IDetails;
+      fixture.detectChanges();
+      const links = fixture.nativeElement.querySelectorAll('app-crumbs mat-nav-list a');
+      // app -- clusters -- cluster_tes -- services -- service_test
+      expect(links[1].innerText).toBe('CLUSTERS');
+      expect(links[3].innerText).toBe('SERVICES');
+    }
+  );
 
   it('if item contains issue should show icon <priority_hight>', () => {
     component.current = {
@@ -72,12 +90,12 @@ describe('TopComponent', () => {
       typeName: 'service',
       id: 1,
       issue: {},
-      parent: <unknown>{ id: 1, name: 'cluster_test', issue: { config: false }, typeName: 'cluster' },
+      parent: { id: 1, name: 'cluster_test', issue: { config: false }, typeName: 'cluster' } as unknown,
     } as IDetails;
     fixture.detectChanges();
-    const cluster_link = fixture.nativeElement.querySelector('app-crumbs mat-nav-list a[href="/cluster/1"]');
-    expect(cluster_link).toBeTruthy();
-    const icon = cluster_link.nextSibling;
+    const clusterLink = fixture.nativeElement.querySelector('app-crumbs mat-nav-list a[href="/cluster/1"]');
+    expect(clusterLink).toBeTruthy();
+    const icon = clusterLink.nextSibling;
     expect(icon).toBeTruthy();
     expect(icon.tagName).toBe('MAT-ICON');
     expect(icon.innerText).toBe('priority_hight');
@@ -89,19 +107,19 @@ describe('TopComponent', () => {
       typeName: 'service',
       id: 1,
       issue: {},
-      parent: <unknown>{ id: 1, name: 'cluster_test', issue: { config: false }, typeName: 'cluster' },
+      parent: { id: 1, name: 'cluster_test', issue: { config: false }, typeName: 'cluster' } as unknown,
     } as IDetails;
     fixture.detectChanges();
-    const cluster_link = fixture.nativeElement.querySelector('app-crumbs mat-nav-list a[href="/cluster/1"]');
+    const clusterLink = fixture.nativeElement.querySelector('app-crumbs mat-nav-list a[href="/cluster/1"]');
 
-    const icon = cluster_link.nextSibling;
+    const icon = clusterLink.nextSibling;
     expect(icon).toBeTruthy();
     expect(icon.tagName).toBe('MAT-ICON');
     expect(icon.innerText).toBe('priority_hight');
 
     component.isIssue = false;
     fixture.detectChanges();
-    const icon2 = cluster_link.nextSibling;
+    const icon2 = clusterLink.nextSibling;
     expect(icon2.tagName).not.toBe('MAT-ICON');
     expect(icon2.innerText).not.toBe('priority_hight');
   });
@@ -116,8 +134,8 @@ describe('TopComponent', () => {
 
     fixture.detectChanges();
 
-    const up_btn = fixture.nativeElement.querySelector('app-upgrade button[adcm_test=upgrade_btn]');
-    expect(up_btn).toBeTruthy();
+    const upBtn = fixture.nativeElement.querySelector('app-upgrade button[adcm_test=upgrade_btn]');
+    expect(upBtn).toBeTruthy();
   });
 
   it('if item does not contain upgradable should hide button upgade', () => {
@@ -130,12 +148,12 @@ describe('TopComponent', () => {
 
     fixture.detectChanges();
 
-    const up_btn = fixture.nativeElement.querySelector('app-upgrade button[adcm_test=upgrade_btn]');
-    expect(up_btn).toBeTruthy();
+    const upBtn = fixture.nativeElement.querySelector('app-upgrade button[adcm_test=upgrade_btn]');
+    expect(upBtn).toBeTruthy();
 
     component.upgradable = false;
     fixture.detectChanges();
-    const up_btn2 = fixture.nativeElement.querySelector('app-upgrade button[adcm_test=upgrade_btn]');
-    expect(up_btn2).toBeFalsy();
+    const upBtn2 = fixture.nativeElement.querySelector('app-upgrade button[adcm_test=upgrade_btn]');
+    expect(upBtn2).toBeFalsy();
   });
 });

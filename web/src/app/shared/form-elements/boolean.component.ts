@@ -28,8 +28,10 @@ const options = { clickAction: 'noop', color: 'accent' };
   providers: [{ provide: MAT_CHECKBOX_DEFAULT_OPTIONS, useValue: options }]
 })
 export class BooleanComponent extends FieldDirective {
-  cbChange() {
-    if (this.field.read_only) return;
+  cbChange(): void {
+    if (this.field.read_only) {
+      return;
+    }
     const tape = this.field.validator.required ? [true, false] : [null, true, false];
     this.field.value = tape[(tape.indexOf(this.field.value as boolean) + 1) % tape.length];
     this.control.setValue(this.field.value);

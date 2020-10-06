@@ -70,20 +70,20 @@ export class ItemComponent implements OnInit {
     this.item.form.markAllAsTouched();
   }
 
-  emmit() {
+  emmit(): void {
     this.remove.emit(this.item.name);
   }
 
-  get control() {
+  get control(): AbstractControl {
     return this.item.form.controls[this.item.name] as AbstractControl;
   }
 
-  get isValid() {
+  get isValid(): boolean {
     const f = this.control;
     return f.valid && (f.dirty || f.touched);
   }
 
-  hasError(title: string) {
+  hasError(title: string): boolean {
     return this.control.hasError(title);
   }
 }

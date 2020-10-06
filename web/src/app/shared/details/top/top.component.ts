@@ -37,10 +37,14 @@ export class TopComponent {
 
   @Input() set isIssue(v: boolean) {
     this.disabled = v;
-    if (this.upgrade) this.upgrade.issue = (v ? { issue: '' } : {}) as Issue;
+    if (this.upgrade) {
+      this.upgrade.issue = (v ? { issue: '' } : {}) as Issue;
+    }
     if (this.items) {
       const a = this.items.find((b) => b.id);
-      if (a) a.issue = this.navigation.getIssueMessage(v);
+      if (a) {
+        a.issue = this.navigation.getIssueMessage(v);
+      }
     }
   }
 

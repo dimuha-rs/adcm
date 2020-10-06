@@ -57,17 +57,17 @@ export class ToolsComponent extends BaseDirective implements OnInit {
     this.filter$.next();
   }
 
-  search(search: string) {
+  search(search: string): void {
     this.filterParams.search = search;
     this.filter$.next();
   }
 
-  toggleHistory() {
+  toggleHistory(): void {
     this.historyShow = !this.historyShow;
     this.showHistory.emit(this.historyShow);
   }
 
-  onSave() {
+  onSave(): void {
     this.save.emit();
   }
 }

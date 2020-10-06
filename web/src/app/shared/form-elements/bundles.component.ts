@@ -52,13 +52,13 @@ import { InputComponent } from './input.component';
 export class BundlesComponent extends InputComponent implements OnInit {
   @Input() typeName: 'cluster' | 'provider';
   @ViewChild('uploadBtn', { static: true }) uploadBtn: ButtonUploaderComponent;
-  loadedBundle: { bundle_id: number; display_name: string };  
+  loadedBundle: { bundle_id: number; display_name: string };
   bundles: StackBase[] = [];
   versions: StackBase[];
   page = 1;
   limit = 50;
   disabledVersion = true;
-  
+
   constructor(private service: AddService) {
     super();
   }
@@ -73,7 +73,11 @@ export class BundlesComponent extends InputComponent implements OnInit {
       .get('display_name')
       .valueChanges.pipe(
         this.takeUntil(),
-        switchMap((value) => (value ? this.service.getPrototype(this.typeName, { page: 0, limit: 500, ordering: '-version', display_name: value }) : of([])))
+        switchMap((value) => (
+          value ? (
+            this.service.getPrototype(this.typeName, { page: 0, limit: 500, ordering: '-version', display_name: value })
+          ) : of([])
+        ))
       )
       .subscribe((a) => {
         this.versions = a;
@@ -94,7 +98,7 @@ export class BundlesComponent extends InputComponent implements OnInit {
       });
   }
 
-  getNextPage() {
+  getNextPage(): void {
     const count = this.bundles.length;
     if (count === this.page * this.limit) {
       this.page++;
@@ -102,7 +106,7 @@ export class BundlesComponent extends InputComponent implements OnInit {
     }
   }
 
-  getBundles() {
+  getBundles(): void {
     const offset = (this.page - 1) * this.limit;
     const params = { fields: 'display_name', distinct: 1, ordering: 'display_name', limit: this.limit, offset };
     this.service.getPrototype(this.typeName, params).subscribe((a) => {
@@ -111,13 +115,13 @@ export class BundlesComponent extends InputComponent implements OnInit {
     });
   }
 
-  selectOne(a: Partial<Prototype>[] = [], formName: string) {
+  selectOne(a: Partial<Prototype>[] = [], formName: string): void {
     const el = this.loadedBundle ? a.find((e) => e[formName] === this.loadedBundle[formName]) : null;
     const id = el ? el[formName] : a.length ? (formName === 'bundle_id' || a.length === 1 ? a[0][formName] : '') : '';
     this.form.get(formName).setValue(id);
   }
 
-  upload(data: FormData[]) {
+  upload(data: FormData[]): void {
     this.service
       .upload(data)
       .pipe(map((a) => a.map((e) => ({ bundle_id: e.id, display_name: e.display_name, version: e.version }))))

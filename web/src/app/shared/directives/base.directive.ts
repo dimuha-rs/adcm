@@ -13,6 +13,7 @@ import { Directive, OnDestroy } from '@angular/core';
 import { EventMessage } from '@app/core/store';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { MonoTypeOperatorFunction } from 'rxjs';
 
 @Directive({
   selector: '[appBase]'
@@ -25,7 +26,7 @@ export class BaseDirective implements OnDestroy {
     this.destroy$.complete();
   }
 
-  takeUntil<T>() {
+  takeUntil<T>(): MonoTypeOperatorFunction<T> {
     return takeUntil<T>(this.destroy$);
   }
 }

@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { Directive, Input, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import {AbstractControl, FormGroup} from '@angular/forms';
 
 import { FieldOptions } from '../configuration/types';
 import { BaseDirective } from '../directives';
@@ -22,21 +22,23 @@ export class FieldDirective extends BaseDirective implements OnInit {
   @Input() form: FormGroup;
   @Input() field: FieldOptions;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.control.markAllAsTouched();
   }
 
-  get control() {
+  get control(): AbstractControl {
     return this.form.controls[this.field.name];
   }
 
-  get isValid() {
-    if (this.field.read_only) return true;
+  get isValid(): boolean {
+    if (this.field.read_only) {
+      return true;
+    }
     const control = this.control;
     return control.valid && (control.dirty || control.touched);
   }
 
-  hasError(name: string) {
+  hasError(name: string): boolean {
     return this.control.hasError(name);
   }
 }

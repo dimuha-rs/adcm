@@ -28,42 +28,50 @@ export class Much2ManyComponent {
   @Input() model: Tile;
   @Input() form: FormGroup;
 
-  isDisabled() {
-    if (this.model.actions) return !this.model.actions.length;
+  isDisabled(): boolean {
+    if (this.model.actions) {
+      return !this.model.actions.length;
+    }
     return this.model.disabled;
   }
 
-  isError() {
+  isError(): boolean {
     if ('service_id' in this.model && Object.keys(this.form.controls).length) {
       const sc = this.model as CompTile;
       const control = this.form.controls[`${sc.service_id}/${sc.id}`];
-      if (!control) return false;
+      if (!control) {
+        return false;
+      }
       sc.notification = control.errors?.error;
       return control.invalid;
-    } else return false;
+    } else {
+      return false;
+    }
   }
 
-  clearDisabled(rel: Tile) {
-    if (this.model.actions) return this.model.actions.every((e) => e !== 'remove');
+  clearDisabled(rel: Tile): boolean {
+    if (this.model.actions) {
+      return this.model.actions.every((e) => e !== 'remove');
+    }
     return rel.disabled || this.model.disabled;
   }
 
-  clickToTitle() {
+  clickToTitle(): void {
     this.clickToTitleEvt.emit(this.model);
   }
 
-  toggleRelations() {
+  toggleRelations(): void {
     this.isShow = !this.isShow;
   }
 
-  clearRelation(relation: Tile) {
+  clearRelation(relation: Tile): void {
     this.model.relations = this.model.relations.filter((a) => a !== relation);
     this.clearRelationEvt.emit({ relation, model: this.model });
   }
 
-  setNotify() {
-    const [a, b, c] = this.model.limit,
-      lim = isNumber(b) ? b : a === 'odd' ? 1 : a === 'depend' ? 0 : a;
+  setNotify(): string {
+    const [a, b, c] = this.model.limit;
+    const lim = isNumber(b) ? b : a === 'odd' ? 1 : a === 'depend' ? 0 : a;
     return `${this.model.relations.length}${lim !== 0 ? ` / ${lim}` : ''}`;
   }
 }

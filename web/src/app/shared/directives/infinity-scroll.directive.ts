@@ -23,21 +23,26 @@ export class InfinityScrollDirective implements OnInit {
   constructor(private renderer: Renderer2, @Host() private el: MatSelect) {}
 
   ngOnInit(): void {
-    if ('openedChange' in this.el) this.el.openedChange.subscribe((open: boolean) => this.registerPanel(open));
-    else this.renderer.listen(this.el, 'scroll', this.onScrollPanel.bind(this));
+    if ('openedChange' in this.el) {
+      this.el.openedChange.subscribe((open: boolean) => this.registerPanel(open));
+    } else {
+      this.renderer.listen(this.el, 'scroll', this.onScrollPanel.bind(this));
+    }
   }
 
-  registerPanel(open: boolean) {
+  registerPanel(open: boolean): void {
     if (open) {
       const panel = (this.el as MatSelect).panel.nativeElement;
       this.renderer.listen(panel, 'scroll', this.onScrollPanel.bind(this));
     }
   }
 
-  onScrollPanel(event: any) {
+  onScrollPanel(event: any): void {
     const target = event.target;
 
     const height = Array.from<HTMLElement>(target.children).reduce((p, c) => p + c.clientHeight, 0) - target.clientHeight;
-    if (target.scrollTop > height - POINT_WHEN_EMMIT) this.topScrollPoint.emit();
+    if (target.scrollTop > height - POINT_WHEN_EMMIT) {
+      this.topScrollPoint.emit();
+    }
   }
 }

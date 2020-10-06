@@ -84,11 +84,11 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
     super(socket);
   }
 
-  public get noValid() {
+  public get noValid(): boolean {
     return /*!!this.service.countConstraint */ !this.form.valid || !this.statePost.data.length;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.load();
     super.startListenSocket();
 
@@ -98,7 +98,7 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
       .subscribe((e) => (this.scrollEventData = e));
   }
 
-  socketListener(m: EventMessage) {
+  socketListener(m: EventMessage): void {
     const isCurrent = (type: string, id: number) => type === 'cluster' && id === this.cluster.id;
     if (
       (m.event === 'change_hostcomponentmap' || m.event === 'change_state') &&
@@ -107,11 +107,12 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
     ) {
       this.reset().load();
     }
-    if ((m.event === 'add' || m.event === 'remove') && isCurrent(m.object.details.type, +m.object.details.value))
+    if ((m.event === 'add' || m.event === 'remove') && isCurrent(m.object.details.type, +m.object.details.value)) {
       this.update(m);
+    }
   }
 
-  reset() {
+  reset(): ServiceHostComponent {
     this.Hosts = [];
     this.Components = [];
     this.statePost.clear();
@@ -120,19 +121,23 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
     return this;
   }
 
-  update(em: EventMessage) {
-    if (em.event === 'add') this.add(em.object);
-    if (em.event === 'remove') this.remove(em.object);
+  update(em: EventMessage): void {
+    if (em.event === 'add') {
+      this.add(em.object);
+    }
+    if (em.event === 'remove') {
+      this.remove(em.object);
+    }
   }
 
-  add(io: IEMObject) {
+  add(io: IEMObject): void {
     const { id, type, details } = io;
     if (details.type === 'cluster' && +details.value === this.cluster.id) {
       this.service
         .load(this.cluster.hostcomponent)
         .pipe(this.takeUntil())
         .subscribe((raw: IRawHosComponent) => {
-          if (type === 'host')
+          if (type === 'host') {
             this.Hosts = [
               ...this.Hosts,
               ...this.service.fillHost(
@@ -140,7 +145,8 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
                 this.actionParameters
               ),
             ];
-          if (type === 'service')
+          }
+          if (type === 'service') {
             this.Components = [
               ...this.Components,
               ...this.service.fillComponent(
@@ -148,21 +154,24 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
                 this.actionParameters
               ),
             ];
+          }
         });
     }
   }
 
   /** host only */
-  remove(io: IEMObject) {
+  remove(io: IEMObject): void {
     if (io.type === 'host') {
       const { id } = io;
       this.Hosts = this.Hosts.filter((a) => a.id !== id);
     }
   }
 
-  load() {
+  load(): void {
     if (this.cluster) {
-      if (this.initFlag) return;
+      if (this.initFlag) {
+        return;
+      }
       this.initFlag = true;
 
       this.service
@@ -172,11 +181,14 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
     }
   }
 
-  init(raw: IRawHosComponent) {
-    if (raw.host) this.Hosts = this.service.fillHost(raw.host, this.actionParameters);
+  init(raw: IRawHosComponent): void {
+    if (raw.host) {
+      this.Hosts = this.service.fillHost(raw.host, this.actionParameters);
+    }
 
-    if (raw.component)
+    if (raw.component) {
       this.Components = [...this.Components, ...this.service.fillComponent(raw.component, this.actionParameters)];
+    }
 
     if (raw.hc) {
       this.initFlag = false;
@@ -187,15 +199,15 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
     this.service.formFill(this.Components, this.Hosts, this.form);
   }
 
-  clearServiceFromHost(data: { relation: CompTile; model: HostTile }) {
+  clearServiceFromHost(data: { relation: CompTile; model: HostTile }): void{
     this.service.divorce([data.relation, data.model], this.Components, this.Hosts, this.statePost, this.form);
   }
 
-  clearHostFromService(data: { relation: HostTile; model: CompTile }) {
+  clearHostFromService(data: { relation: HostTile; model: CompTile }): void {
     this.service.divorce([data.model, data.relation], this.Components, this.Hosts, this.statePost, this.form);
   }
 
-  selectHost(host: HostTile) {
+  selectHost(host: HostTile): void {
     const stream = {
       linkSource: this.Components,
       link: getSelected(this.Components),
@@ -204,7 +216,7 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
     this.service.next(host, stream, this.Components, this.Hosts, this.statePost, this.loadPost, this.form);
   }
 
-  selectService(component: CompTile) {
+  selectService(component: CompTile): void {
     const stream = {
       linkSource: this.Hosts,
       link: getSelected(this.Hosts),
@@ -213,7 +225,7 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
     this.service.next(component, stream, this.Components, this.Hosts, this.statePost, this.loadPost, this.form);
   }
 
-  save() {
+  save(): void {
     this.saveFlag = true;
     const { id, hostcomponent } = this.cluster;
     this.service.save(id, hostcomponent, this.statePost.data).subscribe((data) => {
@@ -225,7 +237,7 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
     });
   }
 
-  restore() {
+  restore(): void {
     const ma = (a: Tile) => {
       a.isSelected = false;
       a.isLink = false;

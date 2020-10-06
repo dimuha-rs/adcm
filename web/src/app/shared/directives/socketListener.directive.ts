@@ -24,14 +24,14 @@ export class SocketListenerDirective extends BaseDirective implements OnDestroy 
   constructor(private socket: Store<SocketState>) {
     super();
   }
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     super.ngOnDestroy();
     this.socket.dispatch(clearMessages());
   }
   startListenSocket(): void {
     this.socket$.pipe(tap(m => this.socketListener(m))).subscribe();
   }
-  socketListener(m: EventMessage) {
+  socketListener(m: EventMessage): void {
     console.warn('No implemented socketListener method', m);
   }
 }

@@ -10,6 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { Component, OnInit } from '@angular/core';
+import { AbstractControl } from '@angular/forms';
 
 import { FieldDirective } from './field.directive';
 
@@ -31,17 +32,19 @@ import { FieldDirective } from './field.directive';
   styleUrls: ['./password.component.scss']
 })
 export class PasswordComponent extends FieldDirective implements OnInit {
-  ngOnInit() {
+  ngOnInit(): void {
     super.ngOnInit();
     const confirm = this.getConfirmPasswordField();
-    if (confirm) confirm.markAllAsTouched();
+    if (confirm) {
+      confirm.markAllAsTouched();
+    }
   }
 
-  getConfirmPasswordField() {
+  getConfirmPasswordField(): AbstractControl {
     return this.form.controls['confirm_' + this.field.name];
   }
 
-  hasErrorConfirm(name: string) {
+  hasErrorConfirm(name: string): boolean {
     const c = this.getConfirmPasswordField();
     return this.getConfirmPasswordFieldErrors(name) && (c.touched || c.dirty);
   }

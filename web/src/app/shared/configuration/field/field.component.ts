@@ -36,24 +36,28 @@ export class FieldComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!changes.form.firstChange) this.initCurrentGroup();
+    if (!changes.form.firstChange) {
+      this.initCurrentGroup();
+    }
   }
 
-  initCurrentGroup() {
+  initCurrentGroup(): void {
     const [_, name] = this.options.key.split('/');
     this.currentFormGroup = name ? (this.form.controls[name] as FormGroup) : this.form;
   }
 
-  getTestName() {
+  getTestName(): string {
     return `${this.options.name}${this.options.subname ? '/' + this.options.subname : ''}`;
   }
 
-  outputValue(v: string, isPart = false) {
-    if (this.options.type === 'password') v = v.replace(/\w/gi, '*');
+  outputValue(v: string, isPart = false): string {
+    if (this.options.type === 'password') {
+      v = v.replace(/\w/gi, '*');
+    }
     return v.length > 80 ? (isPart ? v : `${v.substr(0, 80)}...`) : v;
   }
 
-  isAdvanced() {
+  isAdvanced(): boolean {
     return this.options.ui_options && this.options.ui_options.advanced;
   }
 
@@ -61,7 +65,7 @@ export class FieldComponent implements OnInit, OnChanges {
    * TODO: should be own restore() for each fieldComponent   *
    * @memberof FieldComponent
    */
-  restore() {
+  restore(): void {
     const field = this.currentFormGroup.controls[this.options.name];
     const defaultValue = this.options.default;
     const type = this.options.type;
@@ -86,7 +90,9 @@ export class FieldComponent implements OnInit, OnChanges {
       } else if (type === 'structure') {
         this.options.value = defaultValue;
         (this.inputControl as SchemeComponent).reload();
-      } else field.setValue(defaultValue);
+      } else {
+        field.setValue(defaultValue);
+      }
 
       this.options.value = field.value;
       this.form.updateValueAndValidity();

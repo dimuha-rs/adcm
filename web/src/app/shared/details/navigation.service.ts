@@ -68,16 +68,16 @@ const all = [
   { id: 7, title: 'Actions', url: 'action' },
   { id: 1, title: 'Services', url: 'service' },
   { id: 2, title: 'Hosts', url: 'host' },
-  { id: 3, title: 'Hosts - Components', url: 'host_component' },  
+  { id: 3, title: 'Hosts - Components', url: 'host_component' },
 ];
 
-const [main, config, m_status, m_import, actions] = all;
+const [main, config, mStatus, mImport, actions] = all;
 
 export const Config = {
   menu: {
     cluster: all.sort((a, b) => a.id - b.id),
-    service: [main, config, m_status, m_import, actions],
-    host: [main, config, m_status, actions],
+    service: [main, config, mStatus, mImport, actions],
+    host: [main, config, mStatus, actions],
     provider: [main, config, actions],
     bundle: [main],
   },
@@ -90,7 +90,15 @@ export class NavigationService {
 
   getLeft(current: Partial<ApiBase>): INavItem[] {
     const getMenu = (c: Partial<ApiBase>) => {
-      const forJob = (job: Job) => [main, ...job.log_files.map((a) => ({ title: `${a.name} [ ${a.type} ]`, url: `${a.id}`, action: () => (location.href = a.download_url) }))];
+      const forJob = (job: Job) =>
+        [
+          main,
+          ...job.log_files.map((a) => ({
+            title: `${a.name} [ ${a.type} ]`,
+            url: `${a.id}`,
+            action: () => (location.href = a.download_url)
+          }))
+        ];
       const def = (typeName: TypeName, issue: Issue, status: number) =>
         Config.menu[typeName].map((i: INavItem) => ({
           ...i,

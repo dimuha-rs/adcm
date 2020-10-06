@@ -36,7 +36,12 @@ describe('HostComponentsMap :: TakeService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [{ provide: ApiService, useValue: {} }, { provide: AddService, useValue: {} }, { provide: MatDialog, useValue: {} }, TakeService],
+      providers: [
+        { provide: ApiService, useValue: {} },
+        { provide: AddService, useValue: {} },
+        { provide: MatDialog, useValue: {} },
+        TakeService,
+      ],
     });
     service = TestBed.inject(TakeService);
   });
@@ -139,7 +144,6 @@ describe('HostComponentsMap :: TakeService', () => {
   it('validateConstraints fn for Component.constrant = [+]', () => {
     const d = { ...ctData, constraint: ['+'] };
     const mCompTile = new CompTile(d);
-    //compone.Hosts = [{ id: 0, name: 'test', relations: [], color: 'none', disabled: false }];
     expect(service.validateConstraints(mCompTile, 1)()).toEqual({ error: 'Component should be installed on all hosts of cluster.' });
   });
 });

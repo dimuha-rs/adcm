@@ -25,36 +25,40 @@ export class BaseMapListDirective extends FieldDirective implements OnInit {
     super();
   }
 
-  ngOnInit() {
-    if (!Object.keys(this.field.value || {}).length) this.control.setValue('');
+  ngOnInit(): void {
+    if (!Object.keys(this.field.value || {}).length) {
+      this.control.setValue('');
+    }
     this.reload();
     this.items.valueChanges.subscribe((a: { key: string; value: string }[]) => this.prepare(a));
   }
 
-  prepare(a: { key: string; value: string }[]) {
+  prepare(a: { key: string; value: string }[]): void {
     let value = this.asList ? a.map(b => b.value).filter(c => c) : a.length ? a.reduce((p, c) => ({ ...p, [c.key]: c.value }), {}) : null;
-    if (value && this.asList) value = (value as Array<string>).length ? value : null;
+    if (value && this.asList) {
+      value = (value as Array<string>).length ? value : null;
+    }
     this.control.setValue(value);
   }
 
-  reload() {
+  reload(): void {
     this.items.reset([]);
     this.items.controls = [];
     const fieldValue = this.field.value ? { ...(this.field.value as Object) } : { };
     Object.keys(fieldValue).forEach(a => this.items.push(this.fb.group({ key: [a, Validators.required], value: fieldValue[a] })));
   }
 
-  add() {
+  add(): void {
     const group = this.fb.group({ key: ['', Validators.required], value: '' });
     this.items.push(group);
-    group.controls['key'].markAsTouched();
+    group.controls.key.markAsTouched();
   }
 
-  check(item: FormGroup) {
-    return item.controls['key'].hasError('required');
+  check(item: FormGroup): boolean {
+    return item.controls.key.hasError('required');
   }
 
-  clear(i: number) {
+  clear(i: number): void {
     this.items.removeAt(i);
   }
 }

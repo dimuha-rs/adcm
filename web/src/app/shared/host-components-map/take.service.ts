@@ -20,6 +20,7 @@ import { AddService } from '../add-component/add.service';
 import { DialogComponent } from '../components';
 import { DependenciesComponent } from './dependencies.component';
 import { CompTile, Constraint, HostTile, IRawHosComponent, IStream, Post, StatePost, Tile } from './types';
+import {Observable} from 'rxjs';
 
 export const getSelected = (from: Tile[]) => from.find((a) => a.isSelected);
 
@@ -35,18 +36,18 @@ export class TakeService {
   constructor(private api: ApiService, private dialog: MatDialog, private add: AddService) {}
 
   //#region ----- HttpClient ------
-  load(url: string) {
+  load(url: string): Observable<IRawHosComponent> {
     return this.api.get<IRawHosComponent>(url);
   }
 
-  save(cluster_id: number, hostcomponent: string, hc: Post[]) {
-    const send = { cluster_id, hc };
+  save(clusterId: number, hostcomponent: string, hc: Post[]): Observable<Post[]> {
+    const send = { cluster_id: clusterId, hc };
     return this.api.post<Post[]>(hostcomponent, send).pipe(take(1));
   }
   //#endregion
 
   //#region after a successful download, run and fill in
-  fillHost(ph: Partial<Host>[], ap: IActionParameter[]) {
+  fillHost(ph: Partial<Host>[], ap: IActionParameter[]): HostTile[] {
     const isShrink = () => ap.every((a) => a.action === 'remove');
     const isExpand = () => ap.every((a) => a.action === 'add');
     const condition = (b: CompTile) => (a: IActionParameter) => b.component === `${a.service}/${a.component}`;

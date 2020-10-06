@@ -19,18 +19,22 @@ export class HolderDirective {
 
   @Input('appHolder') set scroll(data: { direct: -1 | 1 | 0; scrollTop: number }) {
     if (data) {
-      if (!this.ps) this.getPs();
-      else if (this.ps.short.clientHeight + data.scrollTop < this.ps.long.clientHeight) this.ps.short.style.marginTop = `${Math.floor(data.scrollTop)}px`;
+      if (!this.ps) {
+        this.getPs();
+      }
+      else if (this.ps.short.clientHeight + data.scrollTop < this.ps.long.clientHeight) {
+        this.ps.short.style.marginTop = `${Math.floor(data.scrollTop)}px`;
+      }
     }
   }
 
   constructor(private el: ElementRef) {}
 
-  getPs() {
+  getPs(): void {
     const els: HTMLElement[] = [...this.el.nativeElement.children];
     if (els.length) {
-      const a = els[0].querySelector<HTMLElement>('.wrapper'),
-        b = els[1].querySelector<HTMLElement>('.wrapper');
+      const a = els[0].querySelector<HTMLElement>('.wrapper');
+      const b = els[1].querySelector<HTMLElement>('.wrapper');
       this.ps = a.clientHeight < b.clientHeight ? { short: a, long: b } : { short: b, long: a };
     }
   }

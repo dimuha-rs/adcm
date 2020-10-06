@@ -49,61 +49,78 @@ export class MainService {
     return this.api.get<IConfig>(url);
   }
 
-  filterApply(options: (FieldOptions | PanelOptions)[], search: ISearchParam) {
+  filterApply(options: (FieldOptions | PanelOptions)[], search: ISearchParam): void {
     this.fields.filterApply(options, search);
   }
 
-  parseValue(output: IOutput, source: FieldStack[]) {
+  parseValue(output: IOutput, source: FieldStack[]): IOutput {
     return this.fields.parseValue(output, source);
   }
 
-  send(url: string, data: any) {
+  send(url: string, data: any): Observable<IConfig> {
     return this.api.post<IConfig>(url, data);
   }
 
-  getHistoryList(url: string, currentVersionId: number) {
-    return this.api.get<IConfig[]>(url).pipe(map((h) => h.filter((a) => a.id !== currentVersionId).map((b) => ({ ...b, color: getRandomColor() }))));
+  getHistoryList(url: string, currentVersionId: number): Observable<IConfig[]> {
+    return this.api.get<IConfig[]>(url).pipe(
+      map((h) => h.filter((a) => a.id !== currentVersionId).map((b) => ({ ...b, color: getRandomColor() })))
+    );
   }
 
-  compareConfig(ids: number[], dataOptions: (FieldOptions | PanelOptions)[], compareConfig: CompareConfig[]) {
+  compareConfig(ids: number[], dataOptions: (FieldOptions | PanelOptions)[], compareConfig: CompareConfig[]): void {
     dataOptions.map((a) => this.runClear(a, ids));
     const cc = ids.map((id) => compareConfig.find((a) => a.id === id));
     dataOptions.map((a) => this.runCheck(a, cc));
   }
 
-  runClear(a: FieldOptions | PanelOptions, ids: number[]) {
-    if ('options' in a) a.options.map((b) => this.runClear(b, ids));
-    else if (a.compare.length) a.compare = a.compare.filter((b) => ids.includes(b.id));
+  runClear(a: FieldOptions | PanelOptions, ids: number[]): FieldOptions | PanelOptions {
+    if ('options' in a) {
+      a.options.map((b) => this.runClear(b, ids));
+    }
+    else if (a.compare.length) {
+      a.compare = a.compare.filter((b) => ids.includes(b.id));
+    }
     return a;
   }
 
-  runCheck(a: FieldOptions | PanelOptions, configs: CompareConfig[]) {
-    if ('options' in a) a.options.map((b) => this.runCheck(b, configs));
-    else this.checkField(a, configs);
+  runCheck(a: FieldOptions | PanelOptions, configs: CompareConfig[]): FieldOptions | PanelOptions {
+    if ('options' in a) {
+      a.options.map((b) => this.runCheck(b, configs));
+    } else {
+      this.checkField(a, configs);
+    }
     return a;
   }
 
-  checkField(a: FieldOptions, configs: CompareConfig[]) {
+  checkField(a: FieldOptions, configs: CompareConfig[]): FieldOptions {
     configs
       .filter((b) => a.compare.every((e) => e.id !== b.id))
       .map((c) => {
         const co = this.findFieldiCompare(a.key, c);
         if (!co) {
-          if (String(a.value) && String(a.value) !== 'null') a.compare.push({ id: c.id, date: c.date, color: c.color, value: 'null' });
+          if (String(a.value) && String(a.value) !== 'null') {
+            a.compare.push({ id: c.id, date: c.date, color: c.color, value: 'null' });
+          }
         } else {
           if (isObject(co.value)) {
             if (isObject(a.value)) {
-              if (JSON.stringify(a.value) !== JSON.stringify(co.value)) a.compare.push({ ...co, value: JSON.stringify(co.value) });
+              if (JSON.stringify(a.value) !== JSON.stringify(co.value)) {
+                a.compare.push({ ...co, value: JSON.stringify(co.value) });
+              }
             } else if (typeof a.value === 'string') {
-              if (JSON.stringify(JSON.parse(a.value)) !== JSON.stringify(co.value)) a.compare.push({ ...co, value: JSON.stringify(co.value) });
+              if (JSON.stringify(JSON.parse(a.value)) !== JSON.stringify(co.value)) {
+                a.compare.push({ ...co, value: JSON.stringify(co.value) });
+              }
             }
-          } else if (String(co.value) !== String(a.value)) a.compare.push(co);
+          } else if (String(co.value) !== String(a.value)) {
+            a.compare.push(co);
+          }
         }
       });
     return a;
   }
 
-  findFieldiCompare(key: string, cc: CompareConfig) {
+  findFieldiCompare(key: string, cc: CompareConfig): { id, date, color, value } {
     const value = key
       .split('/')
       .reverse()

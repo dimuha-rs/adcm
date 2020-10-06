@@ -47,7 +47,7 @@ export class RootComponent implements OnInit {
     this.init();
   }
 
-  reload(value: TValue) {
+  reload(value: TValue): void {
     this.value = value;
     this.controls = [];
     if (Array.isArray(this.form.controls)) {
@@ -56,7 +56,7 @@ export class RootComponent implements OnInit {
     this.init();
   }
 
-  add(v: [string, IValue | TValue] = ['', '']) {
+  add(v: [string, IValue | TValue] = ['', '']): void {
     const [name, value] = v;
     const flag = (this.rules as IYContainer).type === 'dict';
     const item = flag
@@ -65,11 +65,11 @@ export class RootComponent implements OnInit {
     this.controls = [...this.controls, item];
   }
 
-  showControls() {
+  showControls(): boolean {
     return !this.isReadOnly && (this.options.type === 'list' || this.options.type === 'dict');
   }
 
-  remove(name: string | number) {
+  remove(name: string | number): void {
     if (Array.isArray(this.form.controls)) {
       (this.form as FormArray).removeAt(+name);
       this.controls = this.controls.filter((a, i) => (a.name ? a.name !== name : i !== +name));
@@ -77,8 +77,11 @@ export class RootComponent implements OnInit {
   }
 
   get rules(): IYField | IYContainer | (IYField | IYContainer)[] {
-    if ('options' in this.options) return this.options.options;
-    else return this.options;
+    if ('options' in this.options) {
+      return this.options.options;
+    } else {
+      return this.options;
+    }
   }
 
   get itemRules(): (IYField | IYContainer)[] {

@@ -32,7 +32,7 @@ export class MTextareaDirective extends BaseDirective implements OnInit, OnDestr
   }
 
   @HostListener('mousedown')
-  mouseDown() {
+  mouseDown(): void {
     this.flag = true;
   }
 
@@ -45,7 +45,9 @@ export class MTextareaDirective extends BaseDirective implements OnInit, OnDestr
           const data = p.textarea;
           const old = data[this.key];
           const value = +this.el.nativeElement.offsetHeight - PADDING_TOP_BOTTOM;
-          if (this.flag && old !== value) this.profile.dispatch(setTextareaHeight({ key: this.key, value }));
+          if (this.flag && old !== value) {
+            this.profile.dispatch(setTextareaHeight({ key: this.key, value }));
+          }
           this.flag = false;
         });
     });
@@ -55,7 +57,9 @@ export class MTextareaDirective extends BaseDirective implements OnInit, OnDestr
       .pipe(this.takeUntil())
       .subscribe(p => {
         const k = Object.keys(p.textarea).find(key => key === this.key);
-        if (k) (this.el.nativeElement as HTMLTextAreaElement).style.height = p.textarea[k] + 'px';
+        if (k) {
+          (this.el.nativeElement as HTMLTextAreaElement).style.height = p.textarea[k] + 'px';
+        }
       });
   }
 }

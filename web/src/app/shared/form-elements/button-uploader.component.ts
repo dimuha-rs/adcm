@@ -37,12 +37,12 @@ export class ButtonUploaderComponent {
 
   @Output() output = new EventEmitter<FormData[]>();
 
-  show() {
+  show(): void {
     this.fileUploadInput.nativeElement.click();
   }
 
-  fileUploadHandler(fu: HTMLInputElement) {
-    let output: FormData[] = [];
+  fileUploadHandler(fu: HTMLInputElement): void {
+    const output: FormData[] = [];
     for (let i = 0; i < fu.files.length; i++) {
       const file = fu.files.item(i);
       const form = new FormData();

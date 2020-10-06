@@ -52,7 +52,16 @@ describe('DependenciesComponent', () => {
   });
 
   it('data as tree', () => {
-    component.model = [{ prototype_id: 1, display_name: 'display_name_test_1', name: 'test_name_1', components: [{ prototype_id: 2, display_name: 'display_name_test_2', name: 'test_name_2' }] }];
+    component.model = [{
+      prototype_id: 1,
+      display_name: 'display_name_test_1',
+      name: 'test_name_1',
+      components: [{
+        prototype_id: 2,
+        display_name: 'display_name_test_2',
+        name: 'test_name_2',
+      }]
+    }];
     component.ngOnInit();
     fixture.detectChanges();
     const ul = fixture.nativeElement.querySelector('ul');
