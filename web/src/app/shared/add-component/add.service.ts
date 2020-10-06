@@ -15,13 +15,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { convertToParamMap, Params } from '@angular/router';
 import { ClusterService, StackInfo, StackService } from '@app/core';
 import { ApiService } from '@app/core/api';
-import { Cluster, Host, Prototype, ServicePrototype, StackBase, TypeName } from '@app/core/types';
+import {Cluster, Host, Prototype, Service, ServicePrototype, StackBase, TypeName} from '@app/core/types';
 import { environment } from '@env/environment';
 import { Observable, of, throwError, forkJoin, Subscription } from 'rxjs';
 import { concatAll, filter, map, switchMap, catchError } from 'rxjs/operators';
 
 import { DialogComponent } from '../components/dialog.component';
 import { GenName } from './naming';
+import {ListResult} from '@app/shared/components/list/list.component';
 
 export interface FormModel {
   name: string;
@@ -68,13 +69,7 @@ const MODELS: { [key: string]: FormModel } = {
   providedIn: 'root',
 })
 export class AddService {
-  private _currentPrototype: StackBase;
-  set currentPrototype(a: StackBase) {
-    this._currentPrototype = a;
-  }
-  get currentPrototype(): StackBase {
-    return this._currentPrototype;
-  }
+  private currentPrototype: StackBase;
 
   constructor(private api: ApiService, private stack: StackService, private cluster: ClusterService, public dialog: MatDialog) {}
 
@@ -142,15 +137,15 @@ export class AddService {
     return b$.pipe(concatAll());
   }
 
-  addHostInCluster(ids: number[]) {
+  addHostInCluster(ids: number[]): Observable<any[]> {
     return forkJoin([...ids.map(id => this.cluster.addHost(id))]);
   }
 
-  addService(data: { prototype_id: number }[]) {
+  addService(data: { prototype_id: number }[]): Observable<Service[]> {
     return this.cluster.addServices(data);
   }
 
-  getListResults<T>(type: TypeName, param: Params = {}) {
+  getListResults<T>(type: TypeName, param: Params = {}): Observable<ListResult<T>> {
     const paramMap = convertToParamMap(param);
     return this.api.root.pipe(switchMap((root) => this.api.getList<T>(root[type], paramMap)));
   }
@@ -163,7 +158,7 @@ export class AddService {
     return this.stack.fromStack(name, param);
   }
 
-  getProtoServiceForCurrentCluster() {
+  getProtoServiceForCurrentCluster(): Observable<StackBase[]> {
     return this.api.get<StackBase[]>(this.cluster.Cluster.serviceprototype).pipe(
       map((a: ServicePrototype[]) =>
         a
@@ -176,7 +171,7 @@ export class AddService {
     );
   }
 
-  upload(data: FormData[]) {
+  upload(data: FormData[]): Observable<any> {
     return this.stack.upload(data).pipe(catchError((e) => throwError(e)));
   }
 }

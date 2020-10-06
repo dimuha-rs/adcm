@@ -21,8 +21,8 @@ import { ListResult } from '@app/shared/components/list/list.component';
 
 export type StackInfo = 'cluster' | 'host' | 'provider' | 'service' | 'bundle';
 
-const UPLOAD_URL = `${environment.apiRoot}stack/upload/`,
-  LOAD_URL = `${environment.apiRoot}stack/load/`;
+const UPLOAD_URL = `${environment.apiRoot}stack/upload/`;
+const LOAD_URL = `${environment.apiRoot}stack/load/`;
 
 @Injectable({ providedIn: 'root' })
 export class StackService {
@@ -37,7 +37,7 @@ export class StackService {
     );
   }
 
-  upload(output: FormData[]) {
+  upload(output: FormData[]): Observable<any> {
     const item = (form: FormData) => {
       return this.api.post(UPLOAD_URL, form).pipe(
         mergeMap(() => this.api.post<Bundle>(LOAD_URL, { bundle_file: (form.get('file') as File).name }))

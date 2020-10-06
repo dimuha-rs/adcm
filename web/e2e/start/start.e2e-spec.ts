@@ -26,7 +26,7 @@ describe('Start page', () => {
     login.navigateTo();
     login.fillCredentials();
     browser.sleep(1);
-    page.navigateTo();    
+    page.navigateTo();
     expect(page.getPageTitleText()).toEqual('Hi there!');
   });
 });

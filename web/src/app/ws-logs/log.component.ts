@@ -61,7 +61,7 @@ export class LogComponent implements OnInit {
     // this.store.dispatch(socketInit());
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.store
       .pipe(
         select(getMessage),
@@ -71,21 +71,22 @@ export class LogComponent implements OnInit {
       .subscribe(m => this.reflect(m));
   }
 
-  reflect(m: EventMessage) {
-    const typeName = this.form.get('typesName').value,
-      eventName = this.form.get('eventsName').value;
+  reflect(m: EventMessage): void {
+    const typeName = this.form.get('typesName').value;
+    const eventName = this.form.get('eventsName').value;
     if ((m.object.type === typeName || typeName === 'all') && (m.event === eventName || eventName === 'all')) {
-      if (this.form.get('timeOut').value)
+      if (this.form.get('timeOut').value) {
         setTimeout(
           () => this.api.getOne<any>(m.object.type, m.object.id).subscribe(value => this.list(m, value)),
           this.slider.value
         );
-      else this.api.getOne<any>(m.object.type, m.object.id).subscribe(value => this.list(m, value));
-    } 
-    // else this.list(m, `Not request for ${eventName} event.`);
+      } else {
+        this.api.getOne<any>(m.object.type, m.object.id).subscribe(value => this.list(m, value));
+      }
+    }
   }
 
-  list(m: EventMessage, value: any) {
+  list(m: EventMessage, value: any): void {
     const { type, id } = m.object;
     const list = [
       ...this.logs$.getValue(),
@@ -97,7 +98,7 @@ export class LogComponent implements OnInit {
     this.logs$.next(list.reverse());
   }
 
-  refresh() {
+  refresh(): void {
     this.logs$.next([]);
   }
 }

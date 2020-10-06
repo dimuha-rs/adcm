@@ -10,13 +10,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { browser, element, by } from 'protractor';
+import { promise, promise as wdpromise } from 'selenium-webdriver';
 
 export class StartPage {
-  navigateTo() {
+  navigateTo(): wdpromise.Promise<any> {
     return browser.get('/admin/intro');
   }
 
-  getPageTitleText() {
+  getPageTitleText(): promise.Promise<string> {
       return element(by.css('.mat-card-title')).getText();
   }
 }

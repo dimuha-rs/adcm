@@ -10,6 +10,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { browser, by, element } from 'protractor';
+import { promise, promise as wdpromise } from 'selenium-webdriver';
+import { ElementFinder } from 'protractor/built/element';
 
 export class LoginPage {
   private credentials = {
@@ -17,21 +19,21 @@ export class LoginPage {
     password: 'admin',
   };
 
-  navigateTo() {
+  navigateTo(): wdpromise.Promise<any> {
     return browser.get('/login');
   }
 
-  fillCredentials(credentials: any = this.credentials) {
+  fillCredentials(credentials: any = this.credentials): void {
     element(by.css('[placeholder="Login"]')).sendKeys(credentials.username);
     element(by.css('[placeholder="Password"]')).sendKeys(credentials.password);
     this.getButton().click();
   }
 
-  getErrorMessage() {
+  getErrorMessage(): promise.Promise<string> {
     return element(by.css('.warn')).getText();
   }
 
-  getButton() {
+  getButton(): ElementFinder {
       return element(by.tagName('button'));
   }
 }

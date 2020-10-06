@@ -108,21 +108,25 @@ export class StatePost {
     return this._data;
   }
 
-  add(post: Post) {
+  add(post: Post): void {
     const f = this._data.find((p) => this._compare(p, post));
-    if (!f) this._data.push(post);
-    else if (!f.id) f.id = post.id;
+    if (!f) {
+      this._data.push(post);
+    }
+    else if (!f.id) {
+      f.id = post.id;
+    }
   }
 
-  delete(post: Post) {
+  delete(post: Post): void {
     this._data = this._data.filter((p) => !this._compare(p, post));
   }
 
-  clear() {
+  clear(): void {
     this._data = [];
   }
 
-  update(data: Post[]) {
+  update(data: Post[]): void {
     data.forEach((a) => this.add(new Post(a.host_id, a.service_id, a.component_id, a.id)));
   }
 }

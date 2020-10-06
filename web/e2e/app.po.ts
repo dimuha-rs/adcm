@@ -10,9 +10,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { browser } from 'protractor';
+import { promise as wdpromise } from 'selenium-webdriver';
 
-export class AppPage {  
-  navigateTo() {
+export class AppPage {
+
+  navigateTo(): wdpromise.Promise<any> {
     return browser.get('/');
   }
+
 }

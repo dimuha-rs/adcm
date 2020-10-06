@@ -56,7 +56,7 @@ export class TakeService {
     return ph.map((h) => new HostTile(h)).map((h) => ({ ...h, disabled: !ap ? false : checkEmptyHost(h) }));
   }
 
-  fillComponent(pc: Component[], ap: IActionParameter[]) {
+  fillComponent(pc: Component[], ap: IActionParameter[]): CompTile[] {
     return pc.map(
       (c) =>
         new CompTile(
@@ -66,16 +66,16 @@ export class TakeService {
     );
   }
 
-  setRelations(rel: Post[], cs: CompTile[], hs: HostTile[], ap: IActionParameter[]) {
+  setRelations(rel: Post[], cs: CompTile[], hs: HostTile[], ap: IActionParameter[]): void {
     rel.forEach((p) => {
-      const host = hs.find((h) => h.id === p.host_id),
-        component = cs.find((s) => s.id === p.component_id);
+      const host = hs.find((h) => h.id === p.host_id);
+      const component = cs.find((s) => s.id === p.component_id);
       if (host && component) {
         if (ap) {
           component.relations = [...component.relations, host];
-          const clone_component = { ...component };
-          clone_component.disabled = component.actions.every((k) => k !== 'remove');
-          host.relations = [...host.relations, clone_component];
+          const cloneComponent = { ...component };
+          cloneComponent.disabled = component.actions.every((k) => k !== 'remove');
+          host.relations = [...host.relations, cloneComponent];
         } else {
           host.relations = [...host.relations, component];
           component.relations = [...component.relations, host];
@@ -86,7 +86,7 @@ export class TakeService {
   //#endregion
 
   //#region FormGrop and validation for Components
-  formFill(components: CompTile[], hosts: HostTile[], form: FormGroup) {
+  formFill(components: CompTile[], hosts: HostTile[], form: FormGroup): void {
     components.map((a) =>
       form.addControl(
         `${a.service_id}/${a.id}`,
@@ -109,16 +109,20 @@ export class TakeService {
   [+] – component shoud be installed on all hosts of cluster.
   ```
  */
-  validateConstraints(component: CompTile, hostLength: number) {
+  validateConstraints(component: CompTile, hostLength: number): () => ValidationErrors {
     const getError = (constraint: Constraint, relations: HostTile[]) => {
-      if (!constraint?.length) return null;
+      if (!constraint?.length) {
+        return null;
+      }
       const [a1, a2, a3] = constraint;
       const countRelations = relations.length;
       const depend = () =>
         relations.some((a) => a.relations.some((b) => b.id === component.id))
           ? null
           : 'Must be installed because it is a dependency of another component';
-      if (a3 && a3 === 'depend') return depend();
+      if (a3 && a3 === 'depend') {
+        return depend();
+      }
       else if (a2) {
         switch (a2) {
           case 'depend':
@@ -158,7 +162,7 @@ export class TakeService {
     };
   }
 
-  setFormValue(c: CompTile, form: FormGroup) {
+  setFormValue(c: CompTile, form: FormGroup): void {
     form.controls[`${c.service_id}/${c.id}`].setValue(c.relations);
   }
 
@@ -166,8 +170,8 @@ export class TakeService {
 
   //#region Removing links and dependencies
 
-  clearDependencies(comp: CompTile, state: StatePost, cs: CompTile[], hs: HostTile[], form: FormGroup) {
-    const getLimitsFromState = (prototype_id: number) => cs.find((b) => b.prototype_id === prototype_id).limit;
+  clearDependencies(comp: CompTile, state: StatePost, cs: CompTile[], hs: HostTile[], form: FormGroup): void {
+    const getLimitsFromState = (prototypeId: number) => cs.find((b) => b.prototype_id === prototypeId).limit;
     if (comp.requires?.length) {
       this.findDependencies(comp, cs).forEach((a) => {
         a.limit = getLimitsFromState(a.prototype_id);
@@ -186,19 +190,19 @@ export class TakeService {
     }
   }
 
-  findDependencies(c: CompTile, cs: CompTile[]) {
+  findDependencies(c: CompTile, cs: CompTile[]): CompTile[] {
     const r =
       c.requires?.reduce((p, a) => [...p, ...a.components.map((b) => ({ prototype_id: b.prototype_id }))], []) || [];
     return cs.filter((a) => r.some((b) => b.prototype_id === a.prototype_id));
   }
 
-  checkDependencies(c: CompTile, cs: CompTile[]) {
+  checkDependencies(c: CompTile, cs: CompTile[]): void {
     this.findDependencies(c, cs).forEach((a) => (a.limit = a.limit ? [...a.limit, 'depend'] : ['depend']));
   }
   //#endregion
 
   //#region handler user events
-  divorce(both: [CompTile, HostTile], cs: CompTile[], hs: HostTile[], state: StatePost, form: FormGroup) {
+  divorce(both: [CompTile, HostTile], cs: CompTile[], hs: HostTile[], state: StatePost, form: FormGroup): void {
     both.forEach((a) => {
       a.relations = a.relations.filter((r) => r.id !== both.find((b) => b.id !== a.id).id);
       a.isLink = false;
@@ -217,13 +221,16 @@ export class TakeService {
     hs: HostTile[],
     state: StatePost,
     load: StatePost,
-    form: FormGroup
-  ) {
+    form: FormGroup,
+  ): void {
     stream.linkSource.forEach((s) => (s.isLink = false));
-    if (stream.selected) stream.selected.isSelected = false;
+    if (stream.selected) {
+      stream.selected.isSelected = false;
+    }
 
-    if (stream.link) this.handleLink(stream.link, target, state, cs, hs, load, form);
-    else if (stream.selected !== target) {
+    if (stream.link) {
+      this.handleLink(stream.link, target, state, cs, hs, load, form);
+    } else if (stream.selected !== target) {
       target.isSelected = true;
       target.relations.forEach(
         (e) => (stream.linkSource.find((s) => s.name === e.name && s.id === e.id).isLink = true)
@@ -238,32 +245,44 @@ export class TakeService {
     cs: CompTile[],
     hs: HostTile[],
     load: StatePost,
-    form: FormGroup
-  ) {
+    form: FormGroup,
+  ): boolean {
     const isComp = target instanceof CompTile;
     const component = (isComp ? target : link) as CompTile;
     const host = isComp ? link : target;
-    const flag = (host_id: number, com: CompTile) =>
-      load.data.some((a) => a.component_id === com.id && a.service_id === com.service_id && a.host_id === host_id);
+    const flag = (hostId: number, com: CompTile) =>
+      load.data.some((a) => a.component_id === com.id && a.service_id === com.service_id && a.host_id === hostId);
 
-    const checkActions = (host_id: number, com: CompTile, action: 'add' | 'remove'): boolean => {
+    const checkActions = (hostId: number, com: CompTile, action: 'add' | 'remove'): boolean => {
       if (com.actions?.length) {
-        if (action === 'remove') return flag(host_id, com) ? com.actions.some((a) => a === 'remove') : true;
-        if (action === 'add') return flag(host_id, com) ? true : com.actions.some((a) => a === 'add');
-      } else return true;
+        if (action === 'remove') {
+          return flag(hostId, com) ? com.actions.some((a) => a === 'remove') : true;
+        }
+        if (action === 'add') {
+          return flag(hostId, com) ? true : com.actions.some((a) => a === 'add');
+        }
+      } else {
+        return true;
+      }
     };
 
     const noConstraint = (c: Constraint, r: number) => {
-      if (!c?.length) return true;
+      if (!c?.length) {
+        return true;
+      }
       const v = c[c.length - 1];
       return v === '+' || v === 'odd' || v > r || v === 'depend';
     };
 
     if (link.relations.find((e) => e.id === target.id)) {
-      if (checkActions(host.id, component, 'remove')) this.divorce([component, host], cs, hs, state, form);
+      if (checkActions(host.id, component, 'remove')) {
+        this.divorce([component, host], cs, hs, state, form);
+      }
       return;
     } else if (noConstraint(component.limit, component.relations.length)) {
-      if (!checkActions(host.id, component, 'add')) return;
+      if (!checkActions(host.id, component, 'add')) {
+        return;
+      }
       if (component.requires?.length) {
         const requires = component.requires.reduce(
           (p, c) => (c.components.some((a) => cs.some((b) => b.prototype_id === a.prototype_id)) ? p : [...p, c]),
@@ -286,7 +305,7 @@ export class TakeService {
     this.setFormValue(component, form);
   }
 
-  dialog4Requires(model: IRequires[]) {
+  dialog4Requires(model: IRequires[]): void {
     this.dialog
       .open(DialogComponent, {
         data: {

@@ -34,8 +34,8 @@ describe('Login page', () => {
 
   it('when login is successful — he should redirect to default page', async () => {
     page.navigateTo();
-    await page.fillCredentials();    
-    expect(startPage.getPageTitleText()).toEqual('Hi there!');    
+    await page.fillCredentials();
+    expect(startPage.getPageTitleText()).toEqual('Hi there!');
   });
 
 });

@@ -15,7 +15,11 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'tagEsc',
 })
 export class TagEscPipe implements PipeTransform {
-  transform(value: string, args?: any): any {
-    if (value) return value.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\\n/g, '<br />');
+
+  transform(value: string): string {
+    if (value) {
+      return value.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\\n/g, '<br />');
+    }
   }
+
 }

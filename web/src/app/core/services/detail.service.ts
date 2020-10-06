@@ -34,8 +34,6 @@ export class ClusterService {
   private workerSubject = new BehaviorSubject<WorkerInstance>(null);
   public worker$ = this.workerSubject.asObservable();
 
-  private _currentParamMap: { [key in pagesType]: number };
-
   get Cluster(): Cluster {
     return this.worker ? this.worker.cluster : null;
   }
@@ -101,7 +99,13 @@ export class ClusterService {
     return cluster$
       .pipe(
         tap((cluster) => (this.Cluster = cluster)),
-        switchMap((cluster) => (cluster && typeName !== 'cluster' ? this.api.get(`${cluster[typeName]}${id}/`) : this[`one_${typeName}`](id)))
+        switchMap((cluster) => (
+          cluster && typeName !== 'cluster' ? (
+            this.api.get(`${cluster[typeName]}${id}/`)
+          ) : (
+            this[`one_${typeName}`](id))
+          )
+        )
       )
       .pipe(
         map((a: Entities) => {
@@ -143,7 +147,9 @@ export class ClusterService {
   }
 
   reset(): Observable<WorkerInstance> {
-    if (!this.Current) return EMPTY;
+    if (!this.Current) {
+      return EMPTY;
+    }
     const typeName = this.Current.typeName;
     return this.api.get<Entities>(this.Current.url).pipe(
       filter((_) => !!this.worker),
@@ -168,25 +174,25 @@ export class ClusterService {
   /**
    * Import / Export data for `Cluster`
    */
-  getImportData() {
+  getImportData(): Observable<IImport[]> {
     return 'imports' in this.Current ? this.api.get<IImport[]>(this.Current.imports) : EMPTY;
   }
 
-  bindImport(bind: any) {
+  bindImport(bind: any): Observable<any> {
     return 'imports' in this.Current ? this.api.post(this.Current.imports, bind) : EMPTY;
   }
 
   /**
    * For `Job` and `Task` operating time data
    */
-  getOperationTimeData(job: Job) {
+  getOperationTimeData(job: Job): { start: string, end: string, time: string } {
     const { start_date, finish_date, status } = job;
-    const sdn = Date.parse(start_date),
-      fdn = Date.parse(finish_date),
-      ttm = fdn - sdn,
-      sec = Math.floor(ttm / 1000),
-      min = Math.floor(sec / 60),
-      time = status !== 'running' ? `${min}m. ${sec - min * 60}s.` : '';
+    const sdn = Date.parse(start_date);
+    const fdn = Date.parse(finish_date);
+    const ttm = fdn - sdn;
+    const sec = Math.floor(ttm / 1000);
+    const min = Math.floor(sec / 60);
+    const time = status !== 'running' ? `${min}m. ${sec - min * 60}s.` : '';
     const a = new Date(sdn);
     const b = new Date(fdn);
     return { start: a.toLocaleTimeString(), end: status !== 'running' ? b.toLocaleTimeString() : '', time };
