@@ -39,7 +39,15 @@ import { ControlsComponent } from './controls.component';
     ControlsComponent
   ],
   imports: [CommonModule, MaterialModule, StuffModule, FormsModule, ReactiveFormsModule, FormElementsModule],
-  exports: [AddButtonComponent, ProviderComponent, ClusterComponent, HostComponent, ServiceComponent, Host2clusterComponent, BaseFormDirective],
+  exports: [
+    AddButtonComponent,
+    ProviderComponent,
+    ClusterComponent,
+    HostComponent,
+    ServiceComponent,
+    Host2clusterComponent,
+    BaseFormDirective,
+  ],
   entryComponents: [AddFormComponent]
 })
 export class AddingModule {}

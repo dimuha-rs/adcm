@@ -11,6 +11,7 @@
 // limitations under the License.
 import { Injectable } from '@angular/core';
 import { ApiService } from '@app/core/api';
+import {Observable} from 'rxjs';
 
 // export const fruit = {
 //   display_name: 'Fruit',
@@ -51,7 +52,7 @@ import { ApiService } from '@app/core/api';
 export class ActionsService {
   constructor(private api: ApiService) {}
 
-  getActions(url: string) {
+  getActions(url: string): Observable<any[]> {
     return this.api.get<any[]>(url); //.pipe(map((a) => [fruit, vegetable, ...a]));
   }
 }

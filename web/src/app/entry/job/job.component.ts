@@ -45,9 +45,11 @@ export class JobComponent extends BaseDirective implements OnInit, OnDestroy {
 export class MainComponent implements OnInit {
   constructor(private details: ClusterService, private router: Router, private route: ActivatedRoute) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const logs = (this.details.Current as Job).log_files;
     const log = logs.find((a) => a.type === 'check') || logs[0];
-    if (log) this.router.navigate([`../${log.id}`], { relativeTo: this.route });
+    if (log) {
+      this.router.navigate([`../${log.id}`], { relativeTo: this.route });
+    }
   }
 }

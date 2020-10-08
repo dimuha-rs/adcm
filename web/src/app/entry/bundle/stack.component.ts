@@ -27,7 +27,7 @@ export class StackComponent {
   typeName = 'bundle';
   @ViewChild('uploadBtn', { static: true }) uploadBtn: any;
   constructor(private stack: StackService) {}
-  upload(data: FormData[]) {
+  upload(data: FormData[]): void {
     this.stack.upload(data).subscribe();
   }
 }
@@ -47,11 +47,11 @@ export class MainComponent implements OnInit {
   model: any;
   constructor(private service: ClusterService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.model = this.service.Current;
   }
 
-  keys(model: {}) {
+  keys(model: {}): string[] {
     return Object.keys(model);
   }
 }

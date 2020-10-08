@@ -57,7 +57,7 @@ import { CheckLog, LogFile } from '@app/core/types/task-job';
 export class CheckComponent {
   @Input() content: CheckLog[] = [];
   current: CheckLog;
-  trackBy(index: number) {
+  trackBy(index: number): number {
     return index;
   }
 }

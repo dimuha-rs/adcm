@@ -51,16 +51,16 @@ export class ProviderComponent extends BaseFormDirective implements OnInit, OnDe
   @Input() displayMode: DisplayMode = DisplayMode.default;
   @Output() cancel = new EventEmitter();
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.form = this.service.model('provider').form;
     this.sgn = this.service.genName(this.form);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.sgn.unsubscribe();
   }
 
-  save() {
+  save(): void {
     const data = clearEmptyField(this.form.value);
     this.service
       .add<Provider>(data, 'provider')

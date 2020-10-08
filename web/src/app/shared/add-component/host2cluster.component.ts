@@ -57,18 +57,18 @@ export class Host2clusterComponent extends BaseFormDirective implements OnInit, 
   list: Host[] = [];
   showForm = false;
   Count = 0;
-  displayMode: DisplayMode = DisplayMode.default;  
+  displayMode: DisplayMode = DisplayMode.default;
   @Output() event = new EventEmitter();
   @ViewChild('form') hostForm: HostComponent;
   @ViewChild('listHosts') listHosts: MatSelectionList;
   @ViewChild('cb') allCbx: MatCheckbox;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getAvailableHosts();
   }
 
-  getAvailableHosts(pageIndex = 0, pageSize = 10) {
+  getAvailableHosts(pageIndex = 0, pageSize = 10): void {
     this.service
       .getListResults<Host>('host', { limit: pageSize, page: pageIndex, cluster_is_null: 'true' })
       .pipe(this.takeUntil())
@@ -77,16 +77,21 @@ export class Host2clusterComponent extends BaseFormDirective implements OnInit, 
         this.showForm = !r.count;
         this.displayMode = r.count > 0 ? 2 : 1;
         this.list = r.results;
-        if (this.listHosts?.options.length) this.allCbx.checked = false;
+        if (this.listHosts?.options.length) {
+          this.allCbx.checked = false;
+        }
       });
   }
 
-  selectAllHost(flag: boolean) {
-    if (!flag) this.listHosts.selectAll();
-    else this.listHosts.deselectAll();
+  selectAllHost(flag: boolean): void {
+    if (!flag) {
+      this.listHosts.selectAll();
+    }else {
+      this.listHosts.deselectAll();
+    }
   }
 
-  save() {
+  save(): void {
     if (this.hostForm.form.valid) {
       const host = this.hostForm.form.value;
       host.cluster_id = this.service.Cluster.id;
@@ -94,20 +99,20 @@ export class Host2clusterComponent extends BaseFormDirective implements OnInit, 
         .addHost(host)
         .pipe(this.takeUntil())
         .subscribe((a) => {
-          this.hostForm.form.controls['fqdn'].setValue('');
+          this.hostForm.form.controls.fqdn.setValue('');
           this.event.emit(`Host [ ${a.fqdn} ] has been added successfully.`);
         });
     }
   }
 
-  addHost2Cluster(value: number[]) {
+  addHost2Cluster(value: number[]): void {
     this.service
       .addHostInCluster(value.filter((a) => !!a))
       .pipe(this.takeUntil())
       .subscribe(() => this.getAvailableHosts());
   }
 
-  pageHandler(pageEvent: PageEvent) {
+  pageHandler(pageEvent: PageEvent): void {
     this.getAvailableHosts(pageEvent.pageIndex, pageEvent.pageSize);
   }
 }

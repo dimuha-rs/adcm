@@ -42,19 +42,22 @@ export class ServiceComponent extends BaseFormDirective implements OnInit {
   @ViewChild('listServices')
   private listServices: MatSelectionList;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.options$ = this.service.getProtoServiceForCurrentCluster();
   }
 
 
-  selectAll(e: MatSelectionListChange) {
+  selectAll(e: MatSelectionListChange): void {
     if (!e.option.value) {
-      if (e.option.selected) this.listServices.selectAll();
-      else this.listServices.deselectAll();
+      if (e.option.selected) {
+        this.listServices.selectAll();
+      } else {
+        this.listServices.deselectAll();
+      }
     }
   }
 
-  save() {
+  save(): void {
     const result = this.listServices.selectedOptions.selected.filter(a => a.value).map(a => ({ prototype_id: +a.value.id }));
     this.service
       .addService(result)

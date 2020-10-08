@@ -28,7 +28,7 @@ export class ConfigService {
 
   constructor(private http: HttpClient) {}
 
-  get version() {
+  get version(): string {
     return localStorage.getItem('adcm:version') || '';
   }
 
@@ -38,7 +38,9 @@ export class ConfigService {
 
   checkVersion(c: IVersionInfo): IVersionInfo {
     const version = `${c.version}-${c.commit_id}`;
-    if (!this.version) this.version = version;
+    if (!this.version) {
+      this.version = version;
+    }
     else if (this.version !== version) {
       this.version = version;
       return null;
@@ -46,7 +48,7 @@ export class ConfigService {
     return c;
   }
 
-  load() {
+  load(): Observable<IVersionInfo> {
     return this.http.get<IVersionInfo>(`${CONFIG_URL}?nocache=${Date.now()}`).pipe(map((c) => this.checkVersion(c)));
   }
 }

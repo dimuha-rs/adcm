@@ -23,7 +23,7 @@ import { ActionsService } from '../actions.service';
       <p *ngIf="!actions.length">Nothing to display.</p>
       <app-card-item [items]="actions" [cluster]="clusterData"></app-card-item>
     </ng-container>
-  `, 
+  `,
 })
 export class ActionCardComponent implements OnInit {
   model: Entities;

@@ -72,7 +72,16 @@ describe('MasterComponent', () => {
 
   it('should be show template for current action if model.actions.length === 1 and config = null and host-map = null', () => {
     component.model = {
-      actions: [{ name: 'a1', description: '', display_name: 'display a1', run: 'url a1', ui_options: null, config: null, hostcomponentmap: null, button: null }]
+      actions: [{
+        name: 'a1',
+        description: '',
+        display_name: 'display a1',
+        run: 'url a1',
+        ui_options: null,
+        config: null,
+        hostcomponentmap: null,
+        button: null,
+      }]
     };
     fixture.detectChanges();
     const compHost: HTMLElement = fixture.debugElement.nativeElement;
@@ -87,8 +96,26 @@ describe('MasterComponent', () => {
   it('should be show actions list for choose current action if model.actions.length > 1', () => {
     component.model = {
       actions: [
-        { name: 'a1', description: '', display_name: 'display a1', run: 'url a1', ui_options: null, config: null, hostcomponentmap: null, button: null },
-        { name: 'a2', description: '', display_name: 'display a2', run: 'url a2', ui_options: null, config: null, hostcomponentmap: null, button: null }
+        {
+          name: 'a1',
+          description: '',
+          display_name: 'display a1',
+          run: 'url a1',
+          ui_options: null,
+          config: null,
+          hostcomponentmap: null,
+          button: null,
+        },
+        {
+          name: 'a2',
+          description: '',
+          display_name: 'display a2',
+          run: 'url a2',
+          ui_options: null,
+          config: null,
+          hostcomponentmap: null,
+          button: null,
+        }
       ]
     };
     fixture.detectChanges();
@@ -139,7 +166,16 @@ describe('MasterComponent', () => {
   it('should be show template for current action if host-map exist only', () => {
     component.model = {
       actions: [
-        { name: 'a1', description: '', display_name: 'display a1', run: 'url a1', ui_options: null, config: null, hostcomponentmap: [{ component: '', action: 'add', service: '' }], button: null }
+        {
+          name: 'a1',
+          description: '',
+          display_name: 'display a1',
+          run: 'url a1',
+          ui_options: null,
+          config: null,
+          hostcomponentmap: [{ component: '', action: 'add', service: '' }],
+          button: null,
+        }
       ]
     };
     fixture.detectChanges();

@@ -33,7 +33,7 @@ export class ActionsDirective {
   constructor(private dialog: MatDialog) {}
 
   @HostListener('click')
-  onClick() {
+  onClick(): void {
     this.dialog.closeAll();
     const dialogModel = this.prepare();
     this.dialog.open(DialogComponent, dialogModel);
@@ -43,7 +43,9 @@ export class ActionsDirective {
     const maxWidth = '1400px';
     const model = this.inputData;
 
-    if (!model.actions?.length) return { data: { title: 'No parameters for run the action', model: null, component: null } };
+    if (!model.actions?.length) {
+      return { data: { title: 'No parameters for run the action', model: null, component: null } };
+    }
 
     const act = model.actions[0];
     const isMulty = model.actions.length > 1;

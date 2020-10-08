@@ -49,8 +49,12 @@ export function clearEmptyField(input: Object): Object {
 
     if (isObject(value) && !Array.isArray(value) && Object.keys(input[key]).length) {
       const result = clearEmptyField(value);
-      if (Object.keys(result).length) output[key] = result;
-    } else if (isBoolean(value) || isNumber(value) || value) output[key] = value;
+      if (Object.keys(result).length) {
+        output[key] = result;
+      }
+    } else if (isBoolean(value) || isNumber(value) || value) {
+      output[key] = value;
+    }
 
     return output;
   }, {});
@@ -67,9 +71,14 @@ export function nullEmptyField(input: Object): Object {
     if (isObject(data) && !Array.isArray(data)) {
       // tslint:disable-next-line: deprecation
       output[key] = nullEmptyField(data);
-      if (!Object.keys(output[key]).length) delete output[key];
-    } else if ((typeof data === 'number' && isNaN(data)) || (typeof data === 'string' && !data) || data === null) output[key] = null;
-    else if (isBoolean(data) || (typeof data === 'number' && data === 0) || data) output[key] = data;
+      if (!Object.keys(output[key]).length) {
+        delete output[key];
+      }
+    } else if ((typeof data === 'number' && isNaN(data)) || (typeof data === 'string' && !data) || data === null) {
+      output[key] = null;
+    } else if (isBoolean(data) || (typeof data === 'number' && data === 0) || data) {
+      output[key] = data;
+    }
     return output;
   }, {});
 }
@@ -79,7 +88,7 @@ export function nullEmptyField(input: Object): Object {
  * flattening an array of arrays
  * @param a
  */
-export function flatten<T>(a: T[]) {
+export function flatten<T>(a: T[]): T[] {
   return a.reduce<T[]>((acc, val) => (Array.isArray(val) ? acc.concat(flatten<T>(val)) : acc.concat(val)), []);
 }
 
@@ -94,9 +103,14 @@ export function getRandomColor(): string {
   return newArray(6).reduce((p) => (p += letters[Math.floor(Math.random() * 16)]), '#');
 }
 
-export function uniqid(prefix: string = '', isFloat: boolean = false) {
-  const seed = (s: number, w: number, z = s.toString(16)): string => (w < z.length ? z.slice(z.length - w) : w > z.length ? new Array(1 + (w - z.length)).join('0') + z : z);
-  let result = prefix + seed(parseInt((new Date().getTime() / 1000).toString(), 10), 8) + seed(Math.floor(Math.random() * 0x75bcd15) + 1, 5);
-  if (isFloat) result += (Math.random() * 10).toFixed(8).toString();
+export function uniqid(prefix: string = '', isFloat: boolean = false): string {
+  const seed = (s: number, w: number, z = s.toString(16)): string =>
+    (w < z.length ? z.slice(z.length - w) : w > z.length ? new Array(1 + (w - z.length)).join('0') + z : z);
+  let result = prefix
+    + seed(parseInt((new Date().getTime() / 1000).toString(), 10), 8)
+    + seed(Math.floor(Math.random() * 0x75bcd15) + 1, 5);
+  if (isFloat) {
+    result += (Math.random() * 10).toFixed(8).toString();
+  }
   return result;
 }

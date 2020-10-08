@@ -24,7 +24,7 @@ export interface IBroadcast {
 export class ChannelService {
   private event = new Subject<IBroadcast>();
 
-  next<T>(key: string, value: T) {
+  next<T>(key: string, value: T): void {
     this.event.next({ key, value });
   }
 

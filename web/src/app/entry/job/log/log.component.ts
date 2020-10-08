@@ -73,7 +73,7 @@ export class LogComponent extends SocketListenerDirective implements OnInit {
     return this.service.Current as Job;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.timeInfo = this.service.getOperationTimeData(this.job);
     this.route.paramMap.pipe(this.takeUntil()).subscribe((p) => {
       this.logUrl = this.job.log_files.find((a) => a.id === +p.get('log')).url;
@@ -82,21 +82,25 @@ export class LogComponent extends SocketListenerDirective implements OnInit {
     this.startListenSocket();
   }
 
-  socketListener(m: EventMessage) {
+  socketListener(m: EventMessage): void {
     if (m?.object?.type === 'job' && m?.object?.id === this.job.id) {
       if (m.event === 'change_job_status') {
         const job = this.job;
         job.status = m.object.details.value as JobStatus;
         job.finish_date = new Date().toISOString();
         this.timeInfo = this.service.getOperationTimeData(job);
-        if (this.textComp) this.textComp.update(job.status);
+        if (this.textComp) {
+          this.textComp.update(job.status);
+        }
       }
       this.refresh();
     }
   }
 
-  refresh() {
-    if (!this.logUrl) return;
+  refresh(): void {
+    if (!this.logUrl) {
+      return;
+    }
     this.service.getLog(this.logUrl).subscribe((a) => this.currentLog$.next(a));
   }
 }

@@ -61,7 +61,9 @@ export class ActionsComponent extends BaseDirective implements OnInit, AfterView
   @Input() cluster: { id: number; hostcomponent: string };
   @Input() set source(actions: IAction[]) {
     this.actions = actions;
-    if (!actions.length) this.render.setStyle(this.more.nativeElement, 'display', 'none');
+    if (!actions.length) {
+      this.render.setStyle(this.more.nativeElement, 'display', 'none');
+    }
   }
 
   stateButtons = 0;
@@ -76,7 +78,7 @@ export class ActionsComponent extends BaseDirective implements OnInit, AfterView
     super();
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     fromEvent(window, 'resize')
       .pipe(
         this.takeUntil(),
@@ -93,7 +95,7 @@ export class ActionsComponent extends BaseDirective implements OnInit, AfterView
     }
   }
 
-  onresize() {
+  onresize(): void {
     const bw = this.buttons.map<number>((b) => b.nativeElement.offsetWidth + 10);
     const elWidth = +this.el.nativeElement.clientWidth - 50;
     const dw = this.calcWidth(elWidth, bw);

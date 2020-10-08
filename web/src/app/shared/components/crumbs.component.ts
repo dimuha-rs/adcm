@@ -44,7 +44,7 @@ import { INavItem } from '../details/navigation.service';
 })
 export class CrumbsComponent {
   @Input() navigation: INavItem[];
-  trackBy(index: number, item: INavItem) {
+  trackBy(index: number, item: INavItem): string {
     return item.url;
   }
 }

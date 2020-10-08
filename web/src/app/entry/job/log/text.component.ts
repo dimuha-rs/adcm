@@ -63,18 +63,22 @@ export class TextComponent extends BaseDirective implements OnInit, DoCheck {
 
   ngOnInit(): void {
     this.isRun = this.status === 'running';
-    if (this.isRun) this.startWatch();
+    if (this.isRun) {
+      this.startWatch();
+    }
   }
 
   ngDoCheck(): void {
     if (this.textarea) {
       const el = this.textarea.nativeElement;
       this.isScroll = el.offsetHeight < el.scrollHeight;
-      if (this.isScroll && this.isWatch) this.down();
+      if (this.isScroll && this.isWatch) {
+        this.down();
+      }
     }
   }
 
-  update(status: JobStatus) {
+  update(status: JobStatus): void {
     this.isRun = status === 'running';
     if (!this.isRun && this.isWatch) {
       this.isWatch = false;
@@ -82,13 +86,15 @@ export class TextComponent extends BaseDirective implements OnInit, DoCheck {
     }
   }
 
-  down() {
+  down(): void {
     const el = this.textarea.nativeElement;
     el.scrollTop = el.scrollHeight;
-    if (this.isRun && !this.isWatch) this.startWatch();
+    if (this.isRun && !this.isWatch) {
+      this.startWatch();
+    }
   }
 
-  top() {
+  top(): void {
     const el = this.textarea.nativeElement;
     el.scrollTop = 0;
     if (this.isRun && this.isWatch) {
@@ -97,15 +103,17 @@ export class TextComponent extends BaseDirective implements OnInit, DoCheck {
     }
   }
 
-  read(stop: { direct: -1 | 1 | 0 }) {
+  read(stop: { direct: -1 | 1 | 0 }): void {
     if (this.isRun && this.isWatch && stop.direct === -1) {
       this.isWatch = false;
       this.watch.unsubscribe();
     }
-    if (this.isRun && !this.isWatch && !stop.direct) this.startWatch();
+    if (this.isRun && !this.isWatch && !stop.direct) {
+      this.startWatch();
+    }
   }
 
-  startWatch() {
+  startWatch(): void {
     this.isWatch = true;
     this.watch = interval(5000)
       .pipe(this.takeUntil())

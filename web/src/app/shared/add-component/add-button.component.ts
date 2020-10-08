@@ -38,7 +38,7 @@ export class AddButtonComponent extends BaseDirective implements OnDestroy {
     super();
   }
 
-  showForm() {
+  showForm(): void {
     const model = this.service.model(this.name);
     const name = model.title || model.name;
     const title = ['cluster', 'provider', 'host'];

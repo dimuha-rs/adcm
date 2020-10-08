@@ -17,6 +17,7 @@ import { ConfigFieldsComponent } from '@app/shared/configuration/fields/fields.c
 import { ServiceHostComponent } from '@app/shared/host-components-map/services2hosts/service-host.component';
 import { Post } from '@app/shared/host-components-map/types';
 import { IConfigAttr } from '@app/shared/configuration/types';
+import {Observable} from 'rxjs';
 
 export interface IValue {
   config?: ConfigFieldsComponent;
@@ -49,7 +50,7 @@ export class MasterService {
     return v ? getData(v.config?.attr, v.config, v.hostmap) : undefined;
   }
 
-  send(url: string, value: { config: any; hc: Post[] }) {
+  send(url: string, value: { config: any; hc: Post[] }): Observable<any> {
     return this.api.post(url, value);
   }
 }

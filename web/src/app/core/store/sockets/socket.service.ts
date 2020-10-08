@@ -13,7 +13,7 @@ import { Injectable } from '@angular/core';
 import { AuthService } from '@app/core/auth/auth.service';
 import { environment } from '@env/environment';
 import { Store } from '@ngrx/store';
-import { EMPTY, of } from 'rxjs';
+import { EMPTY, Observable, of } from 'rxjs';
 
 import { socketClose, socketOpen, socketResponse, SocketState, StatusType } from './socket.reducer';
 
@@ -26,7 +26,7 @@ export class SocketService {
 
   constructor(private store: Store<SocketState>, private auth: AuthService) {}
 
-  init(openStatus: StatusType = 'open') {
+  init(openStatus: StatusType = 'open'): Observable<WebSocket> {
     if (!this.auth.token) {
       console.warn('Socket can not connect. Token is failed.');
       return EMPTY;

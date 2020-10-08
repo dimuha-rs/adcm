@@ -31,7 +31,11 @@ const InitState = {
 export const loadIssue = createAction('[Issue] LoadIssue');
 export const fillIssue = createAction('[Issue] FillIssue', props<{ value: Issue; url: string }>());
 
-const reducer = createReducer(InitState, on(loadIssue, state => ({ ...state })), on(fillIssue, (state, { value, url }) => ({ value, url })));
+const reducer = createReducer(
+  InitState,
+  on(loadIssue, state => ({ ...state })),
+  on(fillIssue, (state, { value, url }) => ({ value, url })),
+);
 
 export function issueReducer(state: IssueState, action: Action) {
   return reducer(state, action);

@@ -17,12 +17,12 @@ import { MatIcon } from '@angular/material/icon';
 })
 export class HoverDirective {
   @ContentChild('taskIcon') icon: MatIcon;
-  @HostListener('mouseover') onHover() {
+  @HostListener('mouseover') onHover(): void {
     const icon = this.icon._elementRef.nativeElement;
     this.re.removeClass(icon, 'icon-locked');
     icon.innerText = 'block';
   }
-  @HostListener('mouseout') onOut() {
+  @HostListener('mouseout') onOut(): void {
     const icon = this.icon._elementRef.nativeElement;
     this.re.addClass(icon, 'icon-locked');
     icon.innerText = 'autorenew';

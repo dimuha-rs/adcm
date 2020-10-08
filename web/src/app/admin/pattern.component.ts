@@ -95,7 +95,7 @@ export class PatternComponent extends BaseDirective implements OnInit, OnDestroy
       .subscribe(() => this.store.dispatch(settingsSave({ isSet: true })));
   }
 
-  getContext(url: string) {
+  getContext(url: string): void {
     const a = this.data[url];
     this.title = a.title;
     this.crumbs = a.crumbs;

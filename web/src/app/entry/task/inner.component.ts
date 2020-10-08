@@ -48,7 +48,7 @@ import { Job } from '@app/core/types';
 })
 export class InnerComponent {
   displayColumns = ['job_name', 'start_date_job', 'finish_date_job', 'status_job'];
-  
+
   @Input() dataSource: Job[];
 
   iconDisplay = {

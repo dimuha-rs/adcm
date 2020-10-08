@@ -14,7 +14,7 @@ import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-button-spinner',
-  template: `<button mat-raised-button 
+  template: `<button mat-raised-button
   [color]="color"
   [disabled]="disabled"
   (mousedown)="send()"
@@ -37,19 +37,19 @@ export class ButtonSpinnerComponent {
   _showSpinner = false;
   private _timer: any;
 
-  send() {
+  send(): void {
     this.showSpinner();
-    this.clickHandler.emit(this);    
+    this.clickHandler.emit(this);
     this._timer = setTimeout(() => this.hideSpinner(), 5000);
   }
 
-  public hideSpinner() {
+  public hideSpinner(): void {
     this.disabled = false;
     this._showSpinner = false;
     clearTimeout(this._timer);
   }
 
-  public showSpinner() {
+  public showSpinner(): void {
     this.disabled = true;
     this._showSpinner = true;
   }

@@ -35,6 +35,5 @@ import { PageNotFoundComponent, FatalErrorComponent, GatewayTimeoutComponent } f
     ProgressComponent,
   ],
   exports: [TopComponent, ProgressComponent],
-  
 })
 export class MainModule {}

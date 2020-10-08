@@ -48,19 +48,21 @@ export class ActionMasterComponent extends BaseDirective implements DynamicCompo
   }
 
   ngOnInit(): void {
-    if (this.model.actions.length === 1) this.choose(this.model.actions[0]);
+    if (this.model.actions.length === 1) {
+      this.choose(this.model.actions[0]);
+    }
   }
 
-  choose(action: IAction) {
+  choose(action: IAction): void {
     this.action = action;
     this.show = this.service.spotShow(action);
   }
 
-  isDisabled(value: IValue) {
+  isDisabled(value: IValue): boolean {
     return value && ((value.hostmap && value.hostmap.noValid) || (value.config && !value.config.form?.valid));
   }
 
-  run(value: IValue = {}) {
+  run(value: IValue = {}): void {
     const data = this.service.parseData(value);
     this.service
       .send(this.action.run, data)
@@ -68,11 +70,11 @@ export class ActionMasterComponent extends BaseDirective implements DynamicCompo
       .subscribe(() => this.cancel());
   }
 
-  onEnterKey() {
+  onEnterKey(): void {
     this.runBtn.nativeElement.click();
   }
 
-  cancel() {
+  cancel(): void {
     this.event.emit({ name: 'cancel' });
   }
 }

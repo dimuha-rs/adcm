@@ -26,6 +26,6 @@ export class SocketEffect {
       ),
     { dispatch: false }
   );
-  
+
   constructor(private service: SocketService, private actions$: Actions) {}
 }

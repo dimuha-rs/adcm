@@ -105,7 +105,7 @@ describe('Job Module :: LogComponent', () => {
       fixture.detectChanges();
 
       const text = fixture.nativeElement.querySelector('div.wrap app-log-text textarea');
-      expect(text.innerHTML).toBe('Second message');    
+      expect(text.innerHTML).toBe('Second message');
     });
   });
 

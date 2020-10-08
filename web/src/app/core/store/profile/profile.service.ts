@@ -47,11 +47,11 @@ export class ProfileService {
     return this.auth.auth.login ? source$ : throwError('Not authorized!');
   }
 
-  emptyProfile() {
+  emptyProfile(): { dashboard: any[][], textarea: any, metrics: any, settingsSaved: boolean } {
     return { dashboard: PROFILE_DASHBOARD_DEFAULT, textarea: {}, metrics: null, settingsSaved: false };
   }
 
-  setUser(key: string, value: string | boolean | { [key: string]: number }) {
+  setUser(key: string, value: string | boolean | { [key: string]: number }): void {
     const profile = { ...this.user.profile };
     profile[key] = value;
     this.user = { ...this.user, profile };
@@ -62,12 +62,12 @@ export class ProfileService {
     return this.http.patch<IUser>(`${PROFILE_LINK}${this.user.username}/`, { username, profile });
   }
 
-  public setDashboardProfile(dashboard: any[]) {
+  public setDashboardProfile(dashboard: any[]): Observable<IUser> {
     this.user.profile.dashboard = dashboard;
     return this.setProfile();
   }
 
-  public setTextareaProfile(data: { key: string; value: number }) {
+  public setTextareaProfile(data: { key: string; value: number }): Observable<IUser> {
     const textarea = { ...this.user.profile.textarea };
     textarea[data.key] = data.value;
     this.setUser('textarea', textarea);
@@ -78,12 +78,12 @@ export class ProfileService {
     return this.http.post<IUser>(`${PROFILE_LINK}`, user);
   }
 
-  public defaultProfile() {
+  public defaultProfile(): Observable<IUser> {
     this.user.profile.dashboard = PROFILE_DASHBOARD_DEFAULT;
     return this.setProfile();
   }
 
-  public setPassword(password: string) {
+  public setPassword(password: string): Observable<any> {
     return this.http.patch(this.user.change_password, { password });
   }
 }

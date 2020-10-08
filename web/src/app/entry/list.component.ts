@@ -28,12 +28,12 @@ export class ListEntryComponent implements OnInit {
 
   constructor(private route: ActivatedRoute) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const segments = this.route.snapshot.url.map((s) => s.path);
     this.typeName = segments[0];
   }
 
-  navigation() {
+  navigation(): { url: string, title: string }[] {
     return [{ url: `/${this.typeName}`, title: `${this.typeName}s` }];
   }
 }

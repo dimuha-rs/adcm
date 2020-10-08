@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthInterceptor } from './auth-interseptor';
+import { AuthInterceptor } from './auth-interceptor';
 import { CachingInterceptor } from './caching-interceptor.service';
 
 export const httpInterceptorProviders = [

@@ -74,13 +74,13 @@ export class ProfileComponent extends BaseDirective implements OnInit, OnDestroy
     super();
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.user$ = this.store.select(getProfileSelector).pipe(
       this.takeUntil()
     );
   }
 
-  changePassword() {
+  changePassword(): void {
     const password = this.cpForm.get('password').value;
     this.service.setPassword(password).subscribe(() => this.router.navigate(['/login']));
   }

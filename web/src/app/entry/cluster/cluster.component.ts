@@ -54,7 +54,7 @@ export class HcmapComponent implements OnInit {
   cluster: { id: number; hostcomponent: string };
   constructor(private service: ClusterService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const { id, hostcomponent } = { ...this.service.Cluster };
     this.cluster = { id, hostcomponent };
   }

@@ -34,7 +34,7 @@ export class LoginComponent extends BaseDirective implements OnInit, OnDestroy {
     super();
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.checkGL$ = this.auth.checkGoogle();
     this.store.dispatch(authLogout());
 
@@ -54,13 +54,13 @@ export class LoginComponent extends BaseDirective implements OnInit, OnDestroy {
 
     this.route.queryParams
       .pipe(
-        filter(p => p['error_code'] === 'AUTH_ERROR'),
+        filter(p => p.error_code === 'AUTH_ERROR'),
         this.takeUntil()
       )
-      .subscribe(p => (this.message = p['error_msg']));
+      .subscribe(p => (this.message = p.error_msg));
   }
 
-  login() {
+  login(): void {
     this.message = '';
     if (this.authForm.valid) {
       const { login, password } = this.authForm.value;
@@ -68,7 +68,7 @@ export class LoginComponent extends BaseDirective implements OnInit, OnDestroy {
     }
   }
 
-  google() {
+  google(): void {
     window.location.href = '/social/login/google-oauth2/';
   }
 }

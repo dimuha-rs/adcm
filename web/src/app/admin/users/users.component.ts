@@ -47,15 +47,15 @@ export class UsersComponent implements OnInit {
     return this.addForm.get('username');
   }
 
-  get password() {
+  get password(): AbstractControl {
     return this.addForm.get('xxx').get('password');
   }
 
-  get cpassword() {
+  get cpassword(): AbstractControl {
     return this.addForm.get('xxx').get('cpassword');
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.currentUserName = this.auth.auth.login;
     this.us
       .getUsers()
@@ -63,16 +63,17 @@ export class UsersComponent implements OnInit {
       .subscribe((users) => (this.users = users));
   }
 
-  addUser() {
-    if (this.addForm.valid)
+  addUser(): void {
+    if (this.addForm.valid) {
       this.us.addUser(this.addForm.get('username').value, this.addForm.get('xxx').get('password').value).subscribe((user) => {
         this.users = this.users.concat(user);
         this.addForm.reset();
         this.hideLeft = true;
       });
+    }
   }
 
-  clearUser(user: User) {
+  clearUser(user: User): void {
     const dialogRef = this.dialog.open(DialogComponent, {
       width: '250px',
       data: {
@@ -92,11 +93,13 @@ export class UsersComponent implements OnInit {
     return pass.valid && cpass.valid && pass.value === cpass.value;
   }
 
-  changePassword(user: User) {
+  changePassword(user: User): void {
     this.us.changePassword(user.password, user.change_password).subscribe((_) => {
       user.password = '';
       user.confirm = '';
-      if (user.username === this.currentUserName) this.router.navigate(['/login']);
+      if (user.username === this.currentUserName) {
+        this.router.navigate(['/login']);
+      }
     });
   }
 }

@@ -26,10 +26,10 @@ export class BaseFormDirective extends BaseDirective {
     super();
   }
 
-  onCancel() {
+  onCancel(): void {
     this.form.reset();
     this.dialog.closeAll();
   }
 
-  save() {}
+  save(): void {}
 }

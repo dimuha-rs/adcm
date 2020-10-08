@@ -91,7 +91,7 @@ const adjectives: string[] = [
 ];
 
 export class GenName {
-  public static do(prefix: string = '') {
+  public static do(prefix: string = ''): string {
     return `${adjectives[randomInteger(adjectives.length - 1)]} ${rivers[randomInteger(rivers.length - 1)]}${prefix}`;
   }
 }

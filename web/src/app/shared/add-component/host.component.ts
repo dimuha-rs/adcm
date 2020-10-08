@@ -102,7 +102,7 @@ export class HostComponent extends BaseFormDirective implements OnInit {
     super(service, dialog);
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.form = this.service.model('host').form;
     this.getProviders();
     this.getClusters();
@@ -115,20 +115,20 @@ export class HostComponent extends BaseFormDirective implements OnInit {
       .subscribe((value) => this.checkAction(+value));
   }
 
-  isError(name: string) {
+  isError(name: string): boolean {
     const fi = this.form.get(name);
     return fi.invalid && (fi.dirty || fi.touched);
   }
 
-  showHostproviderForm(e: Event) {
+  showHostproviderForm(e: Event): void {
     e.stopPropagation();
     this.expanded = !this.expanded;
     this.form.get('provider_id').setValue('');
   }
 
-  checkAction(provider_id: number) {
+  checkAction(providerId: number): void {
     const ACTION_NAME = 'create_host';
-    const provider = this.providers$.getValue().find((a) => a.id === provider_id);
+    const provider = this.providers$.getValue().find((a) => a.id === providerId);
 
     if (provider && provider.actions) {
       const actions = provider.actions.filter((a) => a.button === ACTION_NAME);
@@ -140,19 +140,21 @@ export class HostComponent extends BaseFormDirective implements OnInit {
     }
   }
 
-  save() {
+  save(): void {
     const data = clearEmptyField(this.form.value) as Host;
-    if (this.displayMode !== 0) data.cluster_id = this.service.Cluster.id;
+    if (this.displayMode !== 0) {
+      data.cluster_id = this.service.Cluster.id;
+    }
     this.service
       .addHost(data)
       .pipe(
         this.takeUntil(),
-        tap(() => this.form.controls['fqdn'].setValue(''))
+        tap(() => this.form.controls.fqdn.setValue(''))
       )
       .subscribe((a) => this.event.emit(`Host [ ${a.fqdn} ] has been added successfully.`));
   }
 
-  createdProvider(id: number) {
+  createdProvider(id: number): void {
     this.expanded = false;
     this.service
       .getList<Provider>('provider', { limit: this.limit, page: this.pageProvider - 1 })
@@ -160,7 +162,7 @@ export class HostComponent extends BaseFormDirective implements OnInit {
       .subscribe((list) => this.providers$.next(list));
   }
 
-  getNextPageClusters() {
+  getNextPageClusters(): void {
     const count = this.clusters$.getValue().length;
     if (count === this.pageCluster * this.limit) {
       this.pageCluster++;
@@ -168,7 +170,7 @@ export class HostComponent extends BaseFormDirective implements OnInit {
     }
   }
 
-  getNextPageProvider() {
+  getNextPageProvider(): void {
     const count = this.providers$.getValue().length;
     if (count === this.pageProvider * this.limit) {
       this.pageProvider++;
@@ -176,15 +178,17 @@ export class HostComponent extends BaseFormDirective implements OnInit {
     }
   }
 
-  getProviders() {
+  getProviders(): void {
     this.service
       .getList<Provider>('provider', { limit: this.limit, page: this.pageProvider - 1 })
       .pipe(tap((list) => this.form.get('provider_id').setValue(list.length === 1 ? list[0].id : '')))
       .subscribe((list) => this.providers$.next([...this.providers$.getValue(), ...list]));
-    if (this.form.get('provider_id').value) this.expanded = false;
+    if (this.form.get('provider_id').value) {
+      this.expanded = false;
+    }
   }
 
-  getClusters() {
+  getClusters(): void {
     this.service
       .getList<Cluster>('cluster', { limit: this.limit, page: this.pageCluster - 1 })
       .subscribe((list) => this.clusters$.next([...this.clusters$.getValue(), ...list]));

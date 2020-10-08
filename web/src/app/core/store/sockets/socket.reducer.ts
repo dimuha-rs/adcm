@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { TypeName } from '@app/core/types';
-import { Action, createAction, createFeatureSelector, createReducer, createSelector, on, props } from '@ngrx/store';
+import {Action, ActionReducer, createAction, createFeatureSelector, createReducer, createSelector, on, props} from '@ngrx/store';
 
 export interface IEMObject {
   type: TypeName;
@@ -76,7 +76,7 @@ const reducer = createReducer(
   on(clearMessages, (state) => ({ ...state, message: null }))
 );
 
-export function socketReducer(state: SocketState, action: Action) {
+export function socketReducer(state: SocketState, action: Action): { message: any, status: StatusType } {
   return reducer(state, action);
 }
 

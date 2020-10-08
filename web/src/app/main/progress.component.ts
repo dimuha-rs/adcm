@@ -28,7 +28,7 @@ import { delay } from 'rxjs/operators';
 export class ProgressComponent implements OnInit {
   show$: Observable<boolean> = of(false);
   constructor(private preloader: PreloaderService) {}
-  ngOnInit() {
+  ngOnInit(): void {
     this.show$ = this.preloader.active$.pipe(delay(1));
   }
 }

@@ -37,6 +37,8 @@ export class ActionListComponent {
   constructor(private service: ActionsService) {}
 
   getData(): void {
-    if (!this.actions.length) this.service.getActions(this.actionLink).subscribe((a) => (this.actions = a));
+    if (!this.actions.length) {
+      this.service.getActions(this.actionLink).subscribe((a) => (this.actions = a));
+    }
   }
 }

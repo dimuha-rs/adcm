@@ -43,8 +43,11 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.service.getRootAndCheckAuth().subscribe((c) => {
-      if (!c) this.elRef.nativeElement.innerHTML = '';
-      else this.versionData = { ...c };
+      if (!c) {
+        this.elRef.nativeElement.innerHTML = '';
+      } else {
+        this.versionData = { ...c };
+      }
     });
 
     this.service.initListeners();
@@ -59,9 +62,11 @@ export class AppComponent implements OnInit {
     this.versionData = this.service.getVersion(this.versionData);
   }
 
-  console(text: string, css?: string) {
+  console(text: string, css?: string): void {
     const console = this.elRef.nativeElement.querySelector('div.console');
-    if (!text) console.innerHTML = '';
+    if (!text) {
+      console.innerHTML = '';
+    }
     else {
       const create = () => document.createElement('p');
       const isExist = () => console.querySelector(`.${css}`);

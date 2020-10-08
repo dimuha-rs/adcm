@@ -29,11 +29,11 @@ export class ControlsComponent {
 
   @ViewChild('btn', { static: true, read: ElementRef }) saveBtn: ElementRef;
 
-  oncancel() {
+  oncancel(): void {
     this.cancel.emit();
   }
 
-  onsave() {
+  onsave(): void {
     this.save.emit();
   }
 }

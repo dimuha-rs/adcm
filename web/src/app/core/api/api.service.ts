@@ -55,7 +55,7 @@ export class ApiService {
     return this.get<ListResult<T>>(url, params);
   }
 
-  list<T>(url: string, params: { limit: string; offset: string; ordering?: string } | null) {
+  list<T>(url: string, params: { limit: string; offset: string; ordering?: string } | null): Observable<ListResult<T>> {
     if (!params) {
       params = { limit: localStorage.getItem('limit'), offset: '0' };
     }
@@ -74,7 +74,7 @@ export class ApiService {
     return this.http.patch<T>(url, item).pipe(catchError(() => EMPTY));
   }
 
-  delete(url: string) {
+  delete(url: string): Observable<any> {
     return this.http.delete(url).pipe(catchError(() => EMPTY));
   }
 }

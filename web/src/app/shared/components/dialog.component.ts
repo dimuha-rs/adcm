@@ -74,7 +74,7 @@ export class DialogComponent implements OnInit {
     private channel: ChannelService
   ) {}
 
-  controlsIsArray() {
+  controlsIsArray(): boolean {
     return Array.isArray(this.data.controls);
   }
 

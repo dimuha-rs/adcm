@@ -53,7 +53,7 @@ describe('HoverStatusTaskDirective', () => {
   });
 
   // mousehover
-  it('should change icon `block` by mouseover', () => {    
+  it('should change icon `block` by mouseover', () => {
     a.triggerEventHandler('mouseover', {});
     fixture.detectChanges();
     expect(a.nativeElement.querySelector('mat-icon').innerText).toEqual('block');

@@ -50,7 +50,9 @@ export class AuthInterceptor implements HttpInterceptor {
           this.router.navigate(['/login']);
         }
 
-        if (res.status === 500) this.router.navigate(['/500']);
+        if (res.status === 500) {
+          this.router.navigate(['/500']);
+        }
 
         /** no need to show notification because error handling on landing page */
         const exclude = ['USER_NOT_FOUND', 'AUTH_ERROR', 'CONFIG_NOT_FOUND'];
@@ -68,4 +70,5 @@ export class AuthInterceptor implements HttpInterceptor {
       finalize(() => this.preloader.end())
     );
   }
+
 }

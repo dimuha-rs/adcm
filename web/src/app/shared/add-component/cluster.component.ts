@@ -28,16 +28,16 @@ import { Subscription } from 'rxjs';
 })
 export class ClusterComponent extends BaseFormDirective implements OnInit, OnDestroy {
   sgn: Subscription;
-  ngOnInit() {
+  ngOnInit(): void {
     this.form = this.service.model('cluster').form;
     this.sgn = this.service.genName(this.form);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.sgn.unsubscribe();
   }
 
-  save() {
+  save(): void {
     const data = clearEmptyField(this.form.value);
     this.service
       .add<Cluster>(data, 'cluster')

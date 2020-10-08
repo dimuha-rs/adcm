@@ -13,9 +13,9 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NavigationStart, Router } from '@angular/router';
-import { getConnectStatus, getFirstAdminLogin, getProfile, getRoot, isAuthenticated, loadProfile, loadRoot, loadStack, rootError, socketInit, State } from '@app/core/store';
+import {getConnectStatus, getFirstAdminLogin, getProfile, getRoot, IProfile, isAuthenticated, loadProfile, loadRoot, loadStack, rootError, socketInit, State} from '@app/core/store';
 import { select, Store } from '@ngrx/store';
-import { combineLatest } from 'rxjs';
+import {combineLatest, Observable} from 'rxjs';
 import { filter, switchMap, tap } from 'rxjs/operators';
 
 import { ChannelService } from '../channel.service';
@@ -32,7 +32,7 @@ export class AppService {
     public snackBar: MatSnackBar
   ) {}
 
-  getRootAndCheckAuth() {
+  getRootAndCheckAuth(): Observable<IVersionInfo> {
     this.store.dispatch(loadRoot());
     const b$ = this.store.pipe(select(getRoot));
     const a$ = this.store.pipe(select(isAuthenticated));
@@ -52,12 +52,14 @@ export class AppService {
     );
   }
 
-  checkWSconnectStatus() {
+  checkWSconnectStatus(): Observable<string> {
     return this.store.pipe(
       select(getConnectStatus),
       filter((a) => !!a),
       tap((status) => {
-        if (status === 'open') this.channel.next('notifying', 'Connection established.');
+        if (status === 'open') {
+          this.channel.next('notifying', 'Connection established.');
+        }
         if (status === 'close') {
           this.channel.next('notifying', 'Connection lost. Recovery attempt.::error');
           this.store.dispatch(rootError());
@@ -66,7 +68,7 @@ export class AppService {
     );
   }
 
-  checkUserProfile() {
+  checkUserProfile(): Observable<IProfile> {
     return this.store.pipe(
       select(getProfile),
       filter((u) => u.settingsSaved)
@@ -77,7 +79,7 @@ export class AppService {
     return this.config.version.split('-').reduce((p, c, i) => ({ ...p, [Object.keys(versionData)[i]]: c }), {} as IVersionInfo);
   }
 
-  initListeners() {
+  initListeners(): void {
     // check user profile settings - this is the first entry
     this.store
       .pipe(

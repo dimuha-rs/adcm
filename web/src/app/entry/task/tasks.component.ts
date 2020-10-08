@@ -53,11 +53,17 @@ export class TasksComponent extends SocketListenerDirective implements OnInit {
 
   @ViewChildren(MatSortHeader, { read: ElementRef }) matSortHeader: QueryList<ElementRef>;
 
-  constructor(private api: ApiService, protected store: Store<SocketState>, public router: Router, public route: ActivatedRoute, public dialog: MatDialog) {
+  constructor(
+    private api: ApiService,
+    protected store: Store<SocketState>,
+    public router: Router,
+    public route: ActivatedRoute,
+    public dialog: MatDialog,
+  ) {
     super(store);
   }
 
-  getIcon(status: string) {
+  getIcon(status: string): string {
     switch (status) {
       case 'aborted':
         return 'block';
@@ -66,9 +72,11 @@ export class TasksComponent extends SocketListenerDirective implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     const limit = +localStorage.getItem('limit');
-    if (!limit) localStorage.setItem('limit', '10');
+    if (!limit) {
+      localStorage.setItem('limit', '10');
+    }
     this.paginator.pageSize = +localStorage.getItem('limit');
 
     this.route.paramMap.pipe(this.takeUntil()).subscribe((p) => {
@@ -88,7 +96,7 @@ export class TasksComponent extends SocketListenerDirective implements OnInit {
     super.startListenSocket();
   }
 
-  cancelTask(url: string) {
+  cancelTask(url: string): void {
     this.dialog
       .open(DialogComponent, {
         data: {
@@ -104,7 +112,7 @@ export class TasksComponent extends SocketListenerDirective implements OnInit {
       .subscribe();
   }
 
-  socketListener(m: EventMessage) {
+  socketListener(m: EventMessage): void {
     if (m.object.type === 'task' && m.event === 'change_job_status' && m.object.details.type === 'status' && m.object.details.value === 'created') {
       this.addTask(m.object.id);
       return;
@@ -122,21 +130,29 @@ export class TasksComponent extends SocketListenerDirective implements OnInit {
           const job = task.jobs.find((a) => a.id === m.object.id);
           if (job) {
             job.status = m.object.details.value as JobStatus;
-            if (m.object.details.type === 'status' && m.object.details.value === 'running') job.start_date = new Date().toISOString();
-            if (m.object.details.type === 'status' && (m.object.details.value === 'success' || m.object.details.value === 'failed')) job.finish_date = new Date().toISOString();
+            if (m.object.details.type === 'status' && m.object.details.value === 'running') {
+              job.start_date = new Date().toISOString();
+            }
+            if (m.object.details.type === 'status' && (m.object.details.value === 'success' || m.object.details.value === 'failed')) {
+              job.finish_date = new Date().toISOString();
+            }
           }
         }
       }
     }
   }
 
-  addTask(id: number) {
+  addTask(id: number): void {
     this.isDisabled = true;
     this.api.getOne<Task>('task', id).subscribe((task) => {
-      if (this.dataSource.data.some((a) => a.id === id)) return;
+      if (this.dataSource.data.some((a) => a.id === id)) {
+        return;
+      }
       this.paginator.length = ++this.dataCount;
       task.objects = this.buildLink(task.objects);
-      if (this.paginator.pageSize > this.dataSource.data.length) this.dataSource.data = [task, ...this.dataSource.data];
+      if (this.paginator.pageSize > this.dataSource.data.length) {
+        this.dataSource.data = [task, ...this.dataSource.data];
+      }
       else {
         const [last, ...ost] = this.dataSource.data.reverse();
         this.dataSource.data = [task, ...ost.reverse()];
@@ -146,23 +162,25 @@ export class TasksComponent extends SocketListenerDirective implements OnInit {
     });
   }
 
-  buildLink(items: JobObject[]) {
+  buildLink(items: JobObject[]): JobObject[] {
     const c = items.find((a) => a.type === 'cluster');
     const url = (a: JobObject): string[] => (a.type === 'cluster' || !c ? ['/', a.type, `${a.id}`] : ['/', 'cluster', `${c.id}`, a.type, `${a.id}`]);
     return items.map((a) => ({ ...a, url: url(a) }));
   }
 
-  refresh() {
+  refresh(): void {
     this.api.root.pipe(switchMap((root) => this.api.getList<Task>(root.task, this.paramMap))).subscribe((data) => {
       this.dataSource.data = data.results.map((a) => ({ ...a, objects: this.buildLink(a.objects) }));
       this.paginator.length = data.count;
       this.dataCount = data.count;
-      if (data.results.length) localStorage.setItem('lastJob', data.results[0].id.toString());
+      if (data.results.length) {
+        localStorage.setItem('lastJob', data.results[0].id.toString());
+      }
       this.dataSource._updateChangeSubscription();
     });
   }
 
-  pageHandler(pageEvent: PageEvent) {
+  pageHandler(pageEvent: PageEvent): void {
     localStorage.setItem('limit', String(pageEvent.pageSize));
     const f = this.route.snapshot.paramMap.get('filter') || '';
     const ordering = null; // this.getSortParam(this.sort);

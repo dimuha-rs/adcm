@@ -11,7 +11,7 @@
 // limitations under the License.
 import { Injectable } from '@angular/core';
 import { environment } from '@env/environment';
-import { throwError } from 'rxjs';
+import {Observable, throwError} from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { ApiService } from '../api';
@@ -35,14 +35,14 @@ export class AuthService {
 
   constructor(private api: ApiService) {}
 
-  checkGoogle() {
+  checkGoogle(): Observable<boolean> {
     return this.api.get<{google_oauth: boolean}>(`${environment.apiRoot}info/`).pipe(map(a => a.google_oauth));
   }
 
-  login(login: string, password: string) {
+  login(login: string, password: string): Observable<any> {
     return this.api.post(`${environment.apiRoot}token/`, { username: login, password }).pipe(
       tap((response: { token: string }) => {
-        let token = response && response.token;
+        const token = response && response.token;
         if (token) {
           this.auth = { login, token };
         }
@@ -54,7 +54,7 @@ export class AuthService {
     );
   }
 
-  logout() {
+  logout(): void {
     this.auth = { login: '', token: '' };
   }
 }

@@ -50,28 +50,28 @@ describe('InnerComponent', () => {
     const getIcon = () => fixture.nativeElement.querySelector('table tr td:last-child mat-icon');
     component.dataSource = [{ status: 'created', display_name: 'job_test', id: 1, start_date: '2020-07-30T12:28:59.431072Z', finish_date: '2020-07-30T12:29:00.222917Z' }] as Job[];
     fixture.detectChanges();
-    const last_icon = getIcon();
-    expect(last_icon.innerText).toBe('watch_later');
-    
+    const lastIcon = getIcon();
+    expect(lastIcon.innerText).toBe('watch_later');
+
     component.dataSource[0].status = 'running';
     fixture.detectChanges();
-    const last_icon2 = getIcon();
-    expect(last_icon2.innerText).toBe('autorenew');
-    
+    const lastIcon2 = getIcon();
+    expect(lastIcon2.innerText).toBe('autorenew');
+
     component.dataSource[0].status = 'success';
     fixture.detectChanges();
-    const last_icon3 = getIcon();
-    expect(last_icon3.innerText).toBe('done');
-    
+    const lastIcon3 = getIcon();
+    expect(lastIcon3.innerText).toBe('done');
+
     component.dataSource[0].status = 'failed';
     fixture.detectChanges();
-    const last_icon4 = getIcon();
-    expect(last_icon4.innerText).toBe('error');
-    
+    const lastIcon4 = getIcon();
+    expect(lastIcon4.innerText).toBe('error');
+
     component.dataSource[0].status = 'aborted';
     fixture.detectChanges();
-    const last_icon5 = getIcon();
-    expect(last_icon5.innerText).toBe('block');
+    const lastIcon5 = getIcon();
+    expect(lastIcon5.innerText).toBe('block');
   });
 
   it('job property should dislplay in the columns of row table', () => {
@@ -84,11 +84,11 @@ describe('InnerComponent', () => {
 
     component.dataSource[0].status = 'running';
     fixture.detectChanges();
-    expect<string>(tds[1].innerText).toBeTruthy(); //.toBe('Jul 30, 2020, 3:28:59 PM');
+    expect<string>(tds[1].innerText).toBeTruthy();
 
     component.dataSource[0].status = 'success';
     fixture.detectChanges();
-    expect<string>(tds[1].innerText).toBeTruthy(); //.toBe('Jul 30, 2020, 3:28:59 PM');
-    expect<string>(tds[2].innerText).toBeTruthy(); //.toBe('Jul 30, 2020, 3:29:00 PM');
+    expect<string>(tds[1].innerText).toBeTruthy();
+    expect<string>(tds[2].innerText).toBeTruthy();
   });
 });

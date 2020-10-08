@@ -27,7 +27,9 @@ export class PreloaderService {
 
   start(): void {
     this._counter++;
-    if (!this.isFreese) this.active$.next(this._counter > 0);
+    if (!this.isFreese) {
+      this.active$.next(this._counter > 0);
+    }
     this.isFreese = false;
   }
 

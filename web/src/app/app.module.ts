@@ -43,7 +43,6 @@ import { LogComponent } from './ws-logs/log.component';
   ],
   bootstrap: [AppComponent],
   providers: [
-    //{ provide: LOCALE_ID, useValue: 'ru' },
     {
       provide: APP_INITIALIZER,
       useFactory: (appConfig: ConfigService) => () => appConfig.load(),

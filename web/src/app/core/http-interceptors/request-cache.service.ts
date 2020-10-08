@@ -35,7 +35,9 @@ export class RequestCacheService implements RequestCache {
     const url = req.urlWithParams;
     const cached = this.cache.get(url);
 
-    if (!cached) return undefined;
+    if (!cached) {
+      return undefined;
+    }
 
     const isExpired = cached.lastRead < Date.now() - maxAge;
 
@@ -55,7 +57,9 @@ export class RequestCacheService implements RequestCache {
     const expired = Date.now() - maxAge;
 
     this.cache.forEach(c => {
-      if (c.lastRead < expired) this.cache.delete(c.url);
+      if (c.lastRead < expired) {
+        this.cache.delete(c.url);
+      }
     });
 
     // this.messanger.add(new Message(`Request cache size: ${this.cache.size}.`));

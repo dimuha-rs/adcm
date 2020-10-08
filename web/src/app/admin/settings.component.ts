@@ -36,7 +36,9 @@ export class SettingsComponent implements OnInit {
     );
   }
 
-  onEvent(e: DynamicEvent) {
-    if (e.name === 'send') this.store.dispatch(sendMetrics({ metrics: (e.data.form.controls['global'] as FormGroup).controls['send_stats'].value }));
+  onEvent(e: DynamicEvent): void {
+    if (e.name === 'send') {
+      this.store.dispatch(sendMetrics({ metrics: (e.data.form.controls.global as FormGroup).controls.send_stats.value }));
+    }
   }
 }
