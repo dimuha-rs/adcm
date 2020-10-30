@@ -9,6 +9,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, ValidationErrors } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,6 +22,7 @@ import { AddService } from '../add-component/add.service';
 import { DialogComponent } from '../components';
 import { DependenciesComponent } from './dependencies.component';
 import { CompTile, Constraint, HostTile, IRawHosComponent, IStream, Post, StatePost, Tile } from './types';
+
 
 export const getSelected = (from: Tile[]) => from.find((a) => a.isSelected);
 
@@ -46,17 +49,11 @@ export class TakeService {
   //#endregion
 
   //#region after a successful download, run and fill in
-  fillHost(ph: Partial<Host>[], ap: IActionParameter[]) {
-    const isShrink = () => ap.every((a) => a.action === 'remove');
-    const isExpand = () => ap.every((a) => a.action === 'add');
-    const condition = (b: CompTile) => (a: IActionParameter) => b.component === `${a.service}/${a.component}`;
-    const existCondition = (rel: CompTile[]) =>
-      isShrink() ? ap.some((a) => rel.some((b) => condition(b)(a))) : ap.every((a) => rel.some((b) => condition(b)(a)));
-    const checkEmptyHost = (h: HostTile) => (existCondition(h.relations as CompTile[]) ? isExpand() : isShrink());
-    return ph.map((h) => new HostTile(h)).map((h) => ({ ...h, disabled: !ap ? false : checkEmptyHost(h) }));
+  fillHost(ph: Partial<Host>[]): HostTile[] {
+    return ph.map((h) => new HostTile(h));
   }
 
-  fillComponent(pc: Component[], ap: IActionParameter[]) {
+  fillComponent(pc: Component[], ap: IActionParameter[]): CompTile[] {
     return pc.map(
       (c) =>
         new CompTile(
@@ -64,6 +61,22 @@ export class TakeService {
           ap ? ap.filter((a) => a.service === c.service_name && a.component === c.name).map((b) => b.action) : null
         )
     );
+  }
+
+  checkHostByAction(hs: HostTile[], ap: IActionParameter[]): void {
+    const isShrink = () => ap.every((a) => a.action === 'remove');
+    const isExpand = () => ap.every((a) => a.action === 'add');
+    const condition = (b: CompTile) => (a: IActionParameter) => b.component === `${a.service}/${a.component}`;
+
+    const existCondition = (rel: CompTile[]) => {
+      return isShrink()
+        ? ap.some((a) => rel.some((b) => condition(b)(a)))
+        : ap.every((a) => rel.some((b) => condition(b)(a)));
+    };
+
+    const checkEmptyHost = (h: HostTile) => (existCondition(h.relations as CompTile[]) ? isExpand() : isShrink());
+
+    hs = hs.map((h) => ({ ...h, disabled: !ap ? false : checkEmptyHost(h) }));
   }
 
   setRelations(rel: Post[], cs: CompTile[], hs: HostTile[], ap: IActionParameter[]) {
@@ -82,10 +95,11 @@ export class TakeService {
         }
       }
     });
+    this.checkHostByAction(hs, ap);
   }
   //#endregion
 
-  //#region FormGrop and validation for Components
+  //#region FormGroup and validation for Components
   formFill(components: CompTile[], hosts: HostTile[], form: FormGroup) {
     components.map((a) =>
       form.addControl(
@@ -199,12 +213,11 @@ export class TakeService {
 
   //#region handler user events
   divorce(both: [CompTile, HostTile], cs: CompTile[], hs: HostTile[], state: StatePost, form: FormGroup) {
-    both.forEach((a) => {
-      a.relations = a.relations.filter((r) => r.id !== both.find((b) => b.id !== a.id).id);
-      a.isLink = false;
-    });
-
     const [component, host] = both;
+    component.isLink = false;
+    component.relations = component.relations.filter((r) => r.id !== host.id);
+    host.isLink = false;
+    host.relations = host.relations.filter((r) => r.id !== component.id);
     state.delete(new Post(host.id, component.service_id, component.id));
     this.clearDependencies(component, state, cs, hs, form);
     this.setFormValue(component, form);

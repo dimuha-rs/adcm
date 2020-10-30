@@ -133,13 +133,7 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
         .pipe(this.takeUntil())
         .subscribe((raw: IRawHosComponent) => {
           if (type === 'host')
-            this.Hosts = [
-              ...this.Hosts,
-              ...this.service.fillHost(
-                raw.host.filter((h) => h.id === id),
-                this.actionParameters
-              ),
-            ];
+            this.Hosts = [...this.Hosts, ...this.service.fillHost(raw.host.filter((h) => h.id === id))];
           if (type === 'service')
             this.Components = [
               ...this.Components,
@@ -173,7 +167,7 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
   }
 
   init(raw: IRawHosComponent) {
-    if (raw.host) this.Hosts = this.service.fillHost(raw.host, this.actionParameters);
+    if (raw.host) this.Hosts = this.service.fillHost(raw.host);
 
     if (raw.component)
       this.Components = [...this.Components, ...this.service.fillComponent(raw.component, this.actionParameters)];
@@ -231,11 +225,14 @@ export class ServiceHostComponent extends SocketListenerDirective implements OnI
       a.isLink = false;
       a.relations = [];
     };
-    this.statePost.clear();
-    this.statePost.update(this.loadPost.data);
     this.Hosts.forEach(ma);
     this.Components.forEach(ma);
+
+    this.statePost.clear();
+    this.statePost.update(this.loadPost.data);
+
     this.service.setRelations(this.loadPost.data, this.Components, this.Hosts, this.actionParameters);
+    this.form = new FormGroup({});
     this.service.formFill(this.Components, this.Hosts, this.form);
   }
 }
