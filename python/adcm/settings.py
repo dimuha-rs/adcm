@@ -209,20 +209,27 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'formatters': {
+        'adcm': {
+            'format': '{asctime} {levelname} {module} {message}',
+            'style': '{',
         },
     },
     'handlers': {
         'file': {
             'level': 'DEBUG',
-            'filters': ['require_debug_false'],
+            'filters': ['require_debug_true'],
             'class': 'logging.FileHandler',
+            'formatter': 'adcm',
             'filename': os.path.join(BASE_DIR, 'data/log/adcm_debug.log'),
         },
     },
     'loggers': {
-        'django': {
+        'django.db.backends': {
             'handlers': ['file'],
             'level': 'DEBUG',
             'propagate': True,
