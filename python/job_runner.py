@@ -102,7 +102,8 @@ def run_ansible(job_id):
         f'@{config.RUN_DIR}/{job_id}/config.json',
         '-i',
         f'{config.RUN_DIR}/{job_id}/inventory.json',
-        playbook
+        playbook,
+        '-vvvv'
     ]
     if 'params' in conf['job']:
         if 'ansible_tags' in conf['job']['params']:
