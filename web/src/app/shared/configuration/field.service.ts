@@ -9,6 +9,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { getControlType, getPattern, isEmptyObject } from '@app/core/types';
@@ -20,6 +21,15 @@ export type itemOptions = FieldOptions | PanelOptions;
 
 export interface IOutput {
   [key: string]: resultTypes;
+}
+
+export interface ISource {
+  name: string;
+  subname: string;
+  type: ConfigValueTypes;
+  read_only: boolean;
+  limits?: ILimits;
+  value: any;
 }
 
 export interface IToolsEvent {
@@ -62,8 +72,8 @@ export class FieldService {
       value: getValue(item.type)(item.value, item.default, item.required),
       validator: {
         required: item.required,
-        min: item.limits ? item.limits.min : null,
-        max: item.limits ? item.limits.max : null,
+        min: item.limits?.min,
+        max: item.limits?.max,
         pattern: getPattern(item.type),
       },
       controlType: getControlType(item.type as matchType),
@@ -100,8 +110,15 @@ export class FieldService {
    * @param options
    */
   public toFormGroup(options: itemOptions[] = []): FormGroup {
-    const isVisible = (a: itemOptions) => !a.read_only && !(a.ui_options && a.ui_options.invisible);
-    const check = (a: itemOptions) => ('options' in a ? (a.activatable ? this.isVisibleField(a) : isVisible(a) ? a.options.some((b) => check(b)) : false) : isVisible(a));
+    const check = (a: itemOptions): boolean =>
+      'options' in a
+        ? a.activatable
+          ? this.isVisibleField(a) // if group.activatable - only visible
+          : this.isVisibleField(a) && !a.read_only // else visible an not read_only
+          ? a.options.some((b) => check(b)) // check inner fields
+          : false
+        : this.isVisibleField(a) && !a.read_only; // for fields in group
+
     return this.fb.group(
       options.reduce((p, c) => this.runByTree(c, p), {}),
       {
@@ -128,50 +145,50 @@ export class FieldService {
 
   private fillForm(field: FieldOptions, controls: {}) {
     const name = field.subname || field.name;
-    const validator = field.activatable ? [] : this.setValidator(field);
-    controls[name] = this.fb.control(field.value, validator);
-    if (field.controlType === 'password' && !field.ui_options?.no_confirm) {
-      controls[`confirm_${name}`] = this.fb.control(field.value, validator);
-    }
+    controls[name] = this.fb.control(field.value, field.activatable ? [] : this.setValidator(field));
     return controls;
   }
 
   /**
-   * Using from outside to set validator for FormControl by type
+   * External use (scheme.service) to set validator for FormControl by type
    * @param field Partial<FieldOptions>{ ValidatorInfo, controlType }
    */
-  public setValidator(field: { validator: ValidatorInfo; controlType: controlType }) {
+  public setValidator(field: { validator: ValidatorInfo; controlType: controlType }, controlToCompare?: AbstractControl) {
     const v: ValidatorFn[] = [];
 
     if (field.validator.required) v.push(Validators.required);
     if (field.validator.pattern) v.push(Validators.pattern(field.validator.pattern));
-    if (field.validator.max !== null) v.push(Validators.max(field.validator.max));
-    if (field.validator.min !== null) v.push(Validators.min(field.validator.min));
+    //if (field.validator.max !== null)
+    v.push(Validators.max(field.validator.max));
+    //if (field.validator.min !== null)
+    v.push(Validators.min(field.validator.min));
+
+    if (field.controlType === 'password') {
+      const passwordConfirm = (): ValidatorFn => (control: AbstractControl): { [key: string]: any } | null => {
+        if (controlToCompare && controlToCompare.value !== control.value) return { notEqual: true };
+        return null;
+      };
+      v.push(passwordConfirm());
+    }
 
     if (field.controlType === 'json') {
-      const jsonParse = (): ValidatorFn => {
-        return (control: AbstractControl): { [key: string]: any } | null => {
-          if (control.value) {
-            try {
-              JSON.parse(control.value);
-              return null;
-            } catch (e) {
-              return { jsonParseError: { value: control.value } };
-            }
-          } else return null;
-        };
+      const jsonParse = (): ValidatorFn => (control: AbstractControl): { [key: string]: any } | null => {
+        if (control.value) {
+          try {
+            JSON.parse(control.value);
+            return null;
+          } catch (e) {
+            return { jsonParseError: { value: control.value } };
+          }
+        } else return null;
       };
+
       v.push(jsonParse());
     }
 
     if (field.controlType === 'map') {
-      const parseKey = (): ValidatorFn => {
-        return (control: AbstractControl): { [key: string]: any } | null => {
-          if (control.value && Object.keys(control.value).length && Object.keys(control.value).some((a) => !a)) {
-            return { parseKey: true };
-          } else return null;
-        };
-      };
+      const parseKey = (): ValidatorFn => (control: AbstractControl): { [key: string]: any } | null =>
+        control.value && Object.keys(control.value).length && Object.keys(control.value).some((a) => !a) ? { parseKey: true } : null;
       v.push(parseKey());
     }
     return v;
@@ -200,16 +217,16 @@ export class FieldService {
   /**
    * Output form, cast to source type
    */
-  public parseValue(output: IOutput, source: { name: string; subname: string; type: ConfigValueTypes; read_only: boolean; limits?: ILimits; value: any }[]): IOutput {
+  public parseValue(output: IOutput, source: ISource[]): IOutput {
     const findField = (name: string, p?: string): Partial<FieldStack> => source.find((a) => (p ? a.name === p && a.subname === name : a.name === name) && !a.read_only);
 
-    const runYspecParse = (v: any, rules: any) => this.runYspec(v, rules);
+    const runYspecParse = (v: any, f: Partial<FieldOptions>) => ((v === {} || v === []) && !f.value ? f.value : this.runYspec(v, f.limits.rules));
 
     const runParse = (v: IOutput, parentName?: string): IOutput => {
       const runByValue = (p: IOutput, c: string) => {
         const checkType = (data: resultTypes | IOutput, field: Partial<FieldStack>): resultTypes => {
           const { type } = field;
-          if (type === 'structure') return runYspecParse(data, field.limits.rules);
+          if (type === 'structure') return runYspecParse(data, field);
           else if (type === 'group') return this.checkValue(runParse(data as IOutput, field.name), type);
           else return this.checkValue(data, type);
         };
