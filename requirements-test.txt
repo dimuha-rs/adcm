@@ -9,10 +9,9 @@ delayed_assert
 docker
 jsonschema
 # rerunfailures is incompatible with latest pytest https://github.com/pytest-dev/pytest-rerunfailures/pull/135
-pytest < 6.1.0
+pytest
 pytest-lazy-fixture
 pytest-xdist>=2.0.0
-pytest-rerunfailures
 pytest-timeout
 pyyaml
 requests
