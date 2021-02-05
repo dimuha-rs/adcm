@@ -54,8 +54,8 @@ def test_bundle_test_list(sdk_client_fs: ADCMClient):
     assert len(type1) == 2
     assert type1[0].name == "cluster_type_1"
     assert type1[1].name == "cluster_type_1"
-    assert ((type1[0].version == "1.4" and type1[1].version == "1.5") or
-            (type1[0].version == "1.5" and type1[1].version == "1.4"))
+    assert ((type1[0].version == "1.4" and type1[1].version == "1.5") or (
+            type1[0].version == "1.5" and type1[1].version == "1.4"))
 
 
 def _assert_attrs(obj):
@@ -175,7 +175,7 @@ def test_cluster_service(sdk_client_fs: ADCMClient):
     service.action(name="install").run().wait()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def cluster_with_service(sdk_client_fs: ADCMClient):
     bundle = sdk_client_fs.upload_from_fs(get_data_dir(__file__) + "/cluster_with_service")
     cluster = bundle.cluster_create(name="sample cluster")
